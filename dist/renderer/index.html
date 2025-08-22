@@ -1,0 +1,2265 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ToolHub</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            background: #0d1114;
+            color: #e5e7eb;
+            overflow: hidden;
+            display: flex;
+        }
+
+        #app {
+            flex: 1;
+            position: relative;
+        }
+
+        header.topbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #161b20;
+            border-bottom: 1px solid #1f262c;
+            padding: 0 14px;
+            z-index: 20;
+        }
+
+        .brand {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            color: #fff;
+        }
+
+        .nav-list {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .nav-list::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .nav-list::-webkit-scrollbar-thumb {
+            background: #243039;
+            border-radius: 3px;
+        }
+
+        .item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            line-height: 1;
+            border: 1px solid #1f262c;
+            border-radius: 22px;
+            background: #1a2024;
+            color: #cfd5d9;
+            cursor: pointer;
+            transition: .18s;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .item:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .item.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+            box-shadow: 0 0 0 1px #2563eb;
+        }
+
+        .item span.icon {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .ver {
+            font-size: 11px;
+            color: #56626a;
+        }
+
+        main {
+            position: absolute;
+            top: 46px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        iframe.site-frame,
+        webview.site-view,
+        div.time-view,
+        div.pwd-view,
+        div.text-view,
+        div.calc-view,
+        div.dns-view,
+        div.json-view {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: none;
+            background: #000;
+        }
+
+        iframe.site-frame.active,
+        webview.site-view.active,
+        div.time-view.active,
+        div.pwd-view.active,
+        div.text-view.active,
+        div.calc-view.active,
+        div.dns-view.active,
+        div.json-view.active {
+            display: flex;
+        }
+
+        .status {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            padding: 4px 10px;
+            font-size: 12px;
+            background: #11181d;
+            border: 1px solid #223038;
+            border-radius: 20px;
+            color: #cfd5d9;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        .status.error {
+            background: rgba(190, 30, 55, .85);
+            border-color: #fca5a5;
+            color: #fff;
+        }
+
+        /* 时间视图布局与样式 */
+        div.time-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #0d1114;
+        }
+
+        .time-wrap {
+            width: min(980px, 96%);
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .time-big {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 42px;
+            line-height: 1.2;
+            letter-spacing: 0.4px;
+            color: #ffffff;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, .25);
+        }
+
+        .time-sub {
+            margin-top: 12px;
+            color: #93a6b2;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .time-grid {
+            margin: 20px auto 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .stamp-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #11181d;
+            border: 1px solid #223038;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .stamp-box .label {
+            color: #c7d0d6;
+            font-size: 13px;
+        }
+
+        .stamp-box .value {
+            margin-left: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: #9bd2eb;
+            font-size: 16px;
+            background: #0f151a;
+            border: 1px solid #223038;
+            border-radius: 8px;
+            padding: 3px 10px;
+        }
+
+        .stamp-box .copy-btn {
+            padding: 4px 8px;
+            border: 1px solid #2a3440;
+            border-radius: 8px;
+            background: #1a2024;
+            color: #cfd5d9;
+            cursor: pointer;
+        }
+
+        .stamp-box .copy-btn:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        /* Toast 提示 */
+        #toast {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%) translateY(10px);
+            background: #11181d;
+            color: #cfd5d9;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+            opacity: 0;
+            transition: all .2s ease;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .stamp-box.full {
+            grid-column: 1 / -1;
+        }
+
+        .stamp-box input {
+            flex: 1;
+            min-width: 120px;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 13px;
+        }
+
+        #dtRow input {
+            flex: 0 0 auto;
+            min-width: 0;
+            width: 80px;
+            text-align: center;
+        }
+
+        #dtRow input+input {
+            margin-left: 6px;
+        }
+
+        /* 密码生成器布局与样式 */
+        div.pwd-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #0d1114;
+        }
+
+        .pwd-wrap {
+            width: min(980px, 96%);
+            margin: 0 auto;
+        }
+
+        /* 标题已移除 */
+        .pwd-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .pwd-card {
+            background: #11181d;
+            border: 1px solid #223038;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .pwd-output {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pwd-output input {
+            flex: 1;
+            background: #0f151a;
+            color: #9bd2eb;
+            border: 1px solid #223038;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 18px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            letter-spacing: 0.3px;
+        }
+
+        .pwd-btn {
+            padding: 6px 10px;
+            border: 1px solid #2a3440;
+            border-radius: 8px;
+            background: #1a2024;
+            color: #cfd5d9;
+            cursor: pointer;
+        }
+
+        .pwd-btn:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .pwd-small {
+            font-size: 12px;
+            color: #9aa7b1;
+        }
+
+        .pwd-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .pwd-meter {
+            height: 8px;
+            background: #192129;
+            border: 1px solid #223038;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .pwd-meter>div {
+            height: 100%;
+            width: 0%;
+            background: #ef4444;
+            transition: width .2s ease, background .2s ease;
+        }
+
+        .pwd-kv {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pwd-kv label {
+            min-width: 90px;
+            color: #d6dde1;
+            font-size: 14px;
+        }
+
+        .pwd-kv input[type="number"] {
+            width: 90px;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 13px;
+        }
+
+        .pwd-kv input[type="checkbox"] {
+            transform: scale(1.1) translateY(1px);
+        }
+
+        .pwd-kv .range {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pwd-kv input[type="range"] {
+            flex: 1;
+        }
+
+        .pwd-note {
+            color: #93a6b2;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .pwd-opts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .opt-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border: 1px solid #2a3440;
+            border-radius: 999px;
+            background: #131a20;
+            color: #cfd5d9;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .opt-chip:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .opt-chip input {
+            transform: scale(1.05);
+        }
+
+        /* 文本统计 */
+        div.text-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #0d1114;
+        }
+
+        .text-wrap {
+            width: min(1100px, 96%);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .text-left {
+            flex: 1.4;
+            display: flex;
+        }
+
+        .text-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 70vh;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #11181d;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .stat-item .label {
+            color: #c7d0d6;
+            font-size: 13px;
+        }
+
+        .stat-item .value {
+            margin-left: auto;
+            color: #9bd2eb;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* 计算器 */
+        div.calc-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #0d1114;
+        }
+
+        .calc-wrap {
+            width: min(820px, 96%);
+            margin: 0 auto;
+            padding-top: 0;
+        }
+
+        .calc-display {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-top: 0;
+        }
+
+        .calc-input {
+            width: 100%;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 18px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* 结果展示：无边框盒子，右对齐大号数字 + 细分隔线 */
+        .calc-result {
+            position: relative;
+            margin: 0 0 22px;
+            padding: 0 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: #f59e0b;
+            font-size: 40px;
+            font-weight: 800;
+            text-align: right;
+            line-height: 1.2;
+        }
+
+        .calc-result::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -10px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(245, 158, 11, .55), rgba(0, 0, 0, 0));
+        }
+
+        .calc-result.error {
+            color: #fca5a5;
+        }
+
+        .calc-result.pop {
+            animation: calcPop .18s ease-out;
+        }
+
+        @keyframes calcPop {
+            0% {
+                transform: scale(.98);
+                opacity: .85;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .calc-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 0;
+            text-align: center;
+            border: 1px solid #2a3440;
+            border-radius: 12px;
+            background: #131a20;
+            color: #d6dde1;
+            cursor: pointer;
+            user-select: none;
+            font-size: 16px;
+            transition: background .15s, color .15s, border-color .15s, transform .05s;
+        }
+
+        .btn:active {
+            transform: scale(.98);
+        }
+
+        .btn:hover {
+            background: #1e2a33;
+            color: #fff;
+            border-color: #344758;
+        }
+
+        .btn.num {
+            background: #14314a;
+            border-color: #1f4a6b;
+            color: #d7ecff;
+        }
+
+        .btn.num:hover {
+            background: #194060;
+            border-color: #2a5f89;
+        }
+
+        .btn.op {
+            background: #3b254d;
+            border-color: #55346d;
+            color: #f3e8ff;
+        }
+
+        .btn.op:hover {
+            background: #472c5c;
+            border-color: #6a408a;
+        }
+
+        .btn.ctrl {
+            background: #4a2e1f;
+            border-color: #704329;
+            color: #ffe6c2;
+        }
+
+        .btn.ctrl:hover {
+            background: #5a3826;
+            border-color: #8a5639;
+        }
+
+        .calc-row {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        /* 放大底部 AC/回退按钮 */
+        .calc-row .btn {
+            flex: 1 1 0;
+            height: 64px;
+            font-size: 20px;
+            border-radius: 14px;
+        }
+
+        /* DNS 解析工具 */
+        div.dns-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: radial-gradient(1200px 600px at 10% -10%, rgba(37, 99, 235, .15), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(245, 158, 11, .12), transparent 50%), #0d1114;
+        }
+
+        .dns-wrap {
+            width: min(1180px, 96%);
+            margin: 0 auto;
+        }
+
+        .dns-split {
+            display: flex;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .dns-left {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dns-right {
+            flex: 1.2;
+            min-width: 0;
+        }
+
+        .dns-form {
+            display: grid;
+            grid-template-columns: 1.6fr .5fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dns-input {
+            width: 100%;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .dns-select {
+            width: 100%;
+            background: #10161b;
+            color: #cfd5d9;
+            border: 1px solid #223038;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .dns-btn {
+            padding: 10px 14px;
+            border: 1px solid #2a3440;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a2024, #15222b);
+            color: #e5e7eb;
+            cursor: pointer;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .dns-btn:hover {
+            background: linear-gradient(135deg, #1d2a33, #183040);
+            border-color: #344758;
+            color: #fff;
+        }
+
+        .dns-chips {
+            margin-top: 2px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border: 1px solid #2a3440;
+            border-radius: 999px;
+            background: #131a20;
+            color: #cfd5d9;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chip input {
+            transform: scale(1.05);
+        }
+
+        .dns-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .dns-card {
+            position: relative;
+            background: #0f151a;
+            border: 1px solid #223038;
+            border-radius: 14px;
+            padding: 12px 12px;
+        }
+
+        .dns-card.full {
+            grid-column: 1 / -1;
+        }
+
+        .dns-card h4 {
+            font-size: 13px;
+            color: #cfd5d9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .dns-copy {
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid #2a3440;
+            border-radius: 8px;
+            background: #1a2024;
+            color: #cfd5d9;
+            cursor: pointer;
+        }
+
+        .dns-copy:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .dns-list {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #9bd2eb;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .dns-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            color: #cfe3ef;
+            table-layout: fixed;
+        }
+
+        .dns-table th,
+        .dns-table td {
+            border-bottom: 1px solid #162028;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .dns-table th {
+            color: #9aa7b1;
+            font-weight: 600;
+        }
+
+        .dns-table td:nth-child(4) {
+            color: #9bd2eb;
+            word-break: break-all;
+        }
+
+        .dns-empty {
+            color: #56626a;
+            font-size: 12px;
+        }
+
+        .dns-meta {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #93a6b2;
+        }
+
+        .dns-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .dns-err {
+            color: #fca5a5;
+            font-size: 12px;
+        }
+
+        /* JSON 解析工具 */
+        div.json-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: radial-gradient(1200px 600px at 95% -10%, rgba(14, 165, 233, .12), transparent 60%), radial-gradient(900px 500px at 0% 0%, rgba(99, 102, 241, .12), transparent 50%), #0d1114;
+        }
+
+        .json-wrap {
+            width: min(1180px, 96%);
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+        }
+
+        .json-split {
+            display: flex;
+            gap: 16px;
+            align-items: stretch;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .json-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .json-right {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        .json-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .json-btn {
+            padding: 8px 10px;
+            border: 1px solid #2a3440;
+            border-radius: 10px;
+            background: #131a20;
+            color: #cfd5d9;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .json-btn:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .json-input {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            line-height: 1.6;
+            overflow: auto;
+        }
+
+        .json-path {
+            width: 100%;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .json-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .json-tab {
+            padding: 6px 10px;
+            border: 1px solid #2a3440;
+            border-radius: 999px;
+            background: #131a20;
+            color: #cfd5d9;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .json-tab.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+        }
+
+        .json-panel {
+            flex: 1;
+            background: #0f151a;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 10px 12px;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .tree {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            color: #dce7ee;
+            line-height: 1.6;
+        }
+
+        .tree .k {
+            color: #9cc3d8;
+        }
+
+        .tree .s {
+            color: #86efac;
+        }
+
+        .tree .n {
+            color: #fca5a5;
+        }
+
+        .tree .b {
+            color: #fde68a;
+        }
+
+        .tree .null {
+            color: #a3a3a3;
+        }
+
+        .json-err {
+            color: #fca5a5;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* 树形交互与层次样式 */
+        .jtree {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            color: #dce7ee;
+            line-height: 1.5;
+        }
+
+        .jt-node {
+            position: relative;
+            margin: 2px 0;
+        }
+
+        .jt-head {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .jt-caret {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 5px 0 5px 7px;
+            border-color: transparent transparent transparent #9aa7b1;
+            display: inline-block;
+            transform: rotate(90deg);
+            transition: transform .15s ease;
+            margin-right: 2px;
+        }
+
+        .jt-leaf {
+            width: 9px;
+            display: inline-block;
+        }
+
+        .jt-key {
+            color: #9cc3d8;
+        }
+
+        .jt-sum {
+            color: #93a6b2;
+            font-size: 12px;
+            opacity: .9;
+        }
+
+        .jt-children {
+            margin-left: 14px;
+            padding-left: 10px;
+            border-left: 1px dotted #1f2a33;
+        }
+
+        .jt-node.collapsed>.jt-children {
+            display: none;
+        }
+
+        .jt-node.collapsed>.jt-head .jt-caret {
+            transform: rotate(0deg);
+        }
+
+        .jt-val.s {
+            color: #86efac;
+        }
+
+        .jt-val.n {
+            color: #fca5a5;
+        }
+
+        .jt-val.b {
+            color: #fde68a;
+        }
+
+        .jt-val.null {
+            color: #a3a3a3;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="topbar">
+            <div class="brand">ToolHub</div>
+            <div class="nav-list" id="siteList"></div>
+            <div class="ver" id="verWrap">v<span id="ver"></span></div>
+            <button id="btnStats"
+                style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">统计</button>
+        </header>
+        <main>
+            <div class="status" id="status">加载中...</div>
+            <div id="statsPanel"
+                style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:320px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1f262c;">
+                    <strong style="flex:1;">使用统计</strong>
+                    <select id="statsRange"
+                        style="background:#161b20;color:#cfd5d9;border:1px solid #2a3440;border-radius:6px;padding:4px 6px;font-size:12px;">
+                        <option value="today">今日</option>
+                        <option value="7d">近7天</option>
+                    </select>
+                </div>
+                <div id="statsBody"
+                    style="padding:10px 12px;font-size:12px;line-height:1.6;max-height:50vh;overflow:auto;"></div>
+            </div>
+            <div id="toast"></div>
+        </main>
+    </div>
+    <script>
+        const builtinSites = [
+            { key: 'openai', title: 'OpenAI', url: 'https://chat.openai.com', partition: 'persist:openai' },
+            { key: 'gemini', title: 'Gemini', url: 'https://gemini.google.com', partition: 'persist:gemini' },
+            { key: 'deepseek', title: 'DeepSeek', url: 'https://chat.deepseek.com', partition: 'persist:deepseek' },
+            { key: 'kimi', title: 'Kimi', url: 'https://kimi.moonshot.cn', partition: 'persist:kimi' },
+            { key: 'grok', title: 'Grok', url: 'https://grok.com', partition: 'persist:grok' }
+        ];
+        const sites = (window.llmHub?.sites?.length ? window.llmHub.sites : builtinSites).map(s => ({ ...s }));
+        // 插入时间工具作为一个“站点”
+        if (!sites.find(s => s.key === 'time')) {
+            sites.push({ key: 'time', title: '时间戳' });
+        }
+        if (!sites.find(s => s.key === 'pwd')) {
+            sites.push({ key: 'pwd', title: '密码生成' });
+        }
+        if (!sites.find(s => s.key === 'text')) {
+            sites.push({ key: 'text', title: '文本统计' });
+        }
+        if (!sites.find(s => s.key === 'calc')) {
+            sites.push({ key: 'calc', title: '计算器' });
+        }
+        if (!sites.find(s => s.key === 'dns')) {
+            sites.push({ key: 'dns', title: 'DNS 解析' });
+        }
+        if (!sites.find(s => s.key === 'json')) {
+            sites.push({ key: 'json', title: 'JSON 解析' });
+        }
+        let current = null;
+        const listEl = document.getElementById('siteList');
+        const statusEl = document.getElementById('status');
+        const verEl = document.getElementById('ver');
+        // 独立窗口按钮已移除
+        verEl.textContent = window.llmHub?.version || '';
+        const btnStats = document.getElementById('btnStats');
+        const statsPanel = document.getElementById('statsPanel');
+        const statsBody = document.getElementById('statsBody');
+        const statsRange = document.getElementById('statsRange');
+
+        function showStatus(text, cls) {
+            statusEl.textContent = text;
+            statusEl.className = 'status' + (cls ? (' ' + cls) : '');
+            statusEl.style.display = 'flex';
+        }
+        function hideStatus() { statusEl.style.display = 'none'; }
+        function siteIcon(title) { return title.slice(0, 2).toUpperCase(); }
+
+        function renderList() {
+            listEl.innerHTML = '';
+            sites.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'item' + (s.key === current ? ' active' : '');
+                div.dataset.key = s.key;
+                div.innerHTML = `<span class="icon">${siteIcon(s.title)}</span><span class="t">${s.title}</span>`;
+                div.onclick = () => switchSite(s.key);
+                listEl.appendChild(div);
+            });
+        }
+
+        // 时间工具辅助
+        function two(n) { return n < 10 ? '0' + n : '' + n; }
+        function fmtLocal(dt) {
+            const y = dt.getFullYear();
+            const M = two(dt.getMonth() + 1);
+            const d = two(dt.getDate());
+            const h = two(dt.getHours());
+            const m = two(dt.getMinutes());
+            const s = two(dt.getSeconds());
+            return `${y}-${M}-${d} ${h}:${m}:${s}`;
+        }
+        function copyText(text) {
+            const val = String(text ?? '');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(val).then(() => { toast('已复制'); })
+                    .catch(() => fallbackCopy(val));
+            } else {
+                fallbackCopy(val);
+            }
+        }
+        function fallbackCopy(val) {
+            const ta = document.createElement('textarea');
+            ta.value = val; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); toast('已复制'); } finally { document.body.removeChild(ta); }
+        }
+        let toastTimer = null;
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            if (!el) return;
+            el.textContent = String(msg || '');
+            el.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { el.classList.remove('show'); }, 1300);
+        }
+        function buildTimeHTML(now) {
+            const sec = Math.floor(now.getTime() / 1000);
+            const ms = now.getTime();
+            const y = now.getFullYear();
+            const M = two(now.getMonth() + 1);
+            const d = two(now.getDate());
+            const hh = two(now.getHours());
+            const mm = two(now.getMinutes());
+            const ss = two(now.getSeconds());
+            return `
+                <div class="time-wrap">
+            <div class="time-big">${y}-${M}-${d} ${hh}:${mm}:${ss}</div>
+                    <div class="time-grid">
+                        <div class="stamp-box">
+                            <div class="label">Unix 秒</div>
+                            <div class="value" id="unixSecVal">${sec}</div>
+                            <button class="copy-btn" data-target="unixSecVal" title="复制" aria-label="复制秒时间戳">复制</button>
+                        </div>
+                        <div class="stamp-box">
+                            <div class="label">Unix 毫秒</div>
+                            <div class="value" id="unixMsVal">${ms}</div>
+                            <button class="copy-btn" data-target="unixMsVal" title="复制" aria-label="复制毫秒时间戳">复制</button>
+                        </div>
+                        <div class="stamp-box full">
+                            <div class="label">时间戳 → 日期时间</div>
+                            <input id="tsInput" type="number" inputmode="numeric" placeholder="输入时间戳（秒或毫秒）" />
+                            <div class="value" id="tsConvOut"></div>
+                            <button class="copy-btn" id="tsCopyBtn" title="复制转换结果" aria-label="复制转换结果">复制</button>
+                        </div>
+                        <div class="stamp-box full" id="dtRow">
+                            <div class="label">日期时间 → 时间戳</div>
+                            <input id="dtY" type="number" inputmode="numeric" placeholder="YYYY" />
+                            <input id="dtM" type="number" inputmode="numeric" placeholder="MM" />
+                            <input id="dtD" type="number" inputmode="numeric" placeholder="DD" />
+                            <input id="dtH" type="number" inputmode="numeric" placeholder="hh" />
+                            <input id="dtMin" type="number" inputmode="numeric" placeholder="mm" />
+                            <input id="dtS" type="number" inputmode="numeric" placeholder="ss" />
+                            <div class="value" id="dtConvOut"></div>
+                            <button class="copy-btn" id="dtCopyBtn" title="复制转换结果" aria-label="复制转换结果">复制</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        // 密码生成器
+        function buildPwdHTML() {
+            return `
+            <div class="pwd-wrap">
+                <div class="pwd-card">
+                    <div class="pwd-output">
+                        <input id="pwdOut" type="text" readonly placeholder="点击生成" />
+                        <button class="pwd-btn" id="pwdGen">生成</button>
+                        <button class="pwd-btn" id="pwdCopy">复制</button>
+                    </div>
+                    <div class="pwd-row" style="margin-top:10px;">
+                        <div class="pwd-meter" style="flex:1;"><div id="pwdMeterBar"></div></div>
+                        <div class="pwd-small" id="pwdStrength">弱</div>
+                    </div>
+                </div>
+                <div class="pwd-grid">
+                    <div class="pwd-card">
+                        <div class="pwd-kv"><label>长度</label><div class="range"><input id="pwdLen" type="range" min="8" max="64" step="1" value="16"/><span class="pwd-small" id="pwdLenVal">16</span><input id="pwdLenNum" type="number" min="8" max="64" step="1" value="16"/></div></div>
+                        <div class="pwd-opts" style="margin-top:8px;">
+                            <label class="opt-chip"><input id="optLower" type="checkbox" checked/> 小写</label>
+                            <label class="opt-chip"><input id="optUpper" type="checkbox" checked/> 大写</label>
+                            <label class="opt-chip"><input id="optDigits" type="checkbox" checked/> 数字</label>
+                            <label class="opt-chip"><input id="optSymbols" type="checkbox" checked/> 符号</label>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        function ensurePwd() {
+            let pv = document.querySelector('div.pwd-view[data-key="pwd"]');
+            if (!pv) {
+                pv = document.createElement('div');
+                pv.className = 'pwd-view'; pv.dataset.key = 'pwd';
+                document.querySelector('main').appendChild(pv);
+            }
+            pv.innerHTML = buildPwdHTML();
+            wirePwd(pv);
+            return pv;
+        }
+        function wirePwd(container) {
+            const out = container.querySelector('#pwdOut');
+            const genBtn = container.querySelector('#pwdGen');
+            const copyBtn = container.querySelector('#pwdCopy');
+            const len = container.querySelector('#pwdLen');
+            const lenNum = container.querySelector('#pwdLenNum');
+            const lenVal = container.querySelector('#pwdLenVal');
+            const optLower = container.querySelector('#optLower');
+            const optUpper = container.querySelector('#optUpper');
+            const optDigits = container.querySelector('#optDigits');
+            const optSymbols = container.querySelector('#optSymbols');
+            const meterBar = container.querySelector('#pwdMeterBar');
+            const strengthTxt = container.querySelector('#pwdStrength');
+
+            function clampLen(v) { return Math.max(8, Math.min(64, Math.floor(Number(v) || 16))); }
+            function updateLenVal() { if (lenVal && len) lenVal.textContent = String(len.value); if (lenNum && len) lenNum.value = String(len.value); }
+
+            function pickCharPool() {
+                let pool = '';
+                if (optLower?.checked) pool += 'abcdefghijklmnopqrstuvwxyz';
+                if (optUpper?.checked) pool += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                if (optDigits?.checked) pool += '0123456789';
+                if (optSymbols?.checked) pool += '!@#$%^&*_-+=?';
+                return pool;
+            }
+            function genPassword() {
+                const L = Number(len?.value || 16);
+                let pool = pickCharPool();
+                if (!pool) return '';
+                let pwd = '';
+                const cryptoObj = window.crypto || window['msCrypto'];
+                if (cryptoObj && cryptoObj.getRandomValues) {
+                    const arr = new Uint32Array(L);
+                    cryptoObj.getRandomValues(arr);
+                    for (let i = 0; i < L; i++) { pwd += pool[arr[i] % pool.length]; }
+                } else {
+                    for (let i = 0; i < L; i++) { pwd += pool[Math.floor(Math.random() * pool.length)]; }
+                }
+                return pwd;
+            }
+            function estimateStrength(pwd) {
+                // 近似估算：字符集大小^长度 的对数换算；映射为 0-100
+                const charset = new Set(pwd.split('')).size;
+                const L = pwd.length;
+                const bits = L > 0 && charset > 1 ? Math.log2(Math.pow(charset, L)) : 0;
+                const pct = Math.max(0, Math.min(100, Math.floor(bits / 1.5))); // 粗略映射
+                return pct;
+            }
+            function paintStrength(pwd) {
+                const pct = estimateStrength(pwd);
+                if (meterBar) {
+                    meterBar.style.width = pct + '%';
+                    meterBar.style.background = pct < 35 ? '#ef4444' : pct < 70 ? '#f59e0b' : '#22c55e';
+                }
+                if (strengthTxt) strengthTxt.textContent = pct < 35 ? '弱' : pct < 70 ? '中' : '强';
+            }
+            function doGen() {
+                const pwd = genPassword();
+                if (out) out.value = pwd;
+                paintStrength(pwd);
+            }
+            genBtn?.addEventListener('click', doGen);
+            copyBtn?.addEventListener('click', () => { if (out?.value) copyText(out.value); });
+            len?.addEventListener('input', () => { updateLenVal(); doGen(); });
+            lenNum?.addEventListener('input', () => {
+                if (!lenNum || !len) return;
+                const v = clampLen(lenNum.value);
+                if (String(v) !== String(len.value)) { len.value = String(v); updateLenVal(); doGen(); }
+            });
+            [optLower, optUpper, optDigits, optSymbols].forEach(el => {
+                el?.addEventListener('input', doGen);
+                el?.addEventListener('change', doGen);
+            });
+            // 输出为明文显示
+            if (out) out.type = 'text';
+            updateLenVal();
+            doGen();
+        }
+
+        // 文本统计
+        function buildTextHTML() {
+            return `
+            <div class="text-wrap">
+                <div class="text-left">
+                    <textarea class="text-area" id="textInput" placeholder="在此粘贴或输入文本..."></textarea>
+                </div>
+                <div class="text-right">
+                    <div class="stat-grid">
+                        <div class="stat-item"><div class="label">字符数（含空白）</div><div class="value" id="vChars">0</div></div>
+                        <div class="stat-item"><div class="label">字符数（不含空白）</div><div class="value" id="vCharsNoSpace">0</div></div>
+                        <div class="stat-item"><div class="label">行数</div><div class="value" id="vLines">0</div></div>
+                        <div class="stat-item"><div class="label">单词数</div><div class="value" id="vWords">0</div></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        // 计算器
+        function buildCalcHTML() {
+            return `
+            <div class="calc-wrap">
+                <div class="calc-result" id="calcOut"></div>
+                <div class="calc-display">
+                    <input class="calc-input" id="calcExpr" placeholder="输入表达式，例如: (1+2)*3/4 或 2^10" />
+                </div>
+                <div class="calc-grid">
+                    <div class="btn num" data-k="7">7</div>
+                    <div class="btn num" data-k="8">8</div>
+                    <div class="btn num" data-k="9">9</div>
+                    <div class="btn op" data-k="/">÷</div>
+                    <div class="btn num" data-k="4">4</div>
+                    <div class="btn num" data-k="5">5</div>
+                    <div class="btn num" data-k="6">6</div>
+                    <div class="btn op" data-k="*">×</div>
+                    <div class="btn num" data-k="1">1</div>
+                    <div class="btn num" data-k="2">2</div>
+                    <div class="btn num" data-k="3">3</div>
+                    <div class="btn op" data-k="-">−</div>
+                    <div class="btn num" data-k="0">0</div>
+                    <div class="btn num" data-k=".">.</div>
+                    <div class="btn op" data-k="%">%</div>
+                    <div class="btn op" data-k="+">+</div>
+                </div>
+                <div class="calc-row">
+                    <div class="btn ctrl" data-act="ac">AC</div>
+                    <div class="btn ctrl" data-act="bk">⌫</div>
+                </div>
+            </div>`;
+        }
+        function ensureCalc() {
+            let cv = document.querySelector('div.calc-view[data-key="calc"]');
+            if (!cv) {
+                cv = document.createElement('div');
+                cv.className = 'calc-view'; cv.dataset.key = 'calc';
+                document.querySelector('main').appendChild(cv);
+            }
+            cv.innerHTML = buildCalcHTML();
+            wireCalc(cv);
+            return cv;
+        }
+        function wireCalc(container) {
+            const expr = container.querySelector('#calcExpr');
+            const out = container.querySelector('#calcOut');
+            // 历史功能已移除
+
+            function formatNumber(n) {
+                if (typeof n !== 'number' || !Number.isFinite(n)) return '无穷/非法';
+                // 始终使用普通小数表示，最多保留 12 位小数，并去除尾随 0
+                const s = n.toFixed(12)
+                    .replace(/\.0+$/, '')
+                    .replace(/(\.\d*?)0+$/, '$1');
+                return s;
+            }
+
+            function sanitize(raw) {
+                let s = String(raw || '').trim();
+                if (!s) return s;
+                // 将 ^ 替换为 **
+                s = s.replace(/\^/g, '**');
+                // 白名单字符检查（仅数字与基本运算符）
+                if (!/^[0-9+\-*/%^().\s]+$/.test(s)) throw new Error('含非法字符');
+                return s;
+            }
+
+            function doEval(commit = false) {
+                const raw = expr ? expr.value : '';
+                if (!out) return;
+                if (!raw.trim()) { out.textContent = ''; out.classList.remove('error'); return; }
+                try {
+                    const s = sanitize(raw);
+                    // 安全求值（仅数字与运算符，已通过白名单过滤）
+                    // eslint-disable-next-line no-new-func
+                    const fn = new Function('return (' + s + ')');
+                    const val = fn();
+                    if (typeof val !== 'number' || Number.isNaN(val)) throw new Error('表达式无效');
+                    const str = formatNumber(val);
+                    out.textContent = str;
+                    out.classList.remove('error');
+                    if (commit) {
+                        // 成功提交时给结果一个轻微弹跳效果
+                        out.classList.remove('pop');
+                        void out.offsetWidth; // 触发重排以重启动画
+                        out.classList.add('pop');
+                    }
+                } catch (e) {
+                    // 错误时不显示任何文本，仅保留错误样式
+                    out.textContent = '';
+                    out.classList.add('error');
+                }
+            }
+
+            function insertText(t) {
+                if (!expr) return;
+                const start = expr.selectionStart ?? expr.value.length;
+                const end = expr.selectionEnd ?? expr.value.length;
+                const v = expr.value;
+                expr.value = v.slice(0, start) + t + v.slice(end);
+                const pos = start + t.length;
+                expr.setSelectionRange(pos, pos);
+                expr.focus();
+                doEval();
+            }
+
+            // 绑定按钮
+            // 防止按钮抢走输入框焦点，保证连续点击可连续删除
+            container.querySelectorAll('.btn').forEach(b => b.addEventListener('mousedown', (e) => e.preventDefault()));
+            container.querySelectorAll('.calc-grid .btn[data-k]').forEach(b => b.addEventListener('click', () => insertText(b.getAttribute('data-k') || '')));
+            container.querySelectorAll('.calc-row .btn[data-k]').forEach(b => b.addEventListener('click', () => insertText(b.getAttribute('data-k') || '')));
+            container.querySelector('.calc-row .btn[data-act="ac"]').addEventListener('click', () => {
+                if (expr) { expr.value = ''; if (out) out.textContent = ''; try { expr.focus(); expr.setSelectionRange(0, 0); } catch (_) { } doEval(); }
+            });
+            container.querySelector('.calc-row .btn[data-act="bk"]').addEventListener('click', () => {
+                if (!expr) return;
+                let start = Number(expr.selectionStart);
+                let end = Number(expr.selectionEnd);
+                // 当输入未聚焦或浏览器返回无效选择时，回退到在末尾删除
+                if (!Number.isInteger(start) || start < 0 || !Number.isInteger(end) || end < 0) {
+                    start = end = expr.value.length;
+                }
+                if (start !== end) {
+                    const v = expr.value; expr.value = v.slice(0, start) + v.slice(end);
+                    try { expr.focus(); expr.setSelectionRange(start, start); } catch (_) { }
+                } else if (start > 0) {
+                    const v = expr.value; expr.value = v.slice(0, start - 1) + v.slice(end);
+                    const pos = start - 1;
+                    try { expr.focus(); expr.setSelectionRange(pos, pos); } catch (_) { }
+                }
+                doEval();
+            });
+            // 等号按钮已移除，使用 Enter 键提交
+            expr?.addEventListener('input', () => doEval());
+            expr?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); doEval(true); }
+            });
+
+            doEval();
+        }
+        function ensureText() {
+            let tv = document.querySelector('div.text-view[data-key="text"]');
+            if (!tv) {
+                tv = document.createElement('div');
+                tv.className = 'text-view'; tv.dataset.key = 'text';
+                document.querySelector('main').appendChild(tv);
+            }
+            tv.innerHTML = buildTextHTML();
+            wireText(tv);
+            return tv;
+        }
+        // JSON 解析
+        function buildJsonHTML() {
+            return `
+            <div class="json-wrap">
+                <div class="json-split">
+                    <div class="json-left">
+                        <div class="json-toolbar">
+                            <button class="json-btn" id="jsonFmt">格式化</button>
+                            <button class="json-btn" id="jsonMin">压缩</button>
+                            <button class="json-btn" id="jsonSort">按键排序</button>
+                            <button class="json-btn" id="jsonCopy">复制</button>
+                            <button class="json-btn" id="jsonExpand">展开全部</button>
+                            <button class="json-btn" id="jsonCollapse">折叠全部</button>
+                            <button class="json-btn" id="jsonPaste">粘贴</button>
+                            <button class="json-btn" id="jsonClear">清空</button>
+                        </div>
+                        <textarea class="json-input" id="jsonIn" placeholder='粘贴或输入 JSON，例如 {"a":1,"b":[true,null]}'></textarea>
+                        <div class="json-err" id="jsonErr"></div>
+                    </div>
+                    <div class="json-right">
+                        <div class="json-tabs">
+                            <div class="json-tab active" data-t="tree">树形</div>
+                            <div class="json-tab" data-t="raw">原文</div>
+                        </div>
+                        <div class="json-panel" id="jsonOut"></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        function ensureJson() {
+            let jv = document.querySelector('div.json-view[data-key="json"]');
+            if (!jv) {
+                jv = document.createElement('div');
+                jv.className = 'json-view'; jv.dataset.key = 'json';
+                document.querySelector('main').appendChild(jv);
+            }
+            jv.innerHTML = buildJsonHTML();
+            wireJson(jv);
+            return jv;
+        }
+        function wireJson(container) {
+            const ta = container.querySelector('#jsonIn');
+            const out = container.querySelector('#jsonOut');
+            const err = container.querySelector('#jsonErr');
+            const tabs = container.querySelectorAll('.json-tab');
+            let mode = 'tree';
+
+            function safeParse(text) {
+                try { return { ok: true, data: JSON.parse(text) }; } catch (e) { return { ok: false, err: e }; }
+            }
+            function sortKeys(value) {
+                if (Array.isArray(value)) return value.map(sortKeys);
+                if (value && typeof value === 'object') {
+                    return Object.keys(value).sort().reduce((acc, k) => { acc[k] = sortKeys(value[k]); return acc; }, {});
+                }
+                return value;
+            }
+            // JSON 路径查询功能已移除
+            function esc(s) { return String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+            function renderTree(value) {
+                function makeNode(key, v, depth = 0) {
+                    const isArr = Array.isArray(v);
+                    const t = v === null ? 'null' : typeof v;
+                    const li = document.createElement('div');
+                    li.className = 'jt-node';
+                    const head = document.createElement('div'); head.className = 'jt-head';
+                    const caret = document.createElement('span'); caret.className = isArr || t === 'object' ? 'jt-caret' : 'jt-leaf'; head.appendChild(caret);
+                    if (key !== undefined) {
+                        const k = document.createElement('span'); k.className = 'jt-key'; k.textContent = typeof key === 'string' ? `"${key}"` : String(key); head.appendChild(k);
+                        head.appendChild(document.createTextNode(':'));
+                    }
+                    if (t === 'string' || t === 'number' || t === 'boolean' || t === 'null') {
+                        const val = document.createElement('span'); val.className = 'jt-val ' + (t === 'string' ? 's' : t === 'number' ? 'n' : t === 'boolean' ? 'b' : 'null');
+                        val.textContent = t === 'string' ? `"${v}"` : String(v);
+                        head.appendChild(val);
+                        li.appendChild(head);
+                        return li;
+                    }
+                    const summary = document.createElement('span'); summary.className = 'jt-sum';
+                    if (isArr) summary.textContent = `[${v.length}]`;
+                    else summary.textContent = `{${Object.keys(v || {}).length}}`;
+                    head.appendChild(summary);
+                    li.appendChild(head);
+                    const ch = document.createElement('div'); ch.className = 'jt-children';
+                    if (isArr) {
+                        v.forEach((item, idx) => ch.appendChild(makeNode(idx, item, depth + 1)));
+                    } else {
+                        Object.keys(v || {}).forEach(k => ch.appendChild(makeNode(k, v[k], depth + 1)));
+                    }
+                    li.appendChild(ch);
+                    // 默认不折叠，初始即为展开状态
+                    head.addEventListener('click', () => { if (isArr || t === 'object') li.classList.toggle('collapsed'); });
+                    return li;
+                }
+                const root = document.createElement('div'); root.className = 'jtree';
+                root.appendChild(makeNode(undefined, value, 0));
+                out.innerHTML = '';
+                out.appendChild(root);
+            }
+            function renderRaw(value) {
+                out.textContent = JSON.stringify(value, null, 2);
+            }
+            function showErr(msg) { if (err) err.textContent = msg || ''; }
+
+            function refresh() {
+                const text = ta?.value || '';
+                if (!text.trim()) { out.textContent = ''; showErr(''); return; }
+                const parsed = safeParse(text);
+                if (!parsed.ok) { out.textContent = ''; showErr('JSON 解析失败'); return; }
+                const view = parsed.data;
+                showErr('');
+                if (mode === 'tree') renderTree(view); else renderRaw(view);
+            }
+
+            container.querySelector('#jsonFmt')?.addEventListener('click', () => {
+                const text = ta?.value || '';
+                const parsed = safeParse(text);
+                if (!parsed.ok) { showErr('JSON 解析失败'); return; }
+                ta.value = JSON.stringify(parsed.data, null, 2);
+                refresh();
+            });
+            container.querySelector('#jsonMin')?.addEventListener('click', () => {
+                const text = ta?.value || '';
+                const parsed = safeParse(text);
+                if (!parsed.ok) { showErr('JSON 解析失败'); return; }
+                ta.value = JSON.stringify(parsed.data);
+                refresh();
+            });
+            container.querySelector('#jsonSort')?.addEventListener('click', () => {
+                const text = ta?.value || '';
+                const parsed = safeParse(text);
+                if (!parsed.ok) { showErr('JSON 解析失败'); return; }
+                const sorted = sortKeys(parsed.data);
+                ta.value = JSON.stringify(sorted, null, 2);
+                refresh();
+            });
+            container.querySelector('#jsonCopy')?.addEventListener('click', () => {
+                const text = out?.textContent || '';
+                if (text) copyText(text);
+            });
+            container.querySelector('#jsonPaste')?.addEventListener('click', async () => {
+                try { const t = await navigator.clipboard.readText(); if (ta) { ta.value = t; refresh(); } }
+                catch { showErr('无法读取剪贴板'); }
+            });
+            container.querySelector('#jsonClear')?.addEventListener('click', () => { if (ta) { ta.value = ''; refresh(); } });
+            ta?.addEventListener('input', () => refresh());
+            // 路径回车监听已移除
+            tabs.forEach(tab => tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                mode = tab.getAttribute('data-t') || 'tree';
+                refresh();
+            }));
+            container.querySelector('#jsonExpand')?.addEventListener('click', () => {
+                out.querySelectorAll('.jt-node').forEach(n => n.classList.remove('collapsed'));
+            });
+            container.querySelector('#jsonCollapse')?.addEventListener('click', () => {
+                out.querySelectorAll('.jt-node').forEach(n => n.classList.add('collapsed'));
+            });
+        }
+        function wireText(container) {
+            const ta = container.querySelector('#textInput');
+            const vChars = container.querySelector('#vChars');
+            const vCharsNoSpace = container.querySelector('#vCharsNoSpace');
+            const vLines = container.querySelector('#vLines');
+            const vWords = container.querySelector('#vWords');
+            function calc() {
+                const val = String(ta?.value || '');
+                const chars = val.length;
+                const charsNoSpace = val.replace(/[\s]/g, '').length;
+                const lines = val ? val.split(/\r?\n/).length : 0;
+                const words = (val.trim().match(/[^\s]+/g) || []).length;
+                if (vChars) vChars.textContent = String(chars);
+                if (vCharsNoSpace) vCharsNoSpace.textContent = String(charsNoSpace);
+                if (vLines) vLines.textContent = String(lines);
+                if (vWords) vWords.textContent = String(words);
+            }
+            ta?.addEventListener('input', calc);
+            calc();
+        }
+
+        // DNS 解析
+        function buildDnsHTML() {
+            return `
+            <div class="dns-wrap">
+                <div class="dns-split">
+                    <div class="dns-left">
+                        <div class="dns-form">
+                            <input class="dns-input" id="dnsHost" placeholder="输入域名，如: example.com" />
+                            <select class="dns-select" id="dnsType">
+                        <option>A</option>
+                        <option>AAAA</option>
+                        <option>CNAME</option>
+                        <option>TXT</option>
+                        <option>MX</option>
+                        <option>NS</option>
+                        <option>SRV</option>
+                        <option>CAA</option>
+                        <option>PTR</option>
+                            </select>
+                            <button class="dns-btn" id="dnsQuery">解析</button>
+                        </div>
+                        <div class="dns-chips">
+                            <label class="chip"><input id="dnsUseGoogle" type="checkbox" checked/> Google DoH</label>
+                            <label class="chip"><input id="dnsUseCf" type="checkbox" checked/> Cloudflare DoH</label>
+                            <label class="chip"><input id="dnsTrace" type="checkbox"/> 启用调试</label>
+                            <label class="chip"><input id="dnsTbl" type="checkbox"/> 表格模式</label>
+                            <label class="chip"><input id="dnsUseCustom" type="checkbox"/> 自定义 DoH</label>
+                        </div>
+                        <input class="dns-input" id="dnsCustomEp" placeholder="自定义 DoH 端点（JSON 接口），如 https://dns.example.com/dns-query" style="display:none; width:100%;" />
+                    </div>
+                    <div class="dns-right">
+                        <div class="dns-grid">
+                            <div class="dns-card">
+                                <h4>Google 结果 <button class="dns-copy" data-target="g">复制</button></h4>
+                                <div class="dns-list" id="dnsG"></div>
+                                <div class="dns-meta" id="dnsGm"></div>
+                                <div class="dns-err" id="dnsGe"></div>
+                            </div>
+                            <div class="dns-card">
+                                <h4>Cloudflare 结果 <button class="dns-copy" data-target="c">复制</button></h4>
+                                <div class="dns-list" id="dnsC"></div>
+                                <div class="dns-meta" id="dnsCm"></div>
+                                <div class="dns-err" id="dnsCe"></div>
+                            </div>
+                            <div class="dns-card full" id="dnsCustomCard" style="display:none;">
+                                <h4>自定义 DoH 结果 <button class="dns-copy" data-target="u">复制</button></h4>
+                                <div class="dns-list" id="dnsU"></div>
+                                <div class="dns-meta" id="dnsUm"></div>
+                                <div class="dns-err" id="dnsUe"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        function ensureDns() {
+            let dv = document.querySelector('div.dns-view[data-key="dns"]');
+            if (!dv) {
+                dv = document.createElement('div');
+                dv.className = 'dns-view'; dv.dataset.key = 'dns';
+                document.querySelector('main').appendChild(dv);
+            }
+            dv.innerHTML = buildDnsHTML();
+            wireDns(dv);
+            return dv;
+        }
+        function wireDns(container) {
+            const host = container.querySelector('#dnsHost');
+            const type = container.querySelector('#dnsType');
+            const btn = container.querySelector('#dnsQuery');
+            const useG = container.querySelector('#dnsUseGoogle');
+            const useC = container.querySelector('#dnsUseCf');
+            const trace = container.querySelector('#dnsTrace');
+            const tbl = container.querySelector('#dnsTbl');
+            const useU = container.querySelector('#dnsUseCustom');
+            const customEp = container.querySelector('#dnsCustomEp');
+            const gList = container.querySelector('#dnsG');
+            const cList = container.querySelector('#dnsC');
+            const uList = container.querySelector('#dnsU');
+            const gMeta = container.querySelector('#dnsGm');
+            const cMeta = container.querySelector('#dnsCm');
+            const uMeta = container.querySelector('#dnsUm');
+            const gErr = container.querySelector('#dnsGe');
+            const cErr = container.querySelector('#dnsCe');
+            const uErr = container.querySelector('#dnsUe');
+            const uCard = container.querySelector('#dnsCustomCard');
+
+            function normalizeName(n) {
+                n = String(n || '').trim();
+                if (!n) return '';
+                // 去掉 http(s):// 与尾部斜杠
+                n = n.replace(/^https?:\/\//i, '').replace(/[\/?#].*$/, '');
+                return n;
+            }
+            function rrToRow(rr) {
+                if (!rr) return null;
+                const t = rr.type;
+                const name = rr.name || rr.NAME || rr.Name || '';
+                const ttl = rr.TTL ?? rr.ttl ?? '';
+                let data = '';
+                if (t === 1 || t === 'A') data = rr.data || rr.A || rr.ip || '';
+                else if (t === 28 || t === 'AAAA') data = rr.data || rr.AAAA || rr.ip || '';
+                else if (t === 5 || t === 'CNAME') data = rr.data || rr.cname || '';
+                else if (t === 16 || t === 'TXT') {
+                    const d = rr.data || rr.txt || rr.TXT;
+                    data = Array.isArray(d) ? d.join(' ') : String(d || '');
+                }
+                else if (t === 15 || t === 'MX') {
+                    const p = rr.preference ?? rr.PRIORITY ?? rr.priority ?? '';
+                    const e = rr.exchange ?? rr.data ?? '';
+                    data = (p ? (p + " ") : '') + e;
+                }
+                else if (t === 2 || t === 'NS') data = rr.data || rr.ns || '';
+                else if (t === 33 || t === 'SRV') {
+                    const pr = rr.priority ?? rr.PRIORITY ?? 0;
+                    const wt = rr.weight ?? rr.weight ?? 0;
+                    const port = rr.port ?? 0;
+                    const trg = rr.target ?? rr.data ?? '';
+                    data = `${pr} ${wt} ${port} ${trg}`;
+                }
+                else if (t === 257 || t === 'CAA') {
+                    const fl = rr.flags ?? 0;
+                    const tag = rr.tag ?? '';
+                    const val = rr.value ?? rr.data ?? '';
+                    data = `${fl} ${tag} "${val}"`;
+                }
+                else if (t === 12 || t === 'PTR') {
+                    data = rr.data || rr.ptrdname || rr.PTR || '';
+                }
+                else data = rr.data || '';
+                return { name, type: (typeof t === 'number' ? t : String(t)), ttl, data };
+            }
+            function renderList(el, list) {
+                if (!el) return;
+                if (!list || !list.length) { el.innerHTML = '<div class="dns-empty">暂无结果</div>'; return; }
+                el.textContent = list.join('\n');
+            }
+            function renderTable(el, rows) {
+                if (!el) return;
+                if (!rows || !rows.length) { el.innerHTML = '<div class="dns-empty">暂无结果</div>'; return; }
+                const thead = '<thead><tr><th>NAME</th><th>TYPE</th><th>TTL</th><th>DATA</th></tr></thead>';
+                const tbody = '<tbody>' + rows.map(r => `<tr><td>${r.name || ''}</td><td>${r.type}</td><td>${r.ttl || ''}</td><td>${r.data || ''}</td></tr>`).join('') + '</tbody>';
+                el.innerHTML = `<table class="dns-table">${thead}${tbody}</table>`;
+            }
+            function setMeta(el, ms, from) { if (el) el.textContent = `耗时 ${ms}ms · 源 ${from}`; }
+            function setErr(el, e) { if (el) el.textContent = e ? String(e) : ''; }
+
+            async function dohGoogle(name, rr) {
+                const url = `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${encodeURIComponent(rr)}`;
+                const t0 = performance.now();
+                const res = await fetch(url, { method: 'GET' });
+                const t1 = performance.now();
+                const data = await res.json();
+                const ms = Math.round(t1 - t0);
+                const list = (data.Answer || []).map(a => rrToRow(a)).filter(Boolean);
+                return { list, ms, raw: trace?.checked ? data : null };
+            }
+            async function dohCf(name, rr) {
+                const url = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${encodeURIComponent(rr)}`;
+                const t0 = performance.now();
+                const res = await fetch(url, { headers: { 'Accept': 'application/dns-json' } });
+                const t1 = performance.now();
+                const data = await res.json();
+                const ms = Math.round(t1 - t0);
+                const list = (data.Answer || []).map(a => rrToRow(a)).filter(Boolean);
+                return { list, ms, raw: trace?.checked ? data : null };
+            }
+            async function dohCustom(ep, name, rr) {
+                const base = String(ep || '').trim();
+                const hasQuery = base.includes('?');
+                const url = `${base}${hasQuery ? '&' : '?'}name=${encodeURIComponent(name)}&type=${encodeURIComponent(rr)}`;
+                const t0 = performance.now();
+                const res = await fetch(url, { headers: { 'Accept': 'application/dns-json' } });
+                const t1 = performance.now();
+                const data = await res.json();
+                const ms = Math.round(t1 - t0);
+                const list = (data.Answer || []).map(a => rrToRow(a)).filter(Boolean);
+                return { list, ms, raw: trace?.checked ? data : null };
+            }
+
+            function toArpa(ipv4) {
+                // 1.2.3.4 -> 4.3.2.1.in-addr.arpa
+                const m = String(ipv4 || '').trim().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+                if (!m) return '';
+                return `${m[4]}.${m[3]}.${m[2]}.${m[1]}.in-addr.arpa`;
+            }
+
+            async function run() {
+                let name = normalizeName(host?.value);
+                let rr = (type?.value || 'A').toUpperCase();
+                // IPv4 PTR 自动转换
+                if (rr === 'PTR' && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(name)) {
+                    const arpa = toArpa(name);
+                    if (arpa) name = arpa;
+                }
+                if (!name) { toast('请输入域名'); return; }
+                // 清空
+                [gList, cList, uList].forEach(el => { if (el) el.innerHTML = ''; });
+                [gMeta, cMeta, uMeta].forEach(el => { if (el) el.textContent = ''; });
+                [gErr, cErr, uErr].forEach(el => { if (el) el.textContent = ''; });
+                const tasks = [];
+                if (useG?.checked) tasks.push(dohGoogle(name, rr).then(r => ({ who: 'Google', ...r })).catch(e => ({ who: 'Google', error: e })));
+                if (useC?.checked) tasks.push(dohCf(name, rr).then(r => ({ who: 'Cloudflare', ...r })).catch(e => ({ who: 'Cloudflare', error: e })));
+                if (useU?.checked) {
+                    const ep = customEp?.value || '';
+                    if (!ep.trim()) { toast('请填写自定义 DoH 端点'); }
+                    else tasks.push(dohCustom(ep, name, rr).then(r => ({ who: 'Custom', ...r })).catch(e => ({ who: 'Custom', error: e })));
+                }
+                if (!tasks.length) { toast('请至少选择一个解析源'); return; }
+                const results = await Promise.all(tasks);
+                for (const r of results) {
+                    if (r.who === 'Google') {
+                        if (r.error) { setErr(gErr, r.error); continue; }
+                        if (tbl?.checked) renderTable(gList, r.list); else renderList(gList, r.list.map(x => x.data).filter(Boolean));
+                        setMeta(gMeta, r.ms, 'Google');
+                        if (trace?.checked && r.raw) gMeta.textContent += ` · 状态 ${r.raw.Status}`;
+                    } else if (r.who === 'Cloudflare') {
+                        if (r.error) { setErr(cErr, r.error); continue; }
+                        if (tbl?.checked) renderTable(cList, r.list); else renderList(cList, r.list.map(x => x.data).filter(Boolean));
+                        setMeta(cMeta, r.ms, 'Cloudflare');
+                        if (trace?.checked && r.raw) cMeta.textContent += ` · 状态 ${r.raw.Status}`;
+                    } else if (r.who === 'Custom') {
+                        if (r.error) { setErr(uErr, r.error); continue; }
+                        if (tbl?.checked) renderTable(uList, r.list); else renderList(uList, r.list.map(x => x.data).filter(Boolean));
+                        setMeta(uMeta, r.ms, 'Custom');
+                        if (trace?.checked && r.raw) uMeta.textContent += ` · 状态 ${r.raw.Status}`;
+                    }
+                }
+            }
+            btn?.addEventListener('click', run);
+            host?.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+            container.querySelectorAll('.dns-copy').forEach(b => b.addEventListener('click', () => {
+                const t = b.getAttribute('data-target');
+                const el = t === 'g' ? gList : t === 'c' ? cList : uList;
+                const text = (el?.textContent || '').trim();
+                if (text) copyText(text);
+            }));
+
+            // 自定义端点输入显隐
+            useU?.addEventListener('change', () => {
+                if (!customEp) return;
+                customEp.style.display = useU.checked ? 'block' : 'none';
+                if (uCard) uCard.style.display = useU.checked ? 'block' : 'none';
+            });
+            if (uCard) uCard.style.display = useU?.checked ? 'block' : 'none';
+            if (customEp) customEp.style.display = useU?.checked ? 'block' : 'none';
+        }
+        function wireTimeCopy(container) {
+            container.querySelectorAll('.copy-btn').forEach(btn => {
+                const targetId = btn.getAttribute('data-target');
+                if (targetId) {
+                    btn.addEventListener('click', () => {
+                        const el = container.querySelector('#' + targetId);
+                        const val = el?.textContent || '';
+                        if (val) copyText(val);
+                    });
+                    return;
+                }
+                const direct = btn.getAttribute('data-copy');
+                if (direct !== null) {
+                    btn.addEventListener('click', () => copyText(direct));
+                }
+            });
+            const tsCopyBtn = container.querySelector('#tsCopyBtn');
+            const dtCopyBtn = container.querySelector('#dtCopyBtn');
+            tsCopyBtn && tsCopyBtn.addEventListener('click', () => {
+                const val = container.querySelector('#tsConvOut')?.textContent || '';
+                if (val) copyText(val);
+            });
+            dtCopyBtn && dtCopyBtn.addEventListener('click', () => {
+                const val = container.querySelector('#dtConvOut')?.textContent || '';
+                if (val) copyText(val);
+            });
+        }
+        function wireTimeConverters(container) {
+            const tsInput = container.querySelector('#tsInput');
+            const tsOut = container.querySelector('#tsConvOut');
+            const dtY = container.querySelector('#dtY');
+            const dtM = container.querySelector('#dtM');
+            const dtD = container.querySelector('#dtD');
+            const dtH = container.querySelector('#dtH');
+            const dtMin = container.querySelector('#dtMin');
+            const dtS = container.querySelector('#dtS');
+            const dtOut = container.querySelector('#dtConvOut');
+
+            function tsToDatetime() {
+                if (!tsInput || !tsOut) return;
+                let raw = (tsInput.value || '').trim();
+                if (!raw) { tsOut.textContent = ''; return; }
+                if (!/^\d+$/.test(raw)) { tsOut.textContent = '格式错误'; return; }
+                let num = Number(raw);
+                if (raw.length <= 10) num = num * 1000;
+                const d = new Date(num);
+                if (isNaN(d.getTime())) { tsOut.textContent = '无效时间戳'; return; }
+                tsOut.textContent = fmtLocal(d);
+            }
+            function datetimeToTs() {
+                if (!dtY || !dtM || !dtD || !dtH || !dtMin || !dtS || !dtOut) return;
+                const y = Number((dtY.value || '').trim());
+                const M = Number((dtM.value || '').trim());
+                const d = Number((dtD.value || '').trim());
+                const hh = Number((dtH.value || '').trim());
+                const mm = Number((dtMin.value || '').trim());
+                const ss = Number((dtS.value || '').trim());
+                if (!y && !M && !d && !hh && !mm && !ss) { dtOut.textContent = ''; return; }
+                if (!Number.isInteger(y) || !Number.isInteger(M) || !Number.isInteger(d) || !Number.isInteger(hh) || !Number.isInteger(mm) || !Number.isInteger(ss)) { dtOut.textContent = '格式错误'; return; }
+                if (M < 1 || M > 12 || d < 1 || d > 31 || hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) { dtOut.textContent = '范围错误'; return; }
+                const date = new Date(y, M - 1, d, hh, mm, ss);
+                if (isNaN(date.getTime())) { dtOut.textContent = '无效日期'; return; }
+                dtOut.textContent = String(Math.floor(date.getTime() / 1000));
+            }
+            tsInput && tsInput.addEventListener('input', tsToDatetime);
+            [dtY, dtM, dtD, dtH, dtMin, dtS].forEach(inp => { inp && inp.addEventListener('input', datetimeToTs); });
+        }
+        // 统一的时间刷新计时器
+        let timeTimer = null; let timePrevSec = null;
+        function ensureTime() {
+            let tv = document.querySelector('div.time-view[data-key="time"]');
+            if (!tv) {
+                tv = document.createElement('div');
+                tv.className = 'time-view';
+                tv.dataset.key = 'time';
+                document.querySelector('main').appendChild(tv);
+            }
+            // 初次渲染
+            tv.innerHTML = buildTimeHTML(new Date());
+            wireTimeCopy(tv);
+            wireTimeConverters(tv);
+            return tv;
+        }
+
+        // 计时器在 ensureTime 区域声明
+
+        function formatMs(ms) {
+            const s = Math.floor((ms || 0) / 1000);
+            const m = Math.floor(s / 60), sec = s % 60;
+            const h = Math.floor(m / 60), min = m % 60;
+            if (h) return `${h}h ${min}m`;
+            if (m) return `${m}m ${sec}s`;
+            return `${sec}s`;
+        }
+
+        async function renderStats() {
+            try {
+                const range = (statsRange && statsRange.value) || 'today';
+                // 等待usage API就绪
+                let retries = 0;
+                while (!window.usage && retries < 10) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+                const bridgeReady = !!(window.usage && window.usage.getSummary && window.usage.siteSwitch);
+                const sum = await (bridgeReady ? window.usage.getSummary(range) : null);
+                if (!statsBody) { return; }
+                if (!sum) {
+                    statsBody.innerHTML = `<div style="color:#9aa7b1;">
+                暂无数据<br/>
+                <span style="opacity:.8;">状态：${bridgeReady ? '已连接' : '统计桥未就绪'}</span>
+            </div>`;
+                    return;
+                }
+                const rows = [];
+                rows.push(`<div style="margin-bottom:6px;color:#8aa2b2;">应用启动：${sum.appStarts}</div>`);
+                const entries = Object.entries(sum.totals || {}).sort((a, b) => (((b[1] && b[1].activeMs) || 0) - ((a[1] && a[1].activeMs) || 0)));
+                if (!entries.length) { rows.push('<div style="color:#9aa7b1;">暂无站点数据，切换任意站点后再查看</div>'); }
+                for (const [site, stat] of entries) {
+                    rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;">
+                        <span>${site}</span>
+                        <span style="color:#9cc3d8;">切换 ${stat.openCount || 0} 次 · 活跃 ${formatMs(stat.activeMs || 0)}</span>
+                    </div>`);
+                }
+                statsBody.innerHTML = rows.join('');
+            } catch (e) { if (statsBody) statsBody.innerHTML = `<div style="color:#fca5a5;">加载统计失败：${e}</div>`; }
+        }
+
+        function ensureFrame(site) {
+            let fr = document.querySelector(`iframe.site-frame[data-key="${site.key}"]`);
+            if (!fr) {
+                fr = document.createElement('iframe');
+                fr.className = 'site-frame';
+                fr.dataset.key = site.key;
+                fr.referrerPolicy = 'no-referrer';
+                fr.loading = 'eager';
+                fr.setAttribute('allow', 'clipboard-read; clipboard-write; microphone; camera; geolocation; display-capture');
+                fr.addEventListener('load', () => { if (site.key === current) hideStatus(); });
+                fr.addEventListener('error', () => { if (site.key === current) showStatus('加载失败', 'error'); });
+                fr.src = site.url;
+                document.querySelector('main').appendChild(fr);
+            }
+            return fr;
+        }
+
+
+        const webviewKeys = new Set(['openai', 'grok']);
+
+        function ensureWebview(site) {
+            let wv = document.querySelector(`webview.site-view[data-key="${site.key}"]`);
+            if (!wv) {
+                wv = document.createElement('webview');
+                wv.className = 'site-view';
+                wv.dataset.key = site.key;
+                wv.setAttribute('src', site.url);
+                wv.setAttribute('partition', site.partition || `persist:${site.key}`);
+                wv.setAttribute('allowpopups', 'true');
+                wv.addEventListener('did-start-loading', () => { if (site.key === current) showStatus('加载中...'); });
+                wv.addEventListener('did-finish-load', () => { if (site.key === current) hideStatus(); });
+                wv.addEventListener('did-fail-load', (e) => { if (site.key === current) showStatus('加载失败 ' + e.errorCode, 'error'); });
+                document.querySelector('main').appendChild(wv);
+            }
+            return wv;
+        }
+
+        // 独立窗口按钮逻辑移除
+
+        function switchSite(key) {
+            if (current === key) return;
+            current = key;
+            // 上报使用统计
+            try { if (window.usage && window.usage.siteSwitch) window.usage.siteSwitch(key); } catch (e) { }
+            // 如果统计面板已打开，切换后刷新
+            if (statsPanel && statsPanel.style.display === 'block') { renderStats(); }
+            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view').forEach(el => el.classList.toggle('active', el.dataset.key === key));
+            const site = sites.find(s => s.key === key);
+            if (!site) return;
+            let el;
+            if (site.key === 'time') {
+                el = ensureTime();
+                // 开始刷新：大时钟与秒按秒刷新，毫秒更频繁刷新
+                if (timeTimer) clearInterval(timeTimer);
+                timeTimer = setInterval(() => {
+                    const container = document.querySelector('div.time-view[data-key="time"]');
+                    if (!container) return;
+                    const now = new Date();
+                    const msNow = now.getTime();
+                    const secNow = Math.floor(msNow / 1000);
+                    // 仅在秒变更时更新大时钟和秒值
+                    if (timePrevSec !== secNow) {
+                        timePrevSec = secNow;
+                        const y = now.getFullYear();
+                        const M = two(now.getMonth() + 1);
+                        const d = two(now.getDate());
+                        const hh = two(now.getHours());
+                        const mm = two(now.getMinutes());
+                        const ss = two(now.getSeconds());
+                        const big = container.querySelector('.time-big');
+                        if (big) big.textContent = `${y}-${M}-${d} ${hh}:${mm}:${ss}`;
+                        const secEl = container.querySelector('#unixSecVal');
+                        if (secEl) secEl.textContent = String(secNow);
+                    }
+                    // 毫秒更细刷新
+                    const msEl = container.querySelector('#unixMsVal');
+                    if (msEl) msEl.textContent = String(msNow);
+                }, 200);
+            } else if (site.key === 'pwd') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensurePwd();
+            } else if (site.key === 'text') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureText();
+            } else if (site.key === 'calc') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureCalc();
+            } else if (site.key === 'dns') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureDns();
+            } else if (site.key === 'json') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureJson();
+            } else {
+                // 非时间页则停止计时器
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = webviewKeys.has(site.key) ? ensureWebview(site) : ensureFrame(site);
+            }
+            el.classList.add('active');
+            renderList();
+            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json') { hideStatus(); } else { showStatus('加载中...'); }
+            window.llmHub?.persistLastSite?.(key);
+            // 独立窗口按钮逻辑已移除
+        }
+
+        function init() {
+            renderList();
+            const first = window.llmHub?.lastSite || sites[0]?.key;
+            if (first) switchSite(first);
+            // 统计面板交互
+            btnStats?.addEventListener('click', async () => {
+                const panel = statsPanel;
+                if (!panel) return;
+                const visible = panel.style.display === 'block';
+                panel.style.display = visible ? 'none' : 'block';
+                if (!visible) {
+                    // 等待一下再渲染统计，确保API已就绪
+                    setTimeout(renderStats, 100);
+                }
+            });
+            statsRange?.addEventListener('change', renderStats);
+        }
+        
+        // 等待DOM和preload脚本都加载完成
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                // 延迟初始化，确保preload脚本完全加载
+                setTimeout(init, 200);
+            });
+        } else {
+            setTimeout(init, 200);
+        }
+        
+        // 调试：检查window对象
+        setTimeout(() => {
+            console.log('window.llmHub:', window.llmHub);
+            console.log('window.usage:', window.usage);
+        }, 500);
+    </script>
+</body>
+
+</html>
