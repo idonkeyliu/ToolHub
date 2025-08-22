@@ -14,103 +14,6 @@ const sites = [
     { key: 'grok', title: 'Grok (xAI)', url: 'https://grok.com', partition: 'persist:grok' },
 ];
 let mainWindow = null;
-class UsageTracker {
-    store = new Store({
-        name: 'usage',
-        defaults: {
-            appStarts: 0,
-            byDay: {}
-        }
-    });
-    win = null;
-    currentSite = null;
-    timer = null;
-    bind(win) {
-        this.win = win;
-        // 确保基础数据结构存在
-        if (!this.store.has('appStarts')) {
-            this.store.set('appStarts', 0);
-        }
-        if (!this.store.has('byDay')) {
-            this.store.set('byDay', {});
-        }
-        const appStarts = (this.store.get('appStarts') || 0) + 1;
-        this.store.set('appStarts', appStarts);
-        win.on('focus', () => this.tick(0));
-        win.on('blur', () => this.tick(0));
-        if (this.timer)
-            clearInterval(this.timer);
-        this.timer = setInterval(() => this.tick(5000), 5000);
-        app.on('before-quit', () => { this.tick(0); if (this.timer)
-            clearInterval(this.timer); this.timer = null; });
-    }
-    siteSwitch(key) {
-        this.currentSite = key;
-        const today = this.today();
-        // 确保今天的数据结构存在
-        const byDay = this.store.get('byDay') || {};
-        if (!byDay[today]) {
-            byDay[today] = { bySite: {} };
-        }
-        if (!byDay[today].bySite[key]) {
-            byDay[today].bySite[key] = { openCount: 0, activeMs: 0 };
-        }
-        // 增加切换次数
-        byDay[today].bySite[key].openCount = (byDay[today].bySite[key].openCount || 0) + 1;
-        this.store.set('byDay', byDay);
-    }
-    getSummary(range) {
-        const appStarts = this.store.get('appStarts') || 0;
-        const byDay = this.store.get('byDay') || {};
-        const today = this.today();
-        const days = range === 'today' ? [today] : this.lastNDays(7);
-        const sum = {};
-        for (const d of days) {
-            const day = byDay[d];
-            if (!day?.bySite)
-                continue;
-            for (const [site, sAny] of Object.entries(day.bySite)) {
-                const s = sAny;
-                const acc = sum[site] || {};
-                acc.openCount = (acc.openCount || 0) + (s.openCount || 0);
-                acc.activeMs = (acc.activeMs || 0) + (s.activeMs || 0);
-                sum[site] = acc;
-            }
-        }
-        const todaySum = {};
-        const tday = byDay[today]?.bySite || {};
-        for (const [site, sAny] of Object.entries(tday)) {
-            const s = sAny;
-            todaySum[site] = { openCount: s.openCount || 0, activeMs: s.activeMs || 0 };
-        }
-        return { appStarts, range, totals: sum, today: todaySum, days };
-    }
-    tick(deltaMs) {
-        if (!this.win)
-            return;
-        const focused = this.win.isVisible() && this.win.isFocused();
-        if (!focused || !this.currentSite)
-            return;
-        const today = this.today();
-        const byDay = this.store.get('byDay') || {};
-        if (!byDay[today] || !byDay[today].bySite[this.currentSite])
-            return;
-        byDay[today].bySite[this.currentSite].activeMs = (byDay[today].bySite[this.currentSite].activeMs || 0) + deltaMs;
-        this.store.set('byDay', byDay);
-    }
-    today() { return new Date().toISOString().slice(0, 10); }
-    lastNDays(n) {
-        const arr = [];
-        const d = new Date();
-        for (let i = 0; i < n; i++) {
-            const dd = new Date(d);
-            dd.setDate(d.getDate() - i);
-            arr.push(dd.toISOString().slice(0, 10));
-        }
-        return arr;
-    }
-}
-const usage = new UsageTracker();
 // 允许被 iframe 嵌入的站点域名列表（仅对这些域名做 header 调整）
 const FRAME_BYPASS_HOSTS = [
     'chat.deepseek.com',
@@ -280,8 +183,6 @@ function createWindow(initialSite) {
     mainWindow.setBackgroundColor('#000000');
     buildMenu();
     mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-    // 绑定使用统计
-    usage.bind(mainWindow);
     // 当页面加载完成时显示窗口
     mainWindow.webContents.once('did-finish-load', () => {
         mainWindow?.show(); // 现在显示窗口
@@ -411,9 +312,6 @@ ipcMain.on('open-site-window', (_e, key) => {
     });
     win.loadURL(site.url).catch(err => dialog.showErrorBox('Open Site Failed', String(err)));
 });
-// Usage IPC
-ipcMain.handle('usage:siteSwitch', (_e, key) => usage.siteSwitch(String(key)));
-ipcMain.handle('usage:getSummary', (_e, range) => usage.getSummary(range));
 // 打开顶层登录窗口（与 iframe 共用 partition）
 ipcMain.on('open-top-login', (e, key) => {
     const site = sites.find(s => s.key === key);
