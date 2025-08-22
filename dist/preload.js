@@ -9,11 +9,6 @@ contextBridge.exposeInMainWorld('llmHub', {
     clearActivePartition: (partition) => ipcRenderer.send('clear-active-partition', partition),
     openSiteWindow: (key) => ipcRenderer.send('open-site-window', key)
 });
-// 使用统计 API
-contextBridge.exposeInMainWorld('usage', {
-    siteSwitch: (key) => ipcRenderer.invoke('usage:siteSwitch', key),
-    getSummary: (range) => ipcRenderer.invoke('usage:getSummary', range)
-});
 // 接收主进程数据
 ipcRenderer.on('init-data', (_e, payload) => {
     window.llmHub.sites = payload.sites;

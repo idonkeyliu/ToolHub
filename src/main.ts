@@ -23,98 +23,6 @@ const sites: SiteDef[] = [
 
 let mainWindow: BrowserWindow | null = null;
 
-// ========== Usage Tracking ==========
-type DailyStat = { openCount?: number; activeMs?: number };
-type UsageDB = { appStarts?: number; byDay?: Record<string, { bySite: Record<string, DailyStat> }> };
-class UsageTracker {
-    private store = new Store<UsageDB>({ 
-        name: 'usage',
-        defaults: {
-            appStarts: 0,
-            byDay: {}
-        }
-    });
-    private win: BrowserWindow | null = null;
-    private currentSite: string | null = null;
-    private timer: NodeJS.Timeout | null = null;
-
-    bind(win: BrowserWindow) {
-        this.win = win;
-        // 确保基础数据结构存在
-        if (!(this.store as any).has('appStarts')) {
-            (this.store as any).set('appStarts', 0);
-        }
-        if (!(this.store as any).has('byDay')) {
-            (this.store as any).set('byDay', {});
-        }
-        const appStarts = ((this.store as any).get('appStarts') || 0) + 1;
-        (this.store as any).set('appStarts', appStarts);
-        win.on('focus', () => this.tick(0));
-        win.on('blur', () => this.tick(0));
-        if (this.timer) clearInterval(this.timer);
-        this.timer = setInterval(() => this.tick(5000), 5000);
-        app.on('before-quit', () => { this.tick(0); if (this.timer) clearInterval(this.timer as NodeJS.Timeout); this.timer = null; });
-    }
-    siteSwitch(key: string) {
-        this.currentSite = key;
-        const today = this.today();
-        // 确保今天的数据结构存在
-        const byDay = (this.store as any).get('byDay') || {};
-        if (!byDay[today]) {
-            byDay[today] = { bySite: {} };
-        }
-        if (!byDay[today].bySite[key]) {
-            byDay[today].bySite[key] = { openCount: 0, activeMs: 0 };
-        }
-        // 增加切换次数
-        byDay[today].bySite[key].openCount = (byDay[today].bySite[key].openCount || 0) + 1;
-        (this.store as any).set('byDay', byDay);
-    }
-    getSummary(range: 'today' | '7d') {
-        const appStarts = (this.store as any).get('appStarts') || 0;
-        const byDay = (this.store as any).get('byDay') || {};
-        const today = this.today();
-        const days = range === 'today' ? [today] : this.lastNDays(7);
-        const sum: Record<string, DailyStat> = {};
-        for (const d of days) {
-            const day = (byDay as any)[d];
-            if (!day?.bySite) continue;
-            for (const [site, sAny] of Object.entries(day.bySite as Record<string, any>)) {
-                const s = sAny as DailyStat;
-                const acc = sum[site] || {};
-                acc.openCount = (acc.openCount || 0) + (s.openCount || 0);
-                acc.activeMs = (acc.activeMs || 0) + (s.activeMs || 0);
-                sum[site] = acc;
-            }
-        }
-        const todaySum: Record<string, DailyStat> = {};
-        const tday = (byDay as any)[today]?.bySite || {};
-        for (const [site, sAny] of Object.entries(tday as Record<string, any>)) {
-            const s = sAny as DailyStat;
-            todaySum[site] = { openCount: s.openCount || 0, activeMs: s.activeMs || 0 };
-        }
-        return { appStarts, range, totals: sum, today: todaySum, days };
-    }
-    private tick(deltaMs: number) {
-        if (!this.win) return;
-        const focused = this.win.isVisible() && this.win.isFocused();
-        if (!focused || !this.currentSite) return;
-        const today = this.today();
-        const byDay = (this.store as any).get('byDay') || {};
-        if (!byDay[today] || !byDay[today].bySite[this.currentSite]) return;
-        byDay[today].bySite[this.currentSite].activeMs = (byDay[today].bySite[this.currentSite].activeMs || 0) + deltaMs;
-        (this.store as any).set('byDay', byDay);
-    }
-    private today() { return new Date().toISOString().slice(0, 10); }
-    private lastNDays(n: number) {
-        const arr: string[] = [];
-        const d = new Date();
-        for (let i = 0; i < n; i++) { const dd = new Date(d); dd.setDate(d.getDate() - i); arr.push(dd.toISOString().slice(0, 10)); }
-        return arr;
-    }
-}
-const usage = new UsageTracker();
-
 // 允许被 iframe 嵌入的站点域名列表（仅对这些域名做 header 调整）
 const FRAME_BYPASS_HOSTS = [
     'chat.deepseek.com',
@@ -284,8 +192,6 @@ function createWindow(initialSite?: string) {
 
     buildMenu();
     mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-    // 绑定使用统计
-    usage.bind(mainWindow);
 
     // 当页面加载完成时显示窗口
     mainWindow.webContents.once('did-finish-load', () => {
@@ -411,10 +317,6 @@ ipcMain.on('open-site-window', (_e, key: string) => {
     });
     win.loadURL(site.url).catch(err => dialog.showErrorBox('Open Site Failed', String(err)));
 });
-
-// Usage IPC
-ipcMain.handle('usage:siteSwitch', (_e, key: string) => usage.siteSwitch(String(key)));
-ipcMain.handle('usage:getSummary', (_e, range: 'today' | '7d') => usage.getSummary(range));
 
 // 打开顶层登录窗口（与 iframe 共用 partition）
 ipcMain.on('open-top-login', (e, key: string) => {

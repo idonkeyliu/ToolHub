@@ -11,12 +11,6 @@ contextBridge.exposeInMainWorld('llmHub', {
     openSiteWindow: (key: string) => ipcRenderer.send('open-site-window', key)
 });
 
-// 使用统计 API
-contextBridge.exposeInMainWorld('usage', {
-    siteSwitch: (key: string) => ipcRenderer.invoke('usage:siteSwitch', key),
-    getSummary: (range: 'today' | '7d') => ipcRenderer.invoke('usage:getSummary', range)
-});
-
 // 接收主进程数据
 ipcRenderer.on('init-data', (_e, payload) => {
     (window as any).llmHub.sites = payload.sites;
