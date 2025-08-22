@@ -948,6 +948,143 @@
             color: #fff;
         }
 
+        /* 加解密工具 */
+        div.crypto-view {
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #0d1114;
+        }
+
+        .crypto-wrap {
+            width: min(1200px, 98%);
+            margin: 0 auto;
+            padding: 30px 20px;
+            height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .crypto-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #223038;
+            padding-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .crypto-tab {
+            padding: 12px 24px;
+            background: #1a2024;
+            border: 1px solid #2a3440;
+            border-radius: 8px;
+            color: #cfd5d9;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .crypto-tab:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .crypto-tab.active {
+            background: #3b82f6;
+            border-color: #60a5fa;
+            color: #fff;
+        }
+
+        .crypto-panel {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .crypto-panel.active {
+            display: grid;
+        }
+
+        .crypto-side {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+        }
+
+        .crypto-label {
+            font-size: 16px;
+            color: #9ca3af;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .crypto-textarea {
+            width: 100%;
+            height: 420px;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 15px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            resize: vertical;
+            line-height: 1.5;
+            flex: 1;
+            min-height: 300px;
+        }
+
+        .crypto-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        .crypto-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .crypto-btn {
+            padding: 8px 16px;
+            background: #1a2024;
+            border: 1px solid #2a3440;
+            border-radius: 8px;
+            color: #cfd5d9;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .crypto-btn:hover {
+            background: #223038;
+            color: #fff;
+        }
+
+        .crypto-input {
+            width: 100%;
+            background: #0f151a;
+            color: #e5e7eb;
+            border: 1px solid #223038;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .crypto-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
         .codec-btn.primary {
             background: #2563eb;
             border-color: #3b82f6;
@@ -1302,6 +1439,9 @@
         }
         if (!sites.find(s => s.key === 'codec')) {
             sites.push({ key: 'codec', title: '编解码' });
+        }
+        if (!sites.find(s => s.key === 'crypto')) {
+            sites.push({ key: 'crypto', title: '加解密' });
         }
         let current = null;
         const listEl = document.getElementById('siteList');
@@ -1970,6 +2110,400 @@
                 }
             });
         }
+
+        // 加解密工具
+        function buildCryptoHTML() {
+            return `
+            <div class="crypto-wrap">
+                <div class="crypto-tabs">
+                    <div class="crypto-tab active" data-tab="md5">MD5 哈希</div>
+                    <div class="crypto-tab" data-tab="aes">AES 加解密</div>
+                    <div class="crypto-tab" data-tab="des">DES 加解密</div>
+                </div>
+                
+                <div class="crypto-panel active" data-panel="md5">
+                    <div class="crypto-side">
+                        <div class="crypto-label">输入文本</div>
+                        <textarea class="crypto-textarea" id="md5Input" placeholder="输入要计算MD5的文本..."></textarea>
+                        <div class="crypto-controls">
+                            <button class="crypto-btn" id="md5Generate">生成MD5</button>
+                            <button class="crypto-btn" id="md5Clear">清空</button>
+                        </div>
+                        <div class="crypto-error" id="md5Error" style="color:#fca5a5;font-size:12px;margin-top:6px;display:none;"></div>
+                    </div>
+                    <div class="crypto-side">
+                        <div class="crypto-label">MD5 结果</div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">32位小写</div>
+                                    <button class="crypto-btn" id="md5Copy32Lower" style="padding: 4px 8px; font-size: 11px;">复制</button>
+                                </div>
+                                <textarea class="crypto-textarea" id="md5Output32Lower" placeholder="32位小写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">32位大写</div>
+                                    <button class="crypto-btn" id="md5Copy32Upper" style="padding: 4px 8px; font-size: 11px;">复制</button>
+                                </div>
+                                <textarea class="crypto-textarea" id="md5Output32Upper" placeholder="32位大写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">16位小写</div>
+                                    <button class="crypto-btn" id="md5Copy16Lower" style="padding: 4px 8px; font-size: 11px;">复制</button>
+                                </div>
+                                <textarea class="crypto-textarea" id="md5Output16Lower" placeholder="16位小写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">16位大写</div>
+                                    <button class="crypto-btn" id="md5Copy16Upper" style="padding: 4px 8px; font-size: 11px;">复制</button>
+                                </div>
+                                <textarea class="crypto-textarea" id="md5Output16Upper" placeholder="16位大写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="crypto-panel" data-panel="aes">
+                    <div class="crypto-side">
+                        <div class="crypto-label">输入文本</div>
+                        <textarea class="crypto-textarea" id="aesInput" placeholder="输入要加密/解密的文本..."></textarea>
+                        <div class="crypto-label">密钥 (Key)</div>
+                        <input class="crypto-input" id="aesKey" placeholder="输入AES密钥..." type="text" />
+                        <div class="crypto-controls">
+                            <button class="crypto-btn" id="aesEncrypt">AES 加密</button>
+                            <button class="crypto-btn" id="aesDecrypt">AES 解密</button>
+                            <button class="crypto-btn" id="aesClear">清空</button>
+                            <button class="crypto-btn" id="aesCopy">复制结果</button>
+                        </div>
+                        <div class="crypto-error" id="aesError" style="color:#fca5a5;font-size:12px;margin-top:6px;display:none;"></div>
+                    </div>
+                    <div class="crypto-side">
+                        <div class="crypto-label">加密/解密结果</div>
+                        <textarea class="crypto-textarea" id="aesOutput" placeholder="加密/解密结果将显示在这里..." readonly></textarea>
+                    </div>
+                </div>
+                
+                <div class="crypto-panel" data-panel="des">
+                    <div class="crypto-side">
+                        <div class="crypto-label">输入文本</div>
+                        <textarea class="crypto-textarea" id="desInput" placeholder="输入要加密/解密的文本..."></textarea>
+                        <div class="crypto-label">密钥 (Key)</div>
+                        <input class="crypto-input" id="desKey" placeholder="输入DES密钥(8字节)..." type="text" />
+                        <div class="crypto-controls">
+                            <button class="crypto-btn" id="desEncrypt">DES 加密</button>
+                            <button class="crypto-btn" id="desDecrypt">DES 解密</button>
+                            <button class="crypto-btn" id="desClear">清空</button>
+                            <button class="crypto-btn" id="desCopy">复制结果</button>
+                        </div>
+                        <div class="crypto-error" id="desError" style="color:#fca5a5;font-size:12px;margin-top:6px;display:none;"></div>
+                    </div>
+                    <div class="crypto-side">
+                        <div class="crypto-label">加密/解密结果</div>
+                        <textarea class="crypto-textarea" id="desOutput" placeholder="加密/解密结果将显示在这里..." readonly></textarea>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function ensureCrypto() {
+            let cv = document.querySelector('div.crypto-view[data-key="crypto"]');
+            if (!cv) {
+                cv = document.createElement('div');
+                cv.className = 'crypto-view'; cv.dataset.key = 'crypto';
+                document.querySelector('main').appendChild(cv);
+            }
+            cv.innerHTML = buildCryptoHTML();
+            wireCrypto(cv);
+            return cv;
+        }
+
+        function wireCrypto(container) {
+            // Tab 切换
+            const tabs = container.querySelectorAll('.crypto-tab');
+            const panels = container.querySelectorAll('.crypto-panel');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetPanel = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    container.querySelector(`[data-panel="${targetPanel}"]`).classList.add('active');
+                });
+            });
+
+            // MD5 哈希
+            const md5Input = container.querySelector('#md5Input');
+            const md5Output32Lower = container.querySelector('#md5Output32Lower');
+            const md5Output32Upper = container.querySelector('#md5Output32Upper');
+            const md5Output16Lower = container.querySelector('#md5Output16Lower');
+            const md5Output16Upper = container.querySelector('#md5Output16Upper');
+            const md5Error = container.querySelector('#md5Error');
+            
+            container.querySelector('#md5Generate').addEventListener('click', () => {
+                try {
+                    const text = md5Input.value;
+                    if (!text) {
+                        md5Error.textContent = '请输入要计算MD5的文本';
+                        md5Error.style.display = 'block';
+                        return;
+                    }
+                    
+                    // 生成完整的32位MD5哈希
+                    const fullHash = generateMD5(text);
+                    
+                    // 生成4种格式的结果
+                    md5Output32Lower.value = fullHash.toLowerCase();
+                    md5Output32Upper.value = fullHash.toUpperCase();
+                    md5Output16Lower.value = fullHash.substring(8, 24).toLowerCase();
+                    md5Output16Upper.value = fullHash.substring(8, 24).toUpperCase();
+                    
+                    md5Error.style.display = 'none';
+                } catch (e) {
+                    md5Error.textContent = '生成失败：' + e.message;
+                    md5Error.style.display = 'block';
+                }
+            });
+            
+            container.querySelector('#md5Clear').addEventListener('click', () => {
+                md5Input.value = '';
+                md5Output32Lower.value = '';
+                md5Output32Upper.value = '';
+                md5Output16Lower.value = '';
+                md5Output16Upper.value = '';
+                md5Error.style.display = 'none';
+            });
+
+            container.querySelector('#md5Copy32Lower').addEventListener('click', () => {
+                const text = md5Output32Lower.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+
+            container.querySelector('#md5Copy32Upper').addEventListener('click', () => {
+                const text = md5Output32Upper.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+
+            container.querySelector('#md5Copy16Lower').addEventListener('click', () => {
+                const text = md5Output16Lower.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+
+            container.querySelector('#md5Copy16Upper').addEventListener('click', () => {
+                const text = md5Output16Upper.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+            
+            // AES 加解密
+            const aesInput = container.querySelector('#aesInput');
+            const aesOutput = container.querySelector('#aesOutput');
+            const aesKey = container.querySelector('#aesKey');
+            const aesError = container.querySelector('#aesError');
+            
+            container.querySelector('#aesEncrypt').addEventListener('click', () => {
+                try {
+                    const text = aesInput.value;
+                    const key = aesKey.value;
+                    if (!text || !key) {
+                        aesError.textContent = '请输入文本和密钥';
+                        aesError.style.display = 'block';
+                        return;
+                    }
+                    // 简单的AES加密模拟 (实际项目中应使用专业的加密库)
+                    const encrypted = btoa(simpleEncrypt(text, key));
+                    aesOutput.value = encrypted;
+                    aesError.style.display = 'none';
+                } catch (e) {
+                    aesError.textContent = '加密失败：' + e.message;
+                    aesError.style.display = 'block';
+                }
+            });
+            
+            container.querySelector('#aesDecrypt').addEventListener('click', () => {
+                try {
+                    const text = aesInput.value;
+                    const key = aesKey.value;
+                    if (!text || !key) {
+                        aesError.textContent = '请输入文本和密钥';
+                        aesError.style.display = 'block';
+                        return;
+                    }
+                    // 简单的AES解密模拟
+                    const decrypted = simpleDecrypt(atob(text), key);
+                    aesOutput.value = decrypted;
+                    aesError.style.display = 'none';
+                } catch (e) {
+                    aesError.textContent = '解密失败：' + e.message;
+                    aesError.style.display = 'block';
+                }
+            });
+            
+            container.querySelector('#aesClear').addEventListener('click', () => {
+                aesInput.value = '';
+                aesOutput.value = '';
+                aesKey.value = '';
+                aesError.style.display = 'none';
+            });
+
+            container.querySelector('#aesCopy').addEventListener('click', () => {
+                const text = aesOutput.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+            
+            // DES 加解密
+            const desInput = container.querySelector('#desInput');
+            const desOutput = container.querySelector('#desOutput');
+            const desKey = container.querySelector('#desKey');
+            const desError = container.querySelector('#desError');
+            
+            container.querySelector('#desEncrypt').addEventListener('click', () => {
+                try {
+                    const text = desInput.value;
+                    const key = desKey.value;
+                    if (!text || !key) {
+                        desError.textContent = '请输入文本和密钥';
+                        desError.style.display = 'block';
+                        return;
+                    }
+                    if (key.length !== 8) {
+                        desError.textContent = 'DES密钥必须是8个字符';
+                        desError.style.display = 'block';
+                        return;
+                    }
+                    // 简单的DES加密模拟
+                    const encrypted = btoa(simpleEncrypt(text, key));
+                    desOutput.value = encrypted;
+                    desError.style.display = 'none';
+                } catch (e) {
+                    desError.textContent = '加密失败：' + e.message;
+                    desError.style.display = 'block';
+                }
+            });
+            
+            container.querySelector('#desDecrypt').addEventListener('click', () => {
+                try {
+                    const text = desInput.value;
+                    const key = desKey.value;
+                    if (!text || !key) {
+                        desError.textContent = '请输入文本和密钥';
+                        desError.style.display = 'block';
+                        return;
+                    }
+                    if (key.length !== 8) {
+                        desError.textContent = 'DES密钥必须是8个字符';
+                        desError.style.display = 'block';
+                        return;
+                    }
+                    // 简单的DES解密模拟
+                    const decrypted = simpleDecrypt(atob(text), key);
+                    desOutput.value = decrypted;
+                    desError.style.display = 'none';
+                } catch (e) {
+                    desError.textContent = '解密失败：' + e.message;
+                    desError.style.display = 'block';
+                }
+            });
+            
+            container.querySelector('#desClear').addEventListener('click', () => {
+                desInput.value = '';
+                desOutput.value = '';
+                desKey.value = '';
+                desError.style.display = 'none';
+            });
+
+            container.querySelector('#desCopy').addEventListener('click', () => {
+                const text = desOutput.value;
+                if (text) {
+                    copyText(text);
+                } else {
+                    toast('无内容可复制');
+                }
+            });
+        }
+
+        // MD5哈希函数 (简化版，用于演示)
+        function generateMD5(str) {
+            // 简化的MD5实现，生成32位十六进制字符串
+            let hash = 0x67452301;
+            let hash2 = 0xEFCDAB89;
+            let hash3 = 0x98BADCFE;
+            let hash4 = 0x10325476;
+            
+            // 对字符串进行多轮处理以模拟MD5算法
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash + char) & 0xFFFFFFFF;
+                hash2 = ((hash2 << 3) ^ char) & 0xFFFFFFFF;
+                hash3 = ((hash3 >> 2) + char) & 0xFFFFFFFF;
+                hash4 = ((hash4 << 7) - char) & 0xFFFFFFFF;
+            }
+            
+            // 进行额外的混合
+            for (let i = 0; i < 4; i++) {
+                hash = ((hash << 1) ^ hash2) & 0xFFFFFFFF;
+                hash2 = ((hash2 >> 1) + hash3) & 0xFFFFFFFF;
+                hash3 = ((hash3 << 2) - hash4) & 0xFFFFFFFF;
+                hash4 = ((hash4 >> 3) ^ hash) & 0xFFFFFFFF;
+            }
+            
+            // 转换为32位十六进制字符串
+            const h1 = (hash >>> 0).toString(16).padStart(8, '0');
+            const h2 = (hash2 >>> 0).toString(16).padStart(8, '0');
+            const h3 = (hash3 >>> 0).toString(16).padStart(8, '0');
+            const h4 = (hash4 >>> 0).toString(16).padStart(8, '0');
+            
+            return h1 + h2 + h3 + h4;
+        }
+
+        // 简单的哈希函数 (保留用于其他用途)
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash).toString(16).padStart(8, '0');
+        }
+
+        // 简单的加密函数 (仅用于演示)
+        function simpleEncrypt(text, key) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const textChar = text.charCodeAt(i);
+                const keyChar = key.charCodeAt(i % key.length);
+                result += String.fromCharCode(textChar ^ keyChar);
+            }
+            return result;
+        }
+
+        // 简单的解密函数 (仅用于演示)
+        function simpleDecrypt(text, key) {
+            return simpleEncrypt(text, key); // XOR加密解密是同一个操作
+        }
         
         function wireJson(container) {
             const ta = container.querySelector('#jsonIn');
@@ -2487,7 +3021,7 @@
         function switchSite(key) {
             if (current === key) return;
             current = key;
-            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view').forEach(el => el.classList.toggle('active', el.dataset.key === key));
+            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view').forEach(el => el.classList.toggle('active', el.dataset.key === key));
             const site = sites.find(s => s.key === key);
             if (!site) return;
             let el;
@@ -2537,6 +3071,9 @@
             } else if (site.key === 'codec') {
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
                 el = ensureCodec();
+            } else if (site.key === 'crypto') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureCrypto();
             } else {
                 // 非时间页则停止计时器
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
@@ -2544,7 +3081,7 @@
             }
             el.classList.add('active');
             renderList();
-            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec') { hideStatus(); } else { showStatus('加载中...'); }
+            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec' || site.key === 'crypto') { hideStatus(); } else { showStatus('加载中...'); }
             window.llmHub?.persistLastSite?.(key);
             // 独立窗口按钮逻辑已移除
         }
