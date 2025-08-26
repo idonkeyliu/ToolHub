@@ -1402,7 +1402,8 @@
             { key: 'gemini', title: 'Gemini', url: 'https://gemini.google.com', partition: 'persist:gemini' },
             { key: 'deepseek', title: 'DeepSeek', url: 'https://chat.deepseek.com', partition: 'persist:deepseek' },
             { key: 'kimi', title: 'Kimi', url: 'https://kimi.moonshot.cn', partition: 'persist:kimi' },
-            { key: 'grok', title: 'Grok', url: 'https://grok.com', partition: 'persist:grok' }
+            { key: 'grok', title: 'Grok', url: 'https://grok.com', partition: 'persist:grok' },
+            { key: 'claude', title: 'Claude', url: 'https://claude.ai/', partition: 'persist:claude' }
         ];
         const sites = (window.llmHub?.sites?.length ? window.llmHub.sites : builtinSites).map(s => ({ ...s }));
         // 插入时间工具作为一个“站点”
@@ -3009,7 +3010,7 @@
         }
 
 
-        const webviewKeys = new Set(['openai', 'grok']);
+        const webviewKeys = new Set(['openai', 'grok', 'claude']);
 
         function ensureWebview(site) {
             let wv = document.querySelector(`webview.site-view[data-key="${site.key}"]`);
