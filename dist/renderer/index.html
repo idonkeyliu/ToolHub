@@ -572,41 +572,92 @@
         }
 
         .calc-wrap {
-            width: min(820px, 96%);
-            margin: 0 auto;
-            padding-top: 0;
+            width: min(720px, 96%); /* 扩大到1.5倍宽度 */
+            margin: 8vh auto 0; /* 稍微上移一点以适应更大的高度 */
+            padding: 42px 36px; /* 等比例增加内边距 */
+            background: linear-gradient(145deg, #0e1620, #182636);
+            border-radius: 42px; /* 等比例增加圆角 */
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.1),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(70, 90, 120, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 添加机身质感 */
+        .calc-wrap::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            border-radius: 36px 36px 0 0;
+            z-index: 1;
         }
 
         .calc-display {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             margin-top: 0;
+            margin-bottom: 30px;
+            border-radius: 24px;
+            box-shadow: 
+                inset 0 3px 7px rgba(0,0,0,0.3),
+                inset 0 1px 3px rgba(0,0,0,0.4);
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0b1116, #11181f);
+            padding: 5px;
+            border: 1px solid #1d2c38;
         }
 
         .calc-input {
             width: 100%;
             background: #0f151a;
             color: #e5e7eb;
-            border: 1px solid #223038;
-            border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 18px;
+            border: 1px solid #1a252e;
+            border-radius: 18px;
+            padding: 18px 22px;
+            font-size: 26px; /* 增大字体大小 */
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            box-shadow: 
+                inset 0 3px 8px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            height: 76px; /* 增大固定高度 */
+        }
+        
+        .calc-input:focus {
+            border-color: #4a6a85;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(74, 106, 133, 0.2);
+            outline: none;
         }
 
         /* 结果展示：无边框盒子，右对齐大号数字 + 细分隔线 */
         .calc-result {
             position: relative;
-            margin: 0 0 22px;
-            padding: 0 6px;
+            margin: 0 0 30px;
+            padding: 0 8px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             color: #f59e0b;
-            font-size: 40px;
+            font-size: 52px; /* 增大结果字体大小 */
             font-weight: 800;
             text-align: right;
             line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+            transition: all 0.2s ease;
+            height: 64px; /* 增加固定高度 */
+            min-height: 64px; /* 确保最小高度 */
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end; /* 右对齐 */
         }
 
         .calc-result::after {
@@ -640,50 +691,88 @@
         }
 
         .calc-grid {
-            margin-top: 20px;
+            margin-top: 30px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
+            gap: 20px; /* 增加间距 */
+            max-width: 540px; /* 1.5倍的原来宽度 */
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .btn {
-            padding: 12px 0;
+            padding: 20px 0; /* 增加内边距 */
             text-align: center;
             border: 1px solid #2a3440;
-            border-radius: 12px;
-            background: #131a20;
+            border-radius: 28px; /* 增加圆润度 */
+            background: linear-gradient(to bottom, #1b2530, #131a20);
             color: #d6dde1;
             cursor: pointer;
             user-select: none;
-            font-size: 16px;
-            transition: background .15s, color .15s, border-color .15s, transform .05s;
+            font-size: 28px; /* 进一步增大字体大小 */
+            font-weight: 500; /* 增加字体粗细 */
+            transition: all 0.2s ease; /* 更平滑的过渡效果 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.1); /* 强化立体感 */
         }
 
         .btn:active {
-            transform: scale(.98);
+            transform: translateY(2px) scale(.97);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 5px rgba(0,0,0,0.3); /* 按下时减小阴影且添加内阴影 */
+            background: linear-gradient(to bottom, #131a20, #131a20); /* 按下时取消渐变 */
         }
 
         .btn:hover {
-            background: #1e2a33;
+            background: linear-gradient(to bottom, #263a47, #1a2936);
             color: #fff;
-            border-color: #344758;
+            border-color: #4a6a85;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.15); /* 悬停时增加阴影 */
         }
 
         .btn.num {
-            background: #14314a;
+            background: linear-gradient(to bottom, #1d4263, #14314a);
             border-color: #1f4a6b;
             color: #d7ecff;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .btn.num:hover {
-            background: #194060;
+            background: linear-gradient(to bottom, #23506f, #194060);
             border-color: #2a5f89;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
         }
 
         .btn.op {
-            background: #3b254d;
+            background: linear-gradient(to bottom, #472e5c, #3b254d);
             border-color: #55346d;
             color: #f3e8ff;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* 添加按钮按下和悬停的波纹效果 */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        .btn:hover::after {
+            width: 120%;
+            height: 120%;
+            opacity: 1;
         }
 
         .btn.op:hover {
@@ -692,14 +781,39 @@
         }
 
         .btn.ctrl {
-            background: #4a2e1f;
+            background: linear-gradient(to bottom, #5a3826, #4a2e1f);
             border-color: #704329;
             color: #ffe6c2;
+            position: relative;
+            overflow: hidden;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* AC按钮特殊黄色样式 */
+        .btn.ctrl[data-act="ac"] {
+            background: linear-gradient(to bottom, #d9a900, #bb8f00);
+            border-color: #e6b300;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
 
         .btn.ctrl:hover {
-            background: #5a3826;
+            background: linear-gradient(to bottom, #6a4430, #583424);
             border-color: #8a5639;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+        }
+        
+        /* AC按钮特殊悬停效果 */
+        .btn.ctrl[data-act="ac"]:hover {
+            background: linear-gradient(to bottom, #edba00, #d9a900);
+            border-color: #ffc700;
+            box-shadow: 0 5px 12px rgba(203, 157, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+        }
+        
+        .btn.ctrl[data-act="ac"]:active {
+            background: linear-gradient(to bottom, #bb8f00, #a37b00);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 1px 5px rgba(0,0,0,0.3);
         }
 
         .calc-row {
@@ -711,11 +825,19 @@
         }
 
         /* 放大底部 AC/回退按钮 */
+        .calc-row {
+            max-width: 540px; /* 1.5倍的原来宽度 */
+            margin: 20px auto 0;
+            display: flex;
+            gap: 20px; /* 增加间距 */
+        }
+        
         .calc-row .btn {
             flex: 1 1 0;
-            height: 64px;
-            font-size: 20px;
-            border-radius: 14px;
+            height: 80px; /* 增加高度 */
+            font-size: 30px; /* 进一步增大字体大小 */
+            border-radius: 28px; /* 保持和其他按钮一致的圆润感 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.1); /* 更强的阴影效果 */
         }
 
         /* DNS 解析工具 */
