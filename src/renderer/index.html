@@ -184,22 +184,36 @@
             justify-content: center;
             flex-direction: column;
             background: #0d1114;
+            padding-bottom: 3vh; /* 减少底部间距 */
+            padding-top: 3vh; /* 添加顶部间距，让内容整体上移 */
         }
 
         .time-wrap {
             width: min(980px, 96%);
             margin: 0 auto;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .time-big {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 42px;
+            font-size: 46px;
             line-height: 1.2;
-            letter-spacing: 0.4px;
-            color: #ffffff;
+            letter-spacing: 0.6px;
             text-shadow: 0 2px 20px rgba(0, 0, 0, .25);
+            margin-top: 10vh; /* 减少顶部间距，整体向上移动一点 */
         }
+        
+        /* Monokai风格的彩色时间 */
+        .time-big .year { color: #F92672; }
+        .time-big .month { color: #66D9EF; }
+        .time-big .day { color: #A6E22E; }
+        .time-big .hour { color: #FD971F; }
+        .time-big .minute { color: #AE81FF; }
+        .time-big .second { color: #E6DB74; }
+        .time-big .divider { color: #75715E; }
 
         .time-sub {
             margin-top: 12px;
@@ -209,10 +223,11 @@
         }
 
         .time-grid {
-            margin: 20px auto 0;
+            margin: 25px auto 0; /* 减少顶部间距，整体上移 */
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
+            gap: 20px;
+            max-width: 900px;
         }
 
         .stamp-box {
@@ -222,12 +237,19 @@
             background: #11181d;
             border: 1px solid #223038;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 14px 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .stamp-box:hover {
+            border-color: #2a3440;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .stamp-box .label {
             color: #c7d0d6;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .stamp-box .value {
@@ -238,16 +260,17 @@
             background: #0f151a;
             border: 1px solid #223038;
             border-radius: 8px;
-            padding: 3px 10px;
+            padding: 4px 12px;
         }
 
         .stamp-box .copy-btn {
-            padding: 4px 8px;
+            padding: 5px 10px;
             border: 1px solid #2a3440;
             border-radius: 8px;
             background: #1a2024;
             color: #cfd5d9;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
 
         .stamp-box .copy-btn:hover {
@@ -299,6 +322,15 @@
             min-width: 0;
             width: 80px;
             text-align: center;
+            /* 移除输入框的加减操作按钮 */
+            appearance: textfield;
+        }
+
+        #dtRow input::-webkit-outer-spin-button,
+        #dtRow input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
         }
 
         #dtRow input+input {
@@ -1507,7 +1539,11 @@
             const ss = two(now.getSeconds());
             return `
                 <div class="time-wrap">
-            <div class="time-big">${y}-${M}-${d} ${hh}:${mm}:${ss}</div>
+                    <div class="time-big">
+                        <span class="year">${y}</span><span class="divider">-</span><span class="month">${M}</span><span class="divider">-</span><span class="day">${d}</span>
+                        <span class="divider"> </span>
+                        <span class="hour">${hh}</span><span class="divider">:</span><span class="minute">${mm}</span><span class="divider">:</span><span class="second">${ss}</span>
+                    </div>
                     <div class="time-grid">
                         <div class="stamp-box">
                             <div class="label">Unix 秒</div>
@@ -1527,12 +1563,12 @@
                         </div>
                         <div class="stamp-box full" id="dtRow">
                             <div class="label">日期时间 → 时间戳</div>
-                            <input id="dtY" type="number" inputmode="numeric" placeholder="YYYY" />
-                            <input id="dtM" type="number" inputmode="numeric" placeholder="MM" />
-                            <input id="dtD" type="number" inputmode="numeric" placeholder="DD" />
-                            <input id="dtH" type="number" inputmode="numeric" placeholder="hh" />
-                            <input id="dtMin" type="number" inputmode="numeric" placeholder="mm" />
-                            <input id="dtS" type="number" inputmode="numeric" placeholder="ss" />
+                            <input id="dtY" type="number" inputmode="numeric" placeholder="YYYY" style="width: 60px;" />
+                            <input id="dtM" type="number" inputmode="numeric" placeholder="MM" style="width: 50px;" />
+                            <input id="dtD" type="number" inputmode="numeric" placeholder="DD" style="width: 50px;" />
+                            <input id="dtH" type="number" inputmode="numeric" placeholder="hh" style="width: 50px;" />
+                            <input id="dtMin" type="number" inputmode="numeric" placeholder="mm" style="width: 50px;" />
+                            <input id="dtS" type="number" inputmode="numeric" placeholder="ss" style="width: 50px;" />
                             <div class="value" id="dtConvOut"></div>
                             <button class="copy-btn" id="dtCopyBtn" title="复制转换结果" aria-label="复制转换结果">复制</button>
                         </div>
@@ -3062,7 +3098,13 @@
                         const mm = two(now.getMinutes());
                         const ss = two(now.getSeconds());
                         const big = container.querySelector('.time-big');
-                        if (big) big.textContent = `${y}-${M}-${d} ${hh}:${mm}:${ss}`;
+                        if (big) {
+                            big.innerHTML = `
+                                <span class="year">${y}</span><span class="divider">-</span><span class="month">${M}</span><span class="divider">-</span><span class="day">${d}</span>
+                                <span class="divider"> </span>
+                                <span class="hour">${hh}</span><span class="divider">:</span><span class="minute">${mm}</span><span class="divider">:</span><span class="second">${ss}</span>
+                            `;
+                        }
                         const secEl = container.querySelector('#unixSecVal');
                         if (secEl) secEl.textContent = String(secNow);
                     }
