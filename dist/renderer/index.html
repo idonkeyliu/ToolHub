@@ -1531,6 +1531,8 @@
             <div class="ver" id="verWrap">v<span id="ver"></span></div>
             <button id="btnStats"
                 style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">统计</button>
+            <button id="btnSettings"
+                style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">设置</button>
         </header>
         <main>
             <div class="status" id="status">加载中...</div>
@@ -1547,6 +1549,23 @@
                 <div id="statsBody"
                     style="padding:10px 12px;font-size:12px;line-height:1.6;max-height:50vh;overflow:auto;"></div>
             </div>
+            
+            <div id="settingsPanel"
+                style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:340px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1f262c;">
+                    <strong style="flex:1;">设置</strong>
+                    <button id="settingsSave"
+                        style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;">保存</button>
+                </div>
+                <div style="padding:16px 18px;">
+                    <div style="margin-bottom:16px;">
+                        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#e5e7eb;">模块管理</div>
+                        <div style="font-size:12px;margin-bottom:12px;color:#9ca3af;">选择要在顶部显示的页面</div>
+                        <div id="modulesList" style="display:flex;flex-direction:column;gap:10px;padding-left:4px;"></div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="toast"></div>
         </main>
     </div>
@@ -1562,6 +1581,9 @@
             { key: 'doubao', title: '豆包', url: 'https://www.doubao.com/', partition: 'persist:doubao' }
         ];
         const sites = (window.llmHub?.sites?.length ? window.llmHub.sites : builtinSites).map(s => ({ ...s }));
+        
+        // 从本地存储加载模块可见性设置
+        const moduleVisibility = JSON.parse(localStorage.getItem('moduleVisibility') || '{}');
         // 插入时间工具作为一个“站点”
         if (!sites.find(s => s.key === 'time')) {
             sites.push({ key: 'time', title: '时间戳' });
@@ -1597,6 +1619,12 @@
         const statsPanel = document.getElementById('statsPanel');
         const statsBody = document.getElementById('statsBody');
         const statsRange = document.getElementById('statsRange');
+        
+        // 设置面板相关元素
+        const btnSettings = document.getElementById('btnSettings');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const modulesList = document.getElementById('modulesList');
+        const settingsSave = document.getElementById('settingsSave');
 
         function showStatus(text, cls) {
             statusEl.textContent = text;
@@ -1609,12 +1637,15 @@
         function renderList() {
             listEl.innerHTML = '';
             sites.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'item' + (s.key === current ? ' active' : '');
-                div.dataset.key = s.key;
-                div.innerHTML = `<span class="icon">${siteIcon(s.title)}</span><span class="t">${s.title}</span>`;
-                div.onclick = () => switchSite(s.key);
-                listEl.appendChild(div);
+                // 只渲染设置为可见的站点
+                if (moduleVisibility[s.key] !== false) {
+                    const div = document.createElement('div');
+                    div.className = 'item' + (s.key === current ? ' active' : '');
+                    div.dataset.key = s.key;
+                    div.innerHTML = `<span class="icon">${siteIcon(s.title)}</span><span class="t">${s.title}</span>`;
+                    div.onclick = () => switchSite(s.key);
+                    listEl.appendChild(div);
+                }
             });
         }
 
@@ -3270,6 +3301,13 @@
         }
 
         function init() {
+            // 为每个站点初始化可见性设置（如果不存在）
+            sites.forEach(site => {
+                if (moduleVisibility[site.key] === undefined) {
+                    moduleVisibility[site.key] = true; // 默认可见
+                }
+            });
+            
             renderList();
             const first = window.llmHub?.lastSite || sites[0]?.key;
             if (first) switchSite(first);
@@ -3279,6 +3317,12 @@
                 if (!panel) return;
                 const visible = panel.style.display === 'block';
                 panel.style.display = visible ? 'none' : 'block';
+                
+                // 关闭设置面板
+                if (settingsPanel) {
+                    settingsPanel.style.display = 'none';
+                }
+                
                 if (!visible) {
                     // 等待一下再渲染统计，确保API已就绪
                     setTimeout(renderStats, 100);
@@ -3296,6 +3340,75 @@
         } else {
             setTimeout(init, 200);
         }
+        
+        // 设置面板相关功能
+        function renderSettingsPanel() {
+            modulesList.innerHTML = '';
+            
+            sites.forEach(site => {
+                const checked = moduleVisibility[site.key] !== false;
+                const moduleRow = document.createElement('div');
+                moduleRow.style.display = 'flex';
+                moduleRow.style.alignItems = 'center';
+                moduleRow.style.gap = '8px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `module-${site.key}`;
+                checkbox.checked = checked;
+                checkbox.style.cursor = 'pointer';
+                
+                const label = document.createElement('label');
+                label.htmlFor = `module-${site.key}`;
+                label.textContent = site.title;
+                label.style.cursor = 'pointer';
+                label.style.color = '#e5e7eb';
+                
+                moduleRow.appendChild(checkbox);
+                moduleRow.appendChild(label);
+                modulesList.appendChild(moduleRow);
+            });
+        }
+        
+        function saveModuleSettings() {
+            sites.forEach(site => {
+                const checkbox = document.getElementById(`module-${site.key}`);
+                if (checkbox) {
+                    moduleVisibility[site.key] = checkbox.checked;
+                }
+            });
+            
+            localStorage.setItem('moduleVisibility', JSON.stringify(moduleVisibility));
+            renderList();
+            settingsPanel.style.display = 'none';
+            toast('设置已保存');
+        }
+        
+        // 设置面板交互
+        btnSettings?.addEventListener('click', () => {
+            // 关闭统计面板
+            statsPanel.style.display = 'none';
+            
+            // 显示/隐藏设置面板
+            const isVisible = settingsPanel.style.display === 'block';
+            settingsPanel.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                renderSettingsPanel();
+            }
+        });
+        
+        // 保存按钮点击事件
+        settingsSave?.addEventListener('click', saveModuleSettings);
+        
+        // 点击其他区域关闭面板
+        document.addEventListener('click', (e) => {
+            if (settingsPanel.style.display === 'block' && 
+                !settingsPanel.contains(e.target) && 
+                e.target !== btnSettings) {
+                settingsPanel.style.display = 'none';
+            }
+        });
         
         // 调试：检查window对象
         setTimeout(() => {
