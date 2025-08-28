@@ -184,8 +184,10 @@
             justify-content: center;
             flex-direction: column;
             background: #0d1114;
-            padding-bottom: 3vh; /* 减少底部间距 */
-            padding-top: 3vh; /* 添加顶部间距，让内容整体上移 */
+            padding-bottom: 3vh;
+            /* 减少底部间距 */
+            padding-top: 3vh;
+            /* 添加顶部间距，让内容整体上移 */
         }
 
         .time-wrap {
@@ -203,17 +205,38 @@
             line-height: 1.2;
             letter-spacing: 0.6px;
             text-shadow: 0 2px 20px rgba(0, 0, 0, .25);
-            margin-top: 10vh; /* 减少顶部间距，整体向上移动一点 */
+            margin-top: 10vh;
+            /* 减少顶部间距，整体向上移动一点 */
         }
-        
+
         /* Monokai风格的彩色时间 */
-        .time-big .year { color: #F92672; }
-        .time-big .month { color: #66D9EF; }
-        .time-big .day { color: #A6E22E; }
-        .time-big .hour { color: #FD971F; }
-        .time-big .minute { color: #AE81FF; }
-        .time-big .second { color: #E6DB74; }
-        .time-big .divider { color: #75715E; }
+        .time-big .year {
+            color: #F92672;
+        }
+
+        .time-big .month {
+            color: #66D9EF;
+        }
+
+        .time-big .day {
+            color: #A6E22E;
+        }
+
+        .time-big .hour {
+            color: #FD971F;
+        }
+
+        .time-big .minute {
+            color: #AE81FF;
+        }
+
+        .time-big .second {
+            color: #E6DB74;
+        }
+
+        .time-big .divider {
+            color: #75715E;
+        }
 
         .time-sub {
             margin-top: 12px;
@@ -223,7 +246,8 @@
         }
 
         .time-grid {
-            margin: 25px auto 0; /* 减少顶部间距，整体上移 */
+            margin: 25px auto 0;
+            /* 减少顶部间距，整体上移 */
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 20px;
@@ -240,7 +264,7 @@
             padding: 14px 16px;
             transition: all 0.2s ease;
         }
-        
+
         .stamp-box:hover {
             border-color: #2a3440;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -572,12 +596,16 @@
         }
 
         .calc-wrap {
-            width: min(720px, 96%); /* 扩大到1.5倍宽度 */
-            margin: 8vh auto 0; /* 稍微上移一点以适应更大的高度 */
-            padding: 42px 36px; /* 等比例增加内边距 */
+            width: min(720px, 96%);
+            /* 扩大到1.5倍宽度 */
+            margin: 8vh auto 0;
+            /* 稍微上移一点以适应更大的高度 */
+            padding: 42px 36px;
+            /* 等比例增加内边距 */
             background: linear-gradient(145deg, #0e1620, #182636);
-            border-radius: 42px; /* 等比例增加圆角 */
-            box-shadow: 
+            border-radius: 42px;
+            /* 等比例增加圆角 */
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.4),
                 0 8px 20px rgba(0, 0, 0, 0.3),
                 inset 0 1px 2px rgba(255, 255, 255, 0.1),
@@ -587,7 +615,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         /* 添加机身质感 */
         .calc-wrap::before {
             content: "";
@@ -596,7 +624,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
             border-radius: 36px 36px 0 0;
             z-index: 1;
         }
@@ -609,9 +637,9 @@
             margin-top: 0;
             margin-bottom: 30px;
             border-radius: 24px;
-            box-shadow: 
-                inset 0 3px 7px rgba(0,0,0,0.3),
-                inset 0 1px 3px rgba(0,0,0,0.4);
+            box-shadow:
+                inset 0 3px 7px rgba(0, 0, 0, 0.3),
+                inset 0 1px 3px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             background: linear-gradient(to bottom, #0b1116, #11181f);
             padding: 5px;
@@ -625,15 +653,17 @@
             border: 1px solid #1a252e;
             border-radius: 18px;
             padding: 18px 22px;
-            font-size: 26px; /* 增大字体大小 */
+            font-size: 26px;
+            /* 增大字体大小 */
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            box-shadow: 
+            box-shadow:
                 inset 0 3px 8px rgba(0, 0, 0, 0.3),
                 inset 0 1px 2px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
-            height: 76px; /* 增大固定高度 */
+            height: 76px;
+            /* 增大固定高度 */
         }
-        
+
         .calc-input:focus {
             border-color: #4a6a85;
             box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(74, 106, 133, 0.2);
@@ -647,17 +677,21 @@
             padding: 0 8px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             color: #f59e0b;
-            font-size: 52px; /* 增大结果字体大小 */
+            font-size: 52px;
+            /* 增大结果字体大小 */
             font-weight: 800;
             text-align: right;
             line-height: 1.2;
             text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
             transition: all 0.2s ease;
-            height: 64px; /* 增加固定高度 */
-            min-height: 64px; /* 确保最小高度 */
+            height: 64px;
+            /* 增加固定高度 */
+            min-height: 64px;
+            /* 确保最小高度 */
             display: flex;
             align-items: flex-end;
-            justify-content: flex-end; /* 右对齐 */
+            justify-content: flex-end;
+            /* 右对齐 */
         }
 
         .calc-result::after {
@@ -694,38 +728,49 @@
             margin-top: 30px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 20px; /* 增加间距 */
-            max-width: 540px; /* 1.5倍的原来宽度 */
+            gap: 20px;
+            /* 增加间距 */
+            max-width: 540px;
+            /* 1.5倍的原来宽度 */
             margin-left: auto;
             margin-right: auto;
         }
 
         .btn {
-            padding: 20px 0; /* 增加内边距 */
+            padding: 20px 0;
+            /* 增加内边距 */
             text-align: center;
             border: 1px solid #2a3440;
-            border-radius: 28px; /* 增加圆润度 */
+            border-radius: 28px;
+            /* 增加圆润度 */
             background: linear-gradient(to bottom, #1b2530, #131a20);
             color: #d6dde1;
             cursor: pointer;
             user-select: none;
-            font-size: 28px; /* 进一步增大字体大小 */
-            font-weight: 500; /* 增加字体粗细 */
-            transition: all 0.2s ease; /* 更平滑的过渡效果 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.1); /* 强化立体感 */
+            font-size: 28px;
+            /* 进一步增大字体大小 */
+            font-weight: 500;
+            /* 增加字体粗细 */
+            transition: all 0.2s ease;
+            /* 更平滑的过渡效果 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            /* 强化立体感 */
         }
 
         .btn:active {
             transform: translateY(2px) scale(.97);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 5px rgba(0,0,0,0.3); /* 按下时减小阴影且添加内阴影 */
-            background: linear-gradient(to bottom, #131a20, #131a20); /* 按下时取消渐变 */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 5px rgba(0, 0, 0, 0.3);
+            /* 按下时减小阴影且添加内阴影 */
+            background: linear-gradient(to bottom, #131a20, #131a20);
+            /* 按下时取消渐变 */
         }
 
         .btn:hover {
             background: linear-gradient(to bottom, #263a47, #1a2936);
             color: #fff;
             border-color: #4a6a85;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.15); /* 悬停时增加阴影 */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            /* 悬停时增加阴影 */
         }
 
         .btn.num {
@@ -734,13 +779,13 @@
             color: #d7ecff;
             position: relative;
             overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .btn.num:hover {
             background: linear-gradient(to bottom, #23506f, #194060);
             border-color: #2a5f89;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
         }
 
         .btn.op {
@@ -750,9 +795,9 @@
             font-weight: bold;
             position: relative;
             overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* 添加按钮按下和悬停的波纹效果 */
         .btn::after {
             content: '';
@@ -761,14 +806,14 @@
             left: 50%;
             width: 0;
             height: 0;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             transition: width 0.4s, height 0.4s;
             pointer-events: none;
             opacity: 0;
         }
-        
+
         .btn:hover::after {
             width: 120%;
             height: 120%;
@@ -787,33 +832,33 @@
             position: relative;
             overflow: hidden;
             font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* AC按钮特殊黄色样式 */
         .btn.ctrl[data-act="ac"] {
             background: linear-gradient(to bottom, #d9a900, #bb8f00);
             border-color: #e6b300;
             color: #fff;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .btn.ctrl:hover {
             background: linear-gradient(to bottom, #6a4430, #583424);
             border-color: #8a5639;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
         }
-        
+
         /* AC按钮特殊悬停效果 */
         .btn.ctrl[data-act="ac"]:hover {
             background: linear-gradient(to bottom, #edba00, #d9a900);
             border-color: #ffc700;
-            box-shadow: 0 5px 12px rgba(203, 157, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+            box-shadow: 0 5px 12px rgba(203, 157, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
         }
-        
+
         .btn.ctrl[data-act="ac"]:active {
             background: linear-gradient(to bottom, #bb8f00, #a37b00);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 1px 5px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px 5px rgba(0, 0, 0, 0.3);
         }
 
         .calc-row {
@@ -826,18 +871,24 @@
 
         /* 放大底部 AC/回退按钮 */
         .calc-row {
-            max-width: 540px; /* 1.5倍的原来宽度 */
+            max-width: 540px;
+            /* 1.5倍的原来宽度 */
             margin: 20px auto 0;
             display: flex;
-            gap: 20px; /* 增加间距 */
+            gap: 20px;
+            /* 增加间距 */
         }
-        
+
         .calc-row .btn {
             flex: 1 1 0;
-            height: 80px; /* 增加高度 */
-            font-size: 30px; /* 进一步增大字体大小 */
-            border-radius: 28px; /* 保持和其他按钮一致的圆润感 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.1); /* 更强的阴影效果 */
+            height: 80px;
+            /* 增加高度 */
+            font-size: 30px;
+            /* 进一步增大字体大小 */
+            border-radius: 28px;
+            /* 保持和其他按钮一致的圆润感 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            /* 更强的阴影效果 */
         }
 
         /* DNS 解析工具 */
@@ -1529,27 +1580,12 @@
             <div class="brand">ToolHub</div>
             <div class="nav-list" id="siteList"></div>
             <div class="ver" id="verWrap">v<span id="ver"></span></div>
-            <button id="btnStats"
-                style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">统计</button>
             <button id="btnSettings"
                 style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">设置</button>
         </header>
         <main>
             <div class="status" id="status">加载中...</div>
-            <div id="statsPanel"
-                style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:320px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
-                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1f262c;">
-                    <strong style="flex:1;">使用统计</strong>
-                    <select id="statsRange"
-                        style="background:#161b20;color:#cfd5d9;border:1px solid #2a3440;border-radius:6px;padding:4px 6px;font-size:12px;">
-                        <option value="today">今日</option>
-                        <option value="7d">近7天</option>
-                    </select>
-                </div>
-                <div id="statsBody"
-                    style="padding:10px 12px;font-size:12px;line-height:1.6;max-height:50vh;overflow:auto;"></div>
-            </div>
-            
+
             <div id="settingsPanel"
                 style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:340px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
                 <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1f262c;">
@@ -1561,11 +1597,12 @@
                     <div style="margin-bottom:16px;">
                         <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#e5e7eb;">模块管理</div>
                         <div style="font-size:12px;margin-bottom:12px;color:#9ca3af;">选择要在顶部显示的页面</div>
-                        <div id="modulesList" style="display:flex;flex-direction:column;gap:10px;padding-left:4px;"></div>
+                        <div id="modulesList" style="display:flex;flex-direction:column;gap:10px;padding-left:4px;">
+                        </div>
                     </div>
                 </div>
             </div>
-            
+
             <div id="toast"></div>
         </main>
     </div>
@@ -1581,7 +1618,7 @@
             { key: 'doubao', title: '豆包', url: 'https://www.doubao.com/', partition: 'persist:doubao' }
         ];
         const sites = (window.llmHub?.sites?.length ? window.llmHub.sites : builtinSites).map(s => ({ ...s }));
-        
+
         // 从本地存储加载模块可见性设置
         const moduleVisibility = JSON.parse(localStorage.getItem('moduleVisibility') || '{}');
         // 插入时间工具作为一个“站点”
@@ -1615,11 +1652,7 @@
         const verEl = document.getElementById('ver');
         // 独立窗口按钮已移除
         verEl.textContent = window.llmHub?.version || '';
-        const btnStats = document.getElementById('btnStats');
-        const statsPanel = document.getElementById('statsPanel');
-        const statsBody = document.getElementById('statsBody');
-        const statsRange = document.getElementById('statsRange');
-        
+
         // 设置面板相关元素
         const btnSettings = document.getElementById('btnSettings');
         const settingsPanel = document.getElementById('settingsPanel');
@@ -2444,7 +2477,7 @@
             if (uCard) uCard.style.display = useU?.checked ? 'block' : 'none';
             if (customEp) customEp.style.display = useU?.checked ? 'block' : 'none';
         }
-        
+
         // 编解码工具
         function buildCodecHTML() {
             return `
@@ -2519,7 +2552,7 @@
                 </div>
             </div>`;
         }
-        
+
         function ensureCodec() {
             let cv = document.querySelector('div.codec-view[data-key="codec"]');
             if (!cv) {
@@ -2531,12 +2564,12 @@
             wireCodec(cv);
             return cv;
         }
-        
+
         function wireCodec(container) {
             // 标签切换
             const tabs = container.querySelectorAll('.codec-tab');
             const panels = container.querySelectorAll('.codec-panel');
-            
+
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const target = tab.getAttribute('data-tab');
@@ -2546,12 +2579,12 @@
                     container.querySelector(`[data-panel="${target}"]`).classList.add('active');
                 });
             });
-            
+
             // URL 编解码
             const urlDecoded = container.querySelector('#urlDecoded');
             const urlEncoded = container.querySelector('#urlEncoded');
             const urlError = container.querySelector('#urlError');
-            
+
             container.querySelector('#urlEncode').addEventListener('click', () => {
                 try {
                     const text = urlDecoded.value;
@@ -2562,7 +2595,7 @@
                     urlError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#urlDecode').addEventListener('click', () => {
                 try {
                     const text = urlEncoded.value;
@@ -2573,7 +2606,7 @@
                     urlError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#urlClear').addEventListener('click', () => {
                 urlDecoded.value = '';
                 urlEncoded.value = '';
@@ -2588,12 +2621,12 @@
                     toast('无内容可复制');
                 }
             });
-            
+
             // Base64 编解码
             const base64Decoded = container.querySelector('#base64Decoded');
             const base64Encoded = container.querySelector('#base64Encoded');
             const base64Error = container.querySelector('#base64Error');
-            
+
             container.querySelector('#base64Encode').addEventListener('click', () => {
                 try {
                     const text = base64Decoded.value;
@@ -2604,7 +2637,7 @@
                     base64Error.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#base64Decode').addEventListener('click', () => {
                 try {
                     const text = base64Encoded.value;
@@ -2615,7 +2648,7 @@
                     base64Error.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#base64Clear').addEventListener('click', () => {
                 base64Decoded.value = '';
                 base64Encoded.value = '';
@@ -2630,12 +2663,12 @@
                     toast('无内容可复制');
                 }
             });
-            
+
             // Unicode 编解码
             const unicodeDecoded = container.querySelector('#unicodeDecoded');
             const unicodeEncoded = container.querySelector('#unicodeEncoded');
             const unicodeError = container.querySelector('#unicodeError');
-            
+
             container.querySelector('#unicodeEncode').addEventListener('click', () => {
                 try {
                     const text = unicodeDecoded.value;
@@ -2651,7 +2684,7 @@
                     unicodeError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#unicodeDecode').addEventListener('click', () => {
                 try {
                     const text = unicodeEncoded.value;
@@ -2665,7 +2698,7 @@
                     unicodeError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#unicodeClear').addEventListener('click', () => {
                 unicodeDecoded.value = '';
                 unicodeEncoded.value = '';
@@ -2795,7 +2828,7 @@
             // Tab 切换
             const tabs = container.querySelectorAll('.crypto-tab');
             const panels = container.querySelectorAll('.crypto-panel');
-            
+
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const target = tab.getAttribute('data-tab');
@@ -2805,7 +2838,7 @@
                     container.querySelector(`[data-panel="${target}"]`).classList.add('active');
                 });
             });
-            
+
             // MD5 哈希
             const md5Input = container.querySelector('#md5Input');
             const md5Output32Lower = container.querySelector('#md5Output32Lower');
@@ -2813,7 +2846,7 @@
             const md5Output16Lower = container.querySelector('#md5Output16Lower');
             const md5Output16Upper = container.querySelector('#md5Output16Upper');
             const md5Error = container.querySelector('#md5Error');
-            
+
             container.querySelector('#md5Generate').addEventListener('click', () => {
                 try {
                     const text = md5Input.value;
@@ -2824,7 +2857,7 @@
                     }
                     const hash32 = generateMD5(text);
                     const hash16 = hash32.substring(8, 24);
-                    
+
                     md5Output32Lower.value = hash32.toLowerCase();
                     md5Output32Upper.value = hash32.toUpperCase();
                     md5Output16Lower.value = hash16.toLowerCase();
@@ -2835,7 +2868,7 @@
                     md5Error.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#md5Clear').addEventListener('click', () => {
                 md5Input.value = '';
                 md5Output32Lower.value = '';
@@ -2880,13 +2913,13 @@
                     toast('无内容可复制');
                 }
             });
-            
+
             // AES 加解密
             const aesInput = container.querySelector('#aesInput');
             const aesOutput = container.querySelector('#aesOutput');
             const aesKey = container.querySelector('#aesKey');
             const aesError = container.querySelector('#aesError');
-            
+
             container.querySelector('#aesEncrypt').addEventListener('click', () => {
                 try {
                     const text = aesInput.value;
@@ -2905,7 +2938,7 @@
                     aesError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#aesDecrypt').addEventListener('click', () => {
                 try {
                     const text = aesInput.value;
@@ -2924,7 +2957,7 @@
                     aesError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#aesClear').addEventListener('click', () => {
                 aesInput.value = '';
                 aesOutput.value = '';
@@ -2940,13 +2973,13 @@
                     toast('无内容可复制');
                 }
             });
-            
+
             // DES 加解密
             const desInput = container.querySelector('#desInput');
             const desOutput = container.querySelector('#desOutput');
             const desKey = container.querySelector('#desKey');
             const desError = container.querySelector('#desError');
-            
+
             container.querySelector('#desEncrypt').addEventListener('click', () => {
                 try {
                     const text = desInput.value;
@@ -2970,7 +3003,7 @@
                     desError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#desDecrypt').addEventListener('click', () => {
                 try {
                     const text = desInput.value;
@@ -2994,7 +3027,7 @@
                     desError.style.display = 'block';
                 }
             });
-            
+
             container.querySelector('#desClear').addEventListener('click', () => {
                 desInput.value = '';
                 desOutput.value = '';
@@ -3019,7 +3052,7 @@
             let hash2 = 0xEFCDAB89;
             let hash3 = 0x98BADCFE;
             let hash4 = 0x10325476;
-            
+
             for (let i = 0; i < str.length; i++) {
                 const char = str.charCodeAt(i);
                 hash = ((hash << 5) - hash) + char;
@@ -3031,11 +3064,11 @@
                 hash4 = ((hash4 << 13) - hash4) + char * 11;
                 hash4 = hash4 & hash4;
             }
-            
-            const result = Math.abs(hash).toString(16).padStart(8, '0') + 
-                          Math.abs(hash2).toString(16).padStart(8, '0') + 
-                          Math.abs(hash3).toString(16).padStart(8, '0') + 
-                          Math.abs(hash4).toString(16).padStart(8, '0');
+
+            const result = Math.abs(hash).toString(16).padStart(8, '0') +
+                Math.abs(hash2).toString(16).padStart(8, '0') +
+                Math.abs(hash3).toString(16).padStart(8, '0') +
+                Math.abs(hash4).toString(16).padStart(8, '0');
             return result.substring(0, 32);
         }
 
@@ -3054,7 +3087,7 @@
         function simpleDecrypt(text, key) {
             return simpleEncrypt(text, key); // XOR加密解密是同一个操作
         }
-        
+
         function wireTimeCopy(container) {
             container.querySelectorAll('.copy-btn').forEach(btn => {
                 const targetId = btn.getAttribute('data-target');
@@ -3141,47 +3174,7 @@
 
         // 计时器在 ensureTime 区域声明
 
-        function formatMs(ms) {
-            const s = Math.floor((ms || 0) / 1000);
-            const m = Math.floor(s / 60), sec = s % 60;
-            const h = Math.floor(m / 60), min = m % 60;
-            if (h) return `${h}h ${min}m`;
-            if (m) return `${m}m ${sec}s`;
-            return `${sec}s`;
-        }
-
-        async function renderStats() {
-            try {
-                const range = (statsRange && statsRange.value) || 'today';
-                // 等待usage API就绪
-                let retries = 0;
-                while (!window.usage && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retries++;
-                }
-                const bridgeReady = !!(window.usage && window.usage.getSummary && window.usage.siteSwitch);
-                const sum = await (bridgeReady ? window.usage.getSummary(range) : null);
-                if (!statsBody) { return; }
-                if (!sum) {
-                    statsBody.innerHTML = `<div style="color:#9aa7b1;">
-                暂无数据<br/>
-                <span style="opacity:.8;">状态：${bridgeReady ? '已连接' : '统计桥未就绪'}</span>
-            </div>`;
-                    return;
-                }
-                const rows = [];
-                rows.push(`<div style="margin-bottom:6px;color:#8aa2b2;">应用启动：${sum.appStarts}</div>`);
-                const entries = Object.entries(sum.totals || {}).sort((a, b) => (((b[1] && b[1].activeMs) || 0) - ((a[1] && a[1].activeMs) || 0)));
-                if (!entries.length) { rows.push('<div style="color:#9aa7b1;">暂无站点数据，切换任意站点后再查看</div>'); }
-                for (const [site, stat] of entries) {
-                    rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;">
-                        <span>${site}</span>
-                        <span style="color:#9cc3d8;">切换 ${stat.openCount || 0} 次 · 活跃 ${formatMs(stat.activeMs || 0)}</span>
-                    </div>`);
-                }
-                statsBody.innerHTML = rows.join('');
-            } catch (e) { if (statsBody) statsBody.innerHTML = `<div style="color:#fca5a5;">加载统计失败：${e}</div>`; }
-        }
+        // 统计相关函数已移除
 
         function ensureFrame(site) {
             let fr = document.querySelector(`iframe.site-frame[data-key="${site.key}"]`);
@@ -3225,10 +3218,6 @@
         function switchSite(key) {
             if (current === key) return;
             current = key;
-            // 上报使用统计
-            try { if (window.usage && window.usage.siteSwitch) window.usage.siteSwitch(key); } catch (e) { }
-            // 如果统计面板已打开，切换后刷新
-            if (statsPanel && statsPanel.style.display === 'block') { renderStats(); }
             document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view').forEach(el => el.classList.toggle('active', el.dataset.key === key));
             const site = sites.find(s => s.key === key);
             if (!site) return;
@@ -3307,30 +3296,12 @@
                     moduleVisibility[site.key] = true; // 默认可见
                 }
             });
-            
+
             renderList();
             const first = window.llmHub?.lastSite || sites[0]?.key;
             if (first) switchSite(first);
-            // 统计面板交互
-            btnStats?.addEventListener('click', async () => {
-                const panel = statsPanel;
-                if (!panel) return;
-                const visible = panel.style.display === 'block';
-                panel.style.display = visible ? 'none' : 'block';
-                
-                // 关闭设置面板
-                if (settingsPanel) {
-                    settingsPanel.style.display = 'none';
-                }
-                
-                if (!visible) {
-                    // 等待一下再渲染统计，确保API已就绪
-                    setTimeout(renderStats, 100);
-                }
-            });
-            statsRange?.addEventListener('change', renderStats);
         }
-        
+
         // 等待DOM和preload脚本都加载完成
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
@@ -3340,36 +3311,36 @@
         } else {
             setTimeout(init, 200);
         }
-        
+
         // 设置面板相关功能
         function renderSettingsPanel() {
             modulesList.innerHTML = '';
-            
+
             sites.forEach(site => {
                 const checked = moduleVisibility[site.key] !== false;
                 const moduleRow = document.createElement('div');
                 moduleRow.style.display = 'flex';
                 moduleRow.style.alignItems = 'center';
                 moduleRow.style.gap = '8px';
-                
+
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `module-${site.key}`;
                 checkbox.checked = checked;
                 checkbox.style.cursor = 'pointer';
-                
+
                 const label = document.createElement('label');
                 label.htmlFor = `module-${site.key}`;
                 label.textContent = site.title;
                 label.style.cursor = 'pointer';
                 label.style.color = '#e5e7eb';
-                
+
                 moduleRow.appendChild(checkbox);
                 moduleRow.appendChild(label);
                 modulesList.appendChild(moduleRow);
             });
         }
-        
+
         function saveModuleSettings() {
             sites.forEach(site => {
                 const checkbox = document.getElementById(`module-${site.key}`);
@@ -3377,43 +3348,39 @@
                     moduleVisibility[site.key] = checkbox.checked;
                 }
             });
-            
+
             localStorage.setItem('moduleVisibility', JSON.stringify(moduleVisibility));
             renderList();
             settingsPanel.style.display = 'none';
             toast('设置已保存');
         }
-        
+
         // 设置面板交互
         btnSettings?.addEventListener('click', () => {
-            // 关闭统计面板
-            statsPanel.style.display = 'none';
-            
             // 显示/隐藏设置面板
             const isVisible = settingsPanel.style.display === 'block';
             settingsPanel.style.display = isVisible ? 'none' : 'block';
-            
+
             if (!isVisible) {
                 renderSettingsPanel();
             }
         });
-        
+
         // 保存按钮点击事件
         settingsSave?.addEventListener('click', saveModuleSettings);
-        
+
         // 点击其他区域关闭面板
         document.addEventListener('click', (e) => {
-            if (settingsPanel.style.display === 'block' && 
-                !settingsPanel.contains(e.target) && 
+            if (settingsPanel.style.display === 'block' &&
+                !settingsPanel.contains(e.target) &&
                 e.target !== btnSettings) {
                 settingsPanel.style.display = 'none';
             }
         });
-        
+
         // 调试：检查window对象
         setTimeout(() => {
             console.log('window.llmHub:', window.llmHub);
-            console.log('window.usage:', window.usage);
         }, 500);
     </script>
 </body>

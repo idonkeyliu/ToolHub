@@ -1580,26 +1580,11 @@
             <div class="brand">ToolHub</div>
             <div class="nav-list" id="siteList"></div>
             <div class="ver" id="verWrap">v<span id="ver"></span></div>
-            <button id="btnStats"
-                style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">统计</button>
             <button id="btnSettings"
                 style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">设置</button>
         </header>
         <main>
             <div class="status" id="status">加载中...</div>
-            <div id="statsPanel"
-                style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:320px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
-                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1f262c;">
-                    <strong style="flex:1;">使用统计</strong>
-                    <select id="statsRange"
-                        style="background:#161b20;color:#cfd5d9;border:1px solid #2a3440;border-radius:6px;padding:4px 6px;font-size:12px;">
-                        <option value="today">今日</option>
-                        <option value="7d">近7天</option>
-                    </select>
-                </div>
-                <div id="statsBody"
-                    style="padding:10px 12px;font-size:12px;line-height:1.6;max-height:50vh;overflow:auto;"></div>
-            </div>
 
             <div id="settingsPanel"
                 style="position:absolute;right:10px;top:56px;z-index:40;display:none;background:#0f151a;border:1px solid #223038;border-radius:10px;min-width:340px;max-width:520px;box-shadow:0 8px 24px rgba(0,0,0,.3);">
@@ -1667,10 +1652,6 @@
         const verEl = document.getElementById('ver');
         // 独立窗口按钮已移除
         verEl.textContent = window.llmHub?.version || '';
-        const btnStats = document.getElementById('btnStats');
-        const statsPanel = document.getElementById('statsPanel');
-        const statsBody = document.getElementById('statsBody');
-        const statsRange = document.getElementById('statsRange');
 
         // 设置面板相关元素
         const btnSettings = document.getElementById('btnSettings');
@@ -3193,47 +3174,7 @@
 
         // 计时器在 ensureTime 区域声明
 
-        function formatMs(ms) {
-            const s = Math.floor((ms || 0) / 1000);
-            const m = Math.floor(s / 60), sec = s % 60;
-            const h = Math.floor(m / 60), min = m % 60;
-            if (h) return `${h}h ${min}m`;
-            if (m) return `${m}m ${sec}s`;
-            return `${sec}s`;
-        }
-
-        async function renderStats() {
-            try {
-                const range = (statsRange && statsRange.value) || 'today';
-                // 等待usage API就绪
-                let retries = 0;
-                while (!window.usage && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retries++;
-                }
-                const bridgeReady = !!(window.usage && window.usage.getSummary && window.usage.siteSwitch);
-                const sum = await (bridgeReady ? window.usage.getSummary(range) : null);
-                if (!statsBody) { return; }
-                if (!sum) {
-                    statsBody.innerHTML = `<div style="color:#9aa7b1;">
-                暂无数据<br/>
-                <span style="opacity:.8;">状态：${bridgeReady ? '已连接' : '统计桥未就绪'}</span>
-            </div>`;
-                    return;
-                }
-                const rows = [];
-                rows.push(`<div style="margin-bottom:6px;color:#8aa2b2;">应用启动：${sum.appStarts}</div>`);
-                const entries = Object.entries(sum.totals || {}).sort((a, b) => (((b[1] && b[1].activeMs) || 0) - ((a[1] && a[1].activeMs) || 0)));
-                if (!entries.length) { rows.push('<div style="color:#9aa7b1;">暂无站点数据，切换任意站点后再查看</div>'); }
-                for (const [site, stat] of entries) {
-                    rows.push(`<div style="display:flex;justify-content:space-between;gap:8px;">
-                        <span>${site}</span>
-                        <span style="color:#9cc3d8;">切换 ${stat.openCount || 0} 次 · 活跃 ${formatMs(stat.activeMs || 0)}</span>
-                    </div>`);
-                }
-                statsBody.innerHTML = rows.join('');
-            } catch (e) { if (statsBody) statsBody.innerHTML = `<div style="color:#fca5a5;">加载统计失败：${e}</div>`; }
-        }
+        // 统计相关函数已移除
 
         function ensureFrame(site) {
             let fr = document.querySelector(`iframe.site-frame[data-key="${site.key}"]`);
@@ -3277,10 +3218,6 @@
         function switchSite(key) {
             if (current === key) return;
             current = key;
-            // 上报使用统计
-            try { if (window.usage && window.usage.siteSwitch) window.usage.siteSwitch(key); } catch (e) { }
-            // 如果统计面板已打开，切换后刷新
-            if (statsPanel && statsPanel.style.display === 'block') { renderStats(); }
             document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view').forEach(el => el.classList.toggle('active', el.dataset.key === key));
             const site = sites.find(s => s.key === key);
             if (!site) return;
@@ -3363,24 +3300,6 @@
             renderList();
             const first = window.llmHub?.lastSite || sites[0]?.key;
             if (first) switchSite(first);
-            // 统计面板交互
-            btnStats?.addEventListener('click', async () => {
-                const panel = statsPanel;
-                if (!panel) return;
-                const visible = panel.style.display === 'block';
-                panel.style.display = visible ? 'none' : 'block';
-
-                // 关闭设置面板
-                if (settingsPanel) {
-                    settingsPanel.style.display = 'none';
-                }
-
-                if (!visible) {
-                    // 等待一下再渲染统计，确保API已就绪
-                    setTimeout(renderStats, 100);
-                }
-            });
-            statsRange?.addEventListener('change', renderStats);
         }
 
         // 等待DOM和preload脚本都加载完成
@@ -3438,9 +3357,6 @@
 
         // 设置面板交互
         btnSettings?.addEventListener('click', () => {
-            // 关闭统计面板
-            statsPanel.style.display = 'none';
-
             // 显示/隐藏设置面板
             const isVisible = settingsPanel.style.display === 'block';
             settingsPanel.style.display = isVisible ? 'none' : 'block';
@@ -3465,7 +3381,6 @@
         // 调试：检查window对象
         setTimeout(() => {
             console.log('window.llmHub:', window.llmHub);
-            console.log('window.usage:', window.usage);
         }, 500);
     </script>
 </body>
