@@ -34,6 +34,7 @@
         "asar": true,
         "mac": {
             "category": "public.app-category.productivity",
+            "icon": "assets/icons/icon.icns",
             "target": [
                 "dmg",
                 "zip"

@@ -164,6 +164,8 @@ function createWindow(initialSite?: string) {
         // 恢复黑色不透明主题
         backgroundColor: '#000000',
         frame: true, // 恢复原生标题栏，避免高度错觉
+        // 添加图标配置，根据平台自动选择正确格式
+        icon: path.join(__dirname, '../assets/icons/icon.icns'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
