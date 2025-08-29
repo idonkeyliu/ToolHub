@@ -179,7 +179,8 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-right: 10px;
             position: relative;
-            z-index: 50; /* 确保按钮在最上层，高于设置面板 */
+            z-index: 50;
+            /* 确保按钮在最上层，高于设置面板 */
         }
 
         .settings-btn:hover {
@@ -2871,7 +2872,7 @@
                 </div>
                 
                 <div class="crypto-panel active" data-panel="md5">
-                    <div class="crypto-side">
+                    <div class="crypto-side" style="flex: 2;">
                         <div class="crypto-label">输入文本</div>
                         <textarea class="crypto-textarea" id="md5Input" placeholder="输入要计算MD5的文本..."></textarea>
                         <div class="crypto-controls">
@@ -2880,36 +2881,36 @@
                         </div>
                         <div class="crypto-error" id="md5Error" style="color:#fca5a5;font-size:12px;margin-top:6px;display:none;"></div>
                     </div>
-                    <div class="crypto-side">
+                    <div class="crypto-side" style="flex: 3;">
                         <div class="crypto-label">MD5 结果</div>
-                        <div style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                        <div style="display: flex; flex-direction: column; gap: 12px; height: 100%; width: 100%;">
                             <div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                     <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">32位小写</div>
                                     <button class="crypto-btn" id="md5Copy32Lower" style="padding: 4px 8px; font-size: 11px;">复制</button>
                                 </div>
-                                <textarea class="crypto-textarea" id="md5Output32Lower" placeholder="32位小写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                                <textarea class="crypto-textarea" id="md5Output32Lower" placeholder="32位小写MD5..." readonly style="height: 80px; min-height: 60px; width: 100%; min-width: 300px;"></textarea>
                             </div>
                             <div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                     <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">32位大写</div>
                                     <button class="crypto-btn" id="md5Copy32Upper" style="padding: 4px 8px; font-size: 11px;">复制</button>
                                 </div>
-                                <textarea class="crypto-textarea" id="md5Output32Upper" placeholder="32位大写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                                <textarea class="crypto-textarea" id="md5Output32Upper" placeholder="32位大写MD5..." readonly style="height: 80px; min-height: 60px; width: 100%; min-width: 300px;"></textarea>
                             </div>
                             <div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                     <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">16位小写</div>
                                     <button class="crypto-btn" id="md5Copy16Lower" style="padding: 4px 8px; font-size: 11px;">复制</button>
                                 </div>
-                                <textarea class="crypto-textarea" id="md5Output16Lower" placeholder="16位小写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                                <textarea class="crypto-textarea" id="md5Output16Lower" placeholder="16位小写MD5..." readonly style="height: 80px; min-height: 60px; width: 100%; min-width: 300px;"></textarea>
                             </div>
                             <div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                     <div class="crypto-label" style="font-size: 14px; margin-bottom: 0;">16位大写</div>
                                     <button class="crypto-btn" id="md5Copy16Upper" style="padding: 4px 8px; font-size: 11px;">复制</button>
                                 </div>
-                                <textarea class="crypto-textarea" id="md5Output16Upper" placeholder="16位大写MD5..." readonly style="height: 80px; min-height: 60px;"></textarea>
+                                <textarea class="crypto-textarea" id="md5Output16Upper" placeholder="16位大写MD5..." readonly style="height: 80px; min-height: 60px; width: 100%; min-width: 300px;"></textarea>
                             </div>
                         </div>
                     </div>
@@ -3292,17 +3293,17 @@
                 document.querySelector('main').appendChild(cv);
             }
             cv.innerHTML = buildCurrencyHTML();
-            
+
             // 确保货币转换视图不会捕获本应传递给导航栏按钮的点击事件
             cv.addEventListener('click', (e) => {
                 // 只在点击货币转换视图内的元素时阻止冒泡
-                if (e.target.closest('.currency-card') || 
-                    e.target.closest('.currency-info') || 
+                if (e.target.closest('.currency-card') ||
+                    e.target.closest('.currency-info') ||
                     e.target === cv) {
                     // 不做任何阻止，让事件继续冒泡
                 }
             });
-            
+
             wireCurrency(cv);
             return cv;
         }
@@ -3318,15 +3319,15 @@
             const swapBtn = container.querySelector('#swapBtn');
             const errorMsg = container.querySelector('#currencyError');
             const rateUpdateTime = container.querySelector('#rateUpdateTime');
-            
+
             // 只允许输入数字和小数点
-            amountInput.addEventListener('input', function(e) {
+            amountInput.addEventListener('input', function (e) {
                 this.value = this.value.replace(/[^\d.]/g, '');
-                if(this.value.split('.').length > 2) {
+                if (this.value.split('.').length > 2) {
                     this.value = this.value.replace(/\.+$/, '');
                 }
             });
-            
+
             // 模拟汇率数据 (实际应用中应该从API获取)
             const exchangeRates = {
                 "CNY": { "USD": 0.1382, "EUR": 0.1276, "JPY": 20.50, "GBP": 0.1087, "KRW": 185.25, "HKD": 1.0815, "AUD": 0.2083 },
@@ -3338,11 +3339,11 @@
                 "HKD": { "CNY": 0.9247, "USD": 0.1278, "EUR": 0.1180, "JPY": 18.953, "GBP": 0.1005, "KRW": 171.24, "AUD": 0.1926 },
                 "AUD": { "CNY": 4.8002, "USD": 0.6633, "EUR": 0.6125, "JPY": 98.392, "GBP": 0.5218, "KRW": 889.21, "HKD": 5.1918 }
             };
-            
+
             // 设置更新时间为当前时间
             const now = new Date();
             rateUpdateTime.textContent = now.toLocaleString('zh-CN');
-            
+
             // 更新常用汇率显示
             document.getElementById('usd-cny').textContent = exchangeRates['USD']['CNY'].toFixed(4);
             document.getElementById('eur-cny').textContent = exchangeRates['EUR']['CNY'].toFixed(4);
@@ -3350,52 +3351,52 @@
             document.getElementById('cny-jpy').textContent = exchangeRates['CNY']['JPY'].toFixed(4);
             document.getElementById('cny-krw').textContent = exchangeRates['CNY']['KRW'].toFixed(4);
             document.getElementById('cny-hkd').textContent = exchangeRates['CNY']['HKD'].toFixed(4);
-            
+
             // 转换函数
             function convertCurrency() {
                 const amount = parseFloat(amountInput.value.trim());
                 const from = fromCurrency.value;
                 const to = toCurrency.value;
-                
+
                 // 清除错误信息
                 errorMsg.style.display = 'none';
-                
+
                 if (isNaN(amount)) {
                     errorMsg.textContent = '请输入有效的金额';
                     errorMsg.style.display = 'block';
                     return;
                 }
-                
+
                 if (from === to) {
                     resultInput.value = amount.toFixed(2);
                     exchangeRateInfo.textContent = `1 ${from} = 1 ${to}`;
                     return;
                 }
-                
+
                 const rate = exchangeRates[from][to];
                 if (!rate) {
                     errorMsg.textContent = '无法获取汇率信息';
                     errorMsg.style.display = 'block';
                     return;
                 }
-                
+
                 const result = amount * rate;
                 resultInput.value = result.toFixed(2);
                 exchangeRateInfo.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
-                
+
                 // 添加转换成功的视觉反馈
                 resultInput.classList.add('highlight');
                 setTimeout(() => {
                     resultInput.classList.remove('highlight');
                 }, 700);
             }
-            
+
             // 交换货币
             function swapCurrencies() {
                 const tempCurrency = fromCurrency.value;
                 fromCurrency.value = toCurrency.value;
                 toCurrency.value = tempCurrency;
-                
+
                 if (amountInput.value && resultInput.value) {
                     const tempAmount = amountInput.value;
                     amountInput.value = resultInput.value;
@@ -3403,7 +3404,7 @@
                     convertCurrency();
                 }
             }
-            
+
             // 复制结果
             function copyResult() {
                 if (resultInput.value) {
@@ -3413,30 +3414,30 @@
                     toast('没有可复制的结果', 'warning');
                 }
             }
-            
+
             // 添加事件监听器
             convertBtn.addEventListener('click', convertCurrency);
             copyResultBtn.addEventListener('click', copyResult);
             swapBtn.addEventListener('click', swapCurrencies);
-            
+
             // 为了更好的用户体验，在数值输入后自动转换
             amountInput.addEventListener('input', debounce(convertCurrency, 500));
             fromCurrency.addEventListener('change', convertCurrency);
             toCurrency.addEventListener('change', convertCurrency);
-            
+
             // 帮助函数：防抖
             function debounce(func, wait) {
                 let timeout;
-                return function(...args) {
+                return function (...args) {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => func.apply(this, args), wait);
                 };
             }
-            
+
             // 样式增强
             container.querySelector('.currency-input').style.transition = 'all 0.3s ease';
             container.querySelector('.currency-container').style.animation = 'fadeIn 0.5s ease';
-            
+
             // 添加高亮样式
             const style = document.createElement('style');
             style.textContent = `
@@ -3948,12 +3949,12 @@
                 // 如果找不到加解密工具，就添加到末尾
                 sites.push({ key: 'currency', title: '货币转换' });
             }
-            
+
             // 确保currency工具已被添加到moduleVisibility中
             if (moduleVisibility['currency'] === undefined) {
                 moduleVisibility['currency'] = true; // 默认可见
             }
-            
+
             // 为每个站点初始化可见性设置（如果不存在）
             sites.forEach(site => {
                 if (moduleVisibility[site.key] === undefined) {
@@ -4024,7 +4025,7 @@
         btnSettings?.addEventListener('click', (e) => {
             // 确保事件不被其他元素捕获
             e.stopPropagation();
-            
+
             // 显示/隐藏设置面板
             const isVisible = settingsPanel.style.display === 'block';
             settingsPanel.style.display = isVisible ? 'none' : 'block';
