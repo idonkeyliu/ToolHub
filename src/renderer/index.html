@@ -20,9 +20,23 @@
         body {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
             background: #0d1114;
+            background: radial-gradient(circle at 85% 15%, #131c24 0%, #0d1114 50%);
             color: #e5e7eb;
             overflow: hidden;
             display: flex;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 800 800"><g fill="none" stroke="rgba(128,128,128,0.05)" stroke-width="1"><path d="M769 229L1037 260.9M927 880L731 737 520 660 309 538 40 599 295 764 126.5 879.5 40 599-197 493 102 382-31 229 126.5 79.5-69-63"/><path d="M-31 229L237 261 390 382 603 493 308.5 537.5 101.5 381.5M370 905L295 764"/><path d="M520 660L578 842 731 737 840 599 603 493 520 660 295 764 309 538 390 382 539 269 769 229 577.5 41.5 370 105 295 -36 126.5 79.5 237 261 102 382 40 599 -69 737 127 880"/><path d="M520-140L578.5 42.5 731-63M603 493L539 269 237 261 370 105M902 382L539 269M390 382L102 382"/><path d="M-222 42L126.5 79.5 370 105 539 269 577.5 41.5 927 80 769 229 902 382 603 493 731 737M295-36L577.5 41.5M578 842L295 764M40-201L127 80M102 382L-261 269"/></g></svg>') 0 0/cover no-repeat;
+            opacity: 0.2;
+            z-index: -1;
         }
 
         #app {
@@ -39,10 +53,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #161b20;
-            border-bottom: 1px solid #1f262c;
+            background: rgba(22, 27, 32, 0.8);
+            border-bottom: 1px solid rgba(31, 38, 44, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 0 14px;
             z-index: 20;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
         }
 
         .brand {
@@ -56,47 +73,74 @@
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
             scrollbar-width: thin;
+            padding-left: 14px;
+            padding-top: 2px;
+            padding-bottom: 2px;
         }
 
-        .nav-list::-webkit-scrollbar {
+        /* 全局滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
             height: 6px;
         }
 
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 30, 0.5);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(55, 70, 85, 0.6);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(70, 90, 110, 0.8);
+        }
+
+        /* 导航栏特定滚动条 */
+        .nav-list::-webkit-scrollbar {
+            height: 4px;
+        }
+
         .nav-list::-webkit-scrollbar-thumb {
-            background: #243039;
-            border-radius: 3px;
+            background: rgba(55, 70, 85, 0.5);
+            border-radius: 4px;
         }
 
         .item {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
+            gap: 8px;
+            padding: 6px 14px;
             font-size: 13px;
             line-height: 1;
-            border: 1px solid #1f262c;
-            border-radius: 22px;
-            background: #1a2024;
-            color: #cfd5d9;
+            border-radius: 8px;
+            background: rgba(45, 55, 65, 0.5);
+            color: #b4bdc6;
             cursor: pointer;
-            transition: .18s;
+            transition: all 0.2s ease;
             user-select: none;
             white-space: nowrap;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .item:hover {
-            background: #223038;
+            background: rgba(55, 65, 75, 0.65);
             color: #fff;
+            transform: translateY(-1px);
         }
 
         .item.active {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: rgba(59, 130, 246, 0.85);
             color: #fff;
-            box-shadow: 0 0 0 1px #2563eb;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
         }
 
         .item span.icon {
@@ -114,6 +158,91 @@
         .ver {
             font-size: 11px;
             color: #56626a;
+            margin-right: 4px;
+        }
+
+        .settings-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(45, 55, 65, 0.5);
+            color: #b4bdc6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-right: 10px;
+        }
+
+        .settings-btn:hover {
+            background: rgba(55, 65, 75, 0.65);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* 内容区域布局 */
+        main {
+            position: absolute;
+            top: 46px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0d1114 0%, #111a20 50%, #0e1216 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 内容展示区域 */
+        .content-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            display: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .content-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         main {
@@ -141,6 +270,10 @@
             border: 0;
             display: none;
             background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         iframe.site-frame.active,
@@ -1577,11 +1710,18 @@
 <body>
     <div id="app">
         <header class="topbar">
-            <div class="brand">ToolHub</div>
             <div class="nav-list" id="siteList"></div>
             <div class="ver" id="verWrap">v<span id="ver"></span></div>
-            <button id="btnSettings"
-                style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:6px;border:1px solid #2a3440;background:#1a2024;color:#cfd5d9;cursor:pointer;">设置</button>
+            <button id="btnSettings" class="settings-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                <span>设置</span>
+            </button>
         </header>
         <main>
             <div class="status" id="status">加载中...</div>
