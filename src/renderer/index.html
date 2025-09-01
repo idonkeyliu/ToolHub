@@ -1751,6 +1751,26 @@
             </div>
 
             <div id="toast"></div>
+
+            <!-- CURL历史记录浮层 -->
+            <div id="historyFloatPanel" class="curl-history-float" style="display: none;">
+                <div class="curl-history-float-header">
+                    <div class="curl-history-float-title">请求历史</div>
+                    <div class="curl-history-float-actions">
+                        <button id="historyFloatClose" class="curl-history-float-close">&times;</button>
+                    </div>
+                </div>
+                <div class="curl-history-float-body">
+                    <div class="curl-history-float-toolbar">
+                        <span id="historyCountBadge" class="curl-history-count-badge">0</span>
+                        <button id="clearHistoryBtn" class="curl-history-clear-btn">清空历史</button>
+                    </div>
+                    <div id="historyList" class="curl-history-list">
+                        <!-- 历史记录将动态插入这里 -->
+                        <div class="curl-history-empty">暂无历史记录</div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
     <script>
@@ -3330,17 +3350,6 @@
                                     <span>⌚</span>
                                 </button>
                             </div>
-                            <!-- 历史记录下拉面板 -->
-                            <div id="historyPanel" class="curl-history-panel" style="display: none;">
-                                <div class="curl-history-header">
-                                    <span>最近请求历史</span>
-                                    <button id="clearHistoryBtn" title="清空历史记录">清空</button>
-                                </div>
-                                <div id="historyList" class="curl-history-list">
-                                    <!-- 历史记录将动态插入这里 -->
-                                    <div class="curl-history-empty">暂无历史记录</div>
-                                </div>
-                            </div>
                         </div>
                         
                         <div class="curl-section" id="headerSection">
@@ -3549,79 +3558,181 @@
                         color: #e5e7eb;
                     }
                     
-                    /* 历史记录面板 */
-                    .curl-history-panel {
-                        position: absolute;
-                        top: 100%;
-                        left: 0;
-                        right: 0;
+                    /* 历史记录浮层 */
+                    .curl-history-float {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
                         background: #1f2937;
                         border: 1px solid #374151;
-                        border-radius: 6px;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                        z-index: 100;
-                        max-height: 300px;
-                        overflow-y: auto;
-                        margin-top: 5px;
+                        border-radius: 8px;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                        z-index: 1000;
+                        width: 500px;
+                        max-width: 90vw;
+                        max-height: 80vh;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                        animation: fadeIn 0.3s ease-out;
                     }
                     
-                    .curl-history-header {
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translate(-50%, -48%); }
+                        to { opacity: 1; transform: translate(-50%, -50%); }
+                    }
+                    
+                    .curl-history-float-header {
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        padding: 8px 12px;
+                        padding: 12px 16px;
                         border-bottom: 1px solid #374151;
-                        color: #e5e7eb;
-                        font-weight: 600;
+                        background: #111827;
                     }
                     
-                    .curl-history-header button {
+                    .curl-history-float-title {
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: #e5e7eb;
+                    }
+                    
+                    .curl-history-float-actions {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .curl-history-float-close {
                         background: none;
                         border: none;
                         color: #9ca3af;
+                        font-size: 24px;
+                        line-height: 1;
                         cursor: pointer;
-                        font-size: 12px;
-                        padding: 3px 6px;
+                        padding: 0 4px;
                     }
                     
-                    .curl-history-header button:hover {
+                    .curl-history-float-close:hover {
                         color: #e5e7eb;
-                        text-decoration: underline;
+                    }
+                    
+                    .curl-history-float-body {
+                        flex: 1;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    
+                    .curl-history-float-toolbar {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 8px 16px;
+                        border-bottom: 1px solid #374151;
+                    }
+                    
+                    .curl-history-count-badge {
+                        background: #2563eb;
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        font-size: 12px;
+                    }
+                    
+                    .curl-history-clear-btn {
+                        background: #1e293b;
+                        color: #9ca3af;
+                        border: none;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        cursor: pointer;
+                    }
+                    
+                    .curl-history-clear-btn:hover {
+                        background: #2d3748;
+                        color: #e5e7eb;
                     }
                     
                     .curl-history-list {
-                        max-height: 250px;
+                        flex: 1;
                         overflow-y: auto;
+                        padding: 8px 0;
                     }
                     
                     .curl-history-item {
-                        padding: 8px 12px;
+                        padding: 12px 16px;
                         border-bottom: 1px solid #374151;
                         cursor: pointer;
                         color: #e5e7eb;
+                        transition: all 0.2s;
                     }
                     
                     .curl-history-item:hover {
                         background: #2d3748;
                     }
                     
+                    .curl-history-item:active {
+                        background: #374151;
+                    }
+                    
                     .curl-history-item .history-url {
                         font-weight: 600;
                         color: #60a5fa;
-                        margin-bottom: 4px;
+                        margin-bottom: 6px;
                         white-space: nowrap;
                         overflow: hidden;
                         text-overflow: ellipsis;
                     }
                     
-                    .curl-history-item .history-method {
+                    .curl-history-item .history-status {
                         display: inline-block;
-                        background: #1e40af;
-                        color: white;
                         padding: 2px 6px;
                         border-radius: 4px;
                         font-size: 12px;
                         margin-right: 8px;
+                        color: white;
+                    }
+                    
+                    .curl-history-item .history-status.success {
+                        background: #10b981; /* 绿色 */
+                    }
+                    
+                    .curl-history-item .history-status.error {
+                        background: #ef4444; /* 红色 */
+                    }
+                    
+                    .curl-history-item .history-info-row {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        margin-top: 4px;
+                    }
+                    
+                    .curl-history-item .history-left {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .curl-history-item .history-method {
+                        display: inline-block;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        margin-right: 8px;
+                        color: white;
+                        font-weight: 500;
+                    }
+                    
+                    /* GET方法标签样式 */
+                    .curl-history-item .history-method.get {
+                        background: #0369a1; /* 蓝色 */
+                    }
+                    
+                    /* POST方法标签样式 */
+                    .curl-history-item .history-method.post {
+                        background: #15803d; /* 绿色 */
                     }
                     
                     .curl-history-item .history-time {
@@ -3629,8 +3740,32 @@
                         color: #9ca3af;
                     }
                     
+                    .curl-history-item .history-actions {
+                        display: flex;
+                        gap: 8px;
+                        opacity: 0;
+                        transition: opacity 0.2s;
+                    }
+                    
+                    .curl-history-item:hover .history-actions {
+                        opacity: 1;
+                    }
+                    
+                    .curl-history-item .history-action-btn {
+                        background: none;
+                        border: none;
+                        color: #9ca3af;
+                        cursor: pointer;
+                        padding: 2px;
+                        font-size: 14px;
+                    }
+                    
+                    .curl-history-item .history-action-btn:hover {
+                        color: #e5e7eb;
+                    }
+                    
                     .curl-history-empty {
-                        padding: 12px;
+                        padding: 24px;
                         text-align: center;
                         color: #9ca3af;
                         font-style: italic;
@@ -3894,18 +4029,67 @@
             const HISTORY_KEY = 'curl_request_history';
             const MAX_HISTORY = 20;
 
+            // 测试localStorage是否可用
+            function isLocalStorageAvailable() {
+                const testKey = '_test_localStorage';
+                try {
+                    localStorage.setItem(testKey, testKey);
+                    localStorage.removeItem(testKey);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            // 内存中的历史记录备份，以防localStorage不可用
+            let inMemoryHistory = [];
+
             // 从LocalStorage加载历史记录
             function loadHistory() {
-                const history = localStorage.getItem(HISTORY_KEY);
-                return history ? JSON.parse(history) : [];
+                try {
+                    if (!isLocalStorageAvailable()) {
+                        console.log('localStorage不可用，使用内存历史记录');
+                        return inMemoryHistory;
+                    }
+
+                    const history = localStorage.getItem(HISTORY_KEY);
+                    console.log('Raw history from localStorage:', history);
+
+                    if (history) {
+                        const parsedHistory = JSON.parse(history);
+                        inMemoryHistory = parsedHistory; // 同步内存历史记录
+                        return parsedHistory;
+                    } else {
+                        return [];
+                    }
+                } catch (error) {
+                    console.error('加载历史记录失败:', error);
+                    return inMemoryHistory; // 使用内存中的备份
+                }
             }
 
             // 保存历史记录到LocalStorage
             function saveHistory(history) {
-                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            }
+                try {
+                    inMemoryHistory = history; // 始终更新内存中的历史记录
+                    console.log('保存历史记录:', history);
 
-            // 添加一条新的历史记录
+                    if (!isLocalStorageAvailable()) {
+                        console.log('localStorage不可用，只保存到内存');
+                        return;
+                    }
+
+                    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+
+                    // 验证保存结果
+                    const savedData = localStorage.getItem(HISTORY_KEY);
+                    if (!savedData) {
+                        console.error('保存历史记录验证失败: 无法读取保存的数据');
+                    }
+                } catch (error) {
+                    console.error('保存历史记录失败:', error);
+                }
+            }            // 添加一条新的历史记录
             function addHistory(request) {
                 const history = loadHistory();
 
@@ -3942,7 +4126,7 @@
 
             // 更新历史记录UI
             function updateHistoryUI() {
-                const historyList = container.querySelector('#historyList');
+                const historyList = document.getElementById('historyList');
                 const history = loadHistory();
 
                 historyList.innerHTML = '';
@@ -3952,21 +4136,48 @@
                     return;
                 }
 
-                history.forEach(item => {
+                history.forEach((item, index) => {
                     const historyItem = document.createElement('div');
                     historyItem.className = 'curl-history-item';
+
+                    // 添加状态标识（如果有）
+                    const statusClass = item.status ?
+                        (item.status >= 200 && item.status < 300 ? 'success' : 'error') : '';
+
                     historyItem.innerHTML = `
-                        <div class="history-url">${item.url}</div>
-                        <div>
-                            <span class="history-method">${item.method}</span>
-                            <span class="history-time">${item.time}</span>
+                        <div class="history-url">
+                            ${item.status ? `<span class="history-status ${statusClass}">${item.status}</span>` : ''}
+                            ${item.url}
+                        </div>
+                        <div class="history-info-row">
+                            <div class="history-left">
+                                <span class="history-method ${item.method.toLowerCase()}">${item.method}</span>
+                                <span class="history-time">${item.time || '未知时间'}</span>
+                            </div>
+                            <div class="history-actions">
+                                <button class="history-action-btn history-action-delete" title="删除这条记录">🗑️</button>
+                            </div>
                         </div>
                     `;
 
                     // 点击加载历史记录
-                    historyItem.addEventListener('click', () => {
+                    historyItem.addEventListener('click', (e) => {
+                        // 如果点击的是删除按钮，则不加载记录
+                        if (e.target.classList.contains('history-action-delete') ||
+                            e.target.closest('.history-action-delete')) {
+                            e.stopPropagation();
+
+                            // 删除该条记录
+                            const history = loadHistory();
+                            history.splice(index, 1);
+                            saveHistory(history);
+                            updateHistoryUI();
+                            updateHistoryCount();
+                            return;
+                        }
+
                         loadHistoryItem(item);
-                        historyPanel.style.display = 'none';
+                        historyFloatPanel.style.display = 'none';
                     });
 
                     historyList.appendChild(historyItem);
@@ -3975,8 +4186,11 @@
 
             // 加载历史记录到表单
             function loadHistoryItem(item) {
+                console.log('加载历史记录项:', item);
                 const curlUrl = container.querySelector('#curlUrl');
-                curlUrl.value = item.url;
+
+                // 设置URL（使用原始输入URL）
+                curlUrl.value = item.url || '';
 
                 // 选择对应的请求方法
                 if (item.method === 'GET') {
@@ -3990,10 +4204,34 @@
                         bodyTypeSelect.value = item.bodyType;
                         bodyTypeSelect.dispatchEvent(new Event('change'));
 
+                        // 根据不同的body类型设置值
                         if (item.bodyType === 'json' && item.body) {
                             container.querySelector('#jsonBodyInput').value = item.body;
                         } else if (item.bodyType === 'raw' && item.body) {
                             container.querySelector('#rawBodyInput').value = item.body;
+                        } else if (item.bodyType === 'form' && Array.isArray(item.formData)) {
+                            // 清除现有表单项
+                            const formContainer = container.querySelector('#formDataContainer');
+                            formContainer.innerHTML = '';
+
+                            // 添加表单项
+                            item.formData.forEach(formItem => {
+                                const newFormItem = document.createElement('div');
+                                newFormItem.className = 'form-data-item';
+                                newFormItem.innerHTML = `
+                                    <input type="text" class="curl-input form-key" placeholder="名称" value="${formItem.key || ''}">
+                                    <input type="text" class="curl-input form-value" placeholder="值" value="${formItem.value || ''}">
+                                    <button class="curl-remove-btn">删除</button>
+                                `;
+
+                                // 添加删除按钮事件
+                                const removeBtn = newFormItem.querySelector('.curl-remove-btn');
+                                removeBtn.addEventListener('click', () => {
+                                    newFormItem.remove();
+                                });
+
+                                formContainer.appendChild(newFormItem);
+                            });
                         }
                     }
                 }
@@ -4007,6 +4245,9 @@
 
                     // 添加历史记录中的请求头
                     Object.entries(item.headers).forEach(([name, value]) => {
+                        // 跳过内部生成的请求头（例如 Content-Type 可能由fetch自动添加）
+                        if (!name || name === '') return;
+
                         const headerItem = document.createElement('div');
                         headerItem.className = 'header-item';
                         headerItem.innerHTML = `
@@ -4023,10 +4264,26 @@
 
                         headersContainer.appendChild(headerItem);
                     });
-                }
-            }
 
-            // Tab切换
+                    // 如果没有添加任何请求头，添加一个空的请求头输入框
+                    if (headersContainer.children.length === 0) {
+                        const emptyHeaderItem = document.createElement('div');
+                        emptyHeaderItem.className = 'header-item';
+                        emptyHeaderItem.innerHTML = `
+                            <input type="text" class="curl-input header-name" placeholder="名称">
+                            <input type="text" class="curl-input header-value" placeholder="值">
+                            <button class="curl-remove-btn">删除</button>
+                        `;
+
+                        const removeBtn = emptyHeaderItem.querySelector('.curl-remove-btn');
+                        removeBtn.addEventListener('click', () => {
+                            emptyHeaderItem.remove();
+                        });
+
+                        headersContainer.appendChild(emptyHeaderItem);
+                    }
+                }
+            }            // Tab切换
             const getTab = container.querySelector('#getTab');
             const postTab = container.querySelector('#postTab');
             const bodySection = container.querySelector('#bodySection');
@@ -4043,42 +4300,108 @@
                 bodySection.style.display = 'flex';
             });
 
-            // 历史记录按钮和面板
+            // 历史记录按钮和浮层
             const historyBtn = container.querySelector('#historyBtn');
-            const historyPanel = container.querySelector('#historyPanel');
-            const clearHistoryBtn = container.querySelector('#clearHistoryBtn');
+            const historyFloatPanel = document.getElementById('historyFloatPanel');
+            const historyFloatClose = document.getElementById('historyFloatClose');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const historyCountBadge = document.getElementById('historyCountBadge');
 
-            // 点击历史按钮显示/隐藏历史记录面板
+            // 更新历史记录数量徽章
+            function updateHistoryCount() {
+                const history = loadHistory();
+                historyCountBadge.textContent = history.length;
+            }
+
+            // 点击历史按钮显示浮层
             historyBtn.addEventListener('click', () => {
-                if (historyPanel.style.display === 'none') {
-                    updateHistoryUI();
-                    historyPanel.style.display = 'block';
+                // 更新历史记录UI
+                updateHistoryUI();
+                updateHistoryCount();
 
-                    // 点击其他地方关闭历史记录面板
-                    function closeHistoryPanel(e) {
-                        if (!historyPanel.contains(e.target) && e.target !== historyBtn) {
-                            historyPanel.style.display = 'none';
-                            document.removeEventListener('click', closeHistoryPanel);
-                        }
+                // 显示浮层
+                historyFloatPanel.style.display = 'flex';
+
+                // 打印历史记录到控制台，方便调试
+                console.log('当前历史记录:', loadHistory());
+
+                // 添加ESC键关闭功能
+                function handleEscKey(e) {
+                    if (e.key === 'Escape') {
+                        historyFloatPanel.style.display = 'none';
+                        document.removeEventListener('keydown', handleEscKey);
                     }
+                }
 
-                    // 延迟添加事件，防止当前点击立即关闭面板
-                    setTimeout(() => {
-                        document.addEventListener('click', closeHistoryPanel);
-                    }, 0);
-                } else {
-                    historyPanel.style.display = 'none';
+                document.addEventListener('keydown', handleEscKey);
+            });
+
+            // 点击关闭按钮
+            historyFloatClose.addEventListener('click', () => {
+                historyFloatPanel.style.display = 'none';
+            });
+
+            // 点击浮层外部区域关闭
+            historyFloatPanel.addEventListener('click', (e) => {
+                if (e.target === historyFloatPanel) {
+                    historyFloatPanel.style.display = 'none';
                 }
             });
 
             // 清空历史记录
             clearHistoryBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                clearHistory();
+
+                // 添加确认提示
+                if (confirm('确定要清空所有历史记录吗？')) {
+                    clearHistory();
+                    updateHistoryCount();
+                }
             });
 
-            // 初始化历史记录UI
+            // 拖动浮层
+            const historyFloatHeader = historyFloatPanel.querySelector('.curl-history-float-header');
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            historyFloatHeader.addEventListener('mousedown', (e) => {
+                // 如果点击的是关闭按钮，不启动拖拽
+                if (e.target === historyFloatClose) return;
+
+                isDragging = true;
+
+                // 计算鼠标点击位置与面板左上角的偏移
+                const rect = historyFloatPanel.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+
+                // 添加鼠标样式
+                historyFloatHeader.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                // 计算新位置
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+
+                // 更新面板位置
+                historyFloatPanel.style.transform = 'none';
+                historyFloatPanel.style.left = x + 'px';
+                historyFloatPanel.style.top = y + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (historyFloatHeader) {
+                    historyFloatHeader.style.cursor = 'grab';
+                }
+            });
+
+            // 初始化历史记录UI和计数
             updateHistoryUI();
+            updateHistoryCount();
 
             // 添加请求头
             const addHeaderBtn = container.querySelector('#addHeaderBtn');
@@ -4366,23 +4689,45 @@
 
                     // 保存请求到历史记录
                     const historyItem = {
-                        url: inputUrl,
+                        url: url, // 使用原始输入的URL
+                        actualUrl: response.url, // 保存实际响应URL（可能经过重定向）
                         method,
                         time: new Date().toLocaleString(),
-                        headers: { ...headers },
+                        headers: headers, // 直接保存headers对象
+                        status: response.status,
                     };
 
                     // 如果是POST请求，保存请求体信息
                     if (method === 'POST' && body) {
                         const bodyTypeSelect = container.querySelector('#bodyTypeSelect');
                         historyItem.bodyType = bodyTypeSelect.value;
-                        historyItem.body = body instanceof FormData ? '[FormData]' : body;
+
+                        // 根据不同的请求体类型进行处理
+                        if (body instanceof FormData) {
+                            historyItem.body = '[FormData]';
+                        } else if (typeof body === 'string') {
+                            // 尝试解析为JSON，如果不是则保持字符串形式
+                            try {
+                                const jsonBody = JSON.parse(body);
+                                historyItem.body = body;
+                            } catch (e) {
+                                historyItem.body = body;
+                            }
+                        }
                     }
 
-                    // 添加到历史记录
+                    // 添加到历史记录，并打印日志便于调试
+                    console.log('添加历史记录:', historyItem);
                     addHistory(historyItem);
 
-                    // 设置状态
+                    // 立即更新历史记录计数
+                    try {
+                        if (typeof updateHistoryCount === 'function') {
+                            updateHistoryCount();
+                        }
+                    } catch (e) {
+                        console.error('更新历史记录计数失败:', e);
+                    }                    // 设置状态
                     responseStatus.textContent = `${response.status} ${response.statusText}`;
                     responseStatus.className = `response-status ${response.ok ? 'success' : 'error'}`;
 
