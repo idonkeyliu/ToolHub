@@ -266,7 +266,8 @@
         div.json-view,
         div.codec-view,
         div.crypto-view,
-        div.currency-view {
+        div.currency-view,
+        div.curl-view {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -290,7 +291,8 @@
         div.json-view.active,
         div.codec-view.active,
         div.crypto-view.active,
-        div.currency-view.active {
+        div.currency-view.active,
+        div.curl-view.active {
             display: flex;
         }
 
@@ -3293,22 +3295,1254 @@
                 document.querySelector('main').appendChild(cv);
             }
             cv.innerHTML = buildCurrencyHTML();
-
+            
             // 确保货币转换视图不会捕获本应传递给导航栏按钮的点击事件
             cv.addEventListener('click', (e) => {
                 // 只在点击货币转换视图内的元素时阻止冒泡
-                if (e.target.closest('.currency-card') ||
-                    e.target.closest('.currency-info') ||
+                if (e.target.closest('.currency-card') || 
+                    e.target.closest('.currency-info') || 
                     e.target === cv) {
                     // 不做任何阻止，让事件继续冒泡
                 }
             });
-
+            
             wireCurrency(cv);
             return cv;
         }
+        
+        function buildCurlHTML() {
+            return `<div class="curl-container">
+                <div class="curl-content">
+                    <div class="curl-card">
+                        <div class="curl-header">
+                            <div class="curl-title">CURL 请求工具</div>
+                            <div class="curl-tabs">
+                                <button id="getTab" class="curl-tab-btn active">GET</button>
+                                <button id="postTab" class="curl-tab-btn">POST</button>
+                            </div>
+                        </div>
+                        
+                        <div class="curl-section">
+                            <div class="curl-label">URL</div>
+                            <div class="curl-url-container">
+                                <input type="text" id="curlUrl" placeholder="https://example.com/api" class="curl-input">
+                                <button id="historyBtn" class="curl-history-btn" title="查看历史记录">
+                                    <span>⌚</span>
+                                </button>
+                            </div>
+                            <!-- 历史记录下拉面板 -->
+                            <div id="historyPanel" class="curl-history-panel" style="display: none;">
+                                <div class="curl-history-header">
+                                    <span>最近请求历史</span>
+                                    <button id="clearHistoryBtn" title="清空历史记录">清空</button>
+                                </div>
+                                <div id="historyList" class="curl-history-list">
+                                    <!-- 历史记录将动态插入这里 -->
+                                    <div class="curl-history-empty">暂无历史记录</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="curl-section" id="headerSection">
+                            <div class="curl-label">
+                                <span>请求头</span>
+                                <button id="addHeaderBtn" class="curl-add-btn">添加</button>
+                            </div>
+                            <div id="headersContainer" class="headers-container">
+                                <div class="header-item">
+                                    <input type="text" class="curl-input header-name" placeholder="名称">
+                                    <input type="text" class="curl-input header-value" placeholder="值">
+                                    <button class="curl-remove-btn">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="curl-section" id="bodySection" style="display: none;">
+                            <div class="curl-label">请求体</div>
+                            <div class="body-type-selector">
+                                <select id="bodyTypeSelect" class="curl-select">
+                                    <option value="json">JSON</option>
+                                    <option value="form">表单数据</option>
+                                    <option value="raw">Raw</option>
+                                </select>
+                            </div>
+                            <div id="jsonBody" class="body-content">
+                                <textarea id="jsonBodyInput" class="curl-textarea" placeholder='{"key": "value"}'></textarea>
+                            </div>
+                            <div id="formBody" class="body-content" style="display: none;">
+                                <div id="formDataContainer">
+                                    <div class="form-data-item">
+                                        <input type="text" class="curl-input form-key" placeholder="键">
+                                        <input type="text" class="curl-input form-value" placeholder="值">
+                                        <button class="curl-remove-btn">删除</button>
+                                    </div>
+                                </div>
+                                <button id="addFormDataBtn" class="curl-add-btn">添加表单项</button>
+                            </div>
+                            <div id="rawBody" class="body-content" style="display: none;">
+                                <textarea id="rawBodyInput" class="curl-textarea" placeholder="输入原始请求体数据"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="curl-actions">
+                            <button id="sendRequestBtn" class="curl-send-btn">发送请求</button>
+                            <button id="clearBtn" class="curl-clear-btn">清空</button>
+                        </div>
+                        
+                        <div id="curlError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="curl-response">
+                        <div class="curl-response-header">
+                            <div class="curl-label">响应结果</div>
+                            <div class="curl-response-actions">
+                                <span id="responseStatus" class="response-status"></span>
+                                <span id="responseTime" class="response-time"></span>
+                                <button id="copyResponseBtn" class="curl-copy-btn">复制</button>
+                            </div>
+                                <div id="responseContentType" style="margin-top:4px;color:#aaa;font-size:13px;">内容类型: -</div>
+                        </div>
+                        <div class="curl-response-tabs">
+                            <button id="responseTab" class="curl-resp-tab-btn active">响应体</button>
+                            <button id="headersTab" class="curl-resp-tab-btn">响应头</button>
+                            <button id="requestInfoTab" class="curl-resp-tab-btn">请求信息</button>
+                        </div>
+                        <div id="responseBody" class="curl-response-content">
+                            <pre id="responseBodyContent" class="response-body-content">请先发送请求...</pre>
+                        </div>
+                        <div id="responseHeaders" class="curl-response-content" style="display: none;">
+                            <pre id="responseHeadersContent" class="response-headers-content">请先发送请求...</pre>
+                        </div>
+                        <div id="requestInfo" class="curl-response-content" style="display: none;">
+                            <pre id="requestInfoContent" class="request-info-content">请先发送请求...</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <style>
+                    .curl-container {
+                        padding: 20px;
+                        max-width: 95%; /* 更改为百分比宽度，以适应更大的屏幕 */
+                        margin: 0 auto;
+                        color: #e5e7eb;
+                        height: calc(100% - 46px); /* 减去顶部导航栏的高度 */
+                        display: flex;
+                        flex-direction: column;
+                        pointer-events: auto; /* 确保点击事件正常工作 */
+                        position: relative; /* 确保定位上下文正确 */
+                        z-index: 0; /* 降低z-index，确保在切换时不会覆盖其他视图 */
+                        width: 100%; /* 确保宽度正确 */
+                    }
+                    
+                    .curl-content {
+                        display: flex;
+                        height: 100%;
+                        gap: 20px;
+                    }
+                    
+                    .curl-card {
+                        flex: 1;
+                        background: #111827;
+                        border-radius: 12px;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 15px;
+                        overflow-y: auto;
+                    }
+                    
+                    .curl-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 1px solid #2d3748;
+                        padding-bottom: 12px;
+                        margin-bottom: 5px;
+                    }
+                    
+                    .curl-title {
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #9ca3af;
+                    }
+                    
+                    .curl-tabs {
+                        display: flex;
+                        gap: 10px;
+                    }
+                    
+                    .curl-tab-btn {
+                        background: #1e293b;
+                        border: none;
+                        padding: 6px 14px;
+                        border-radius: 6px;
+                        color: #9ca3af;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    
+                    .curl-tab-btn.active {
+                        background: #2563eb;
+                        color: white;
+                    }
+                    
+                    .curl-tab-btn:hover:not(.active) {
+                        background: #334155;
+                    }
+                    
+                    .curl-section {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    .curl-label {
+                        font-size: 14px;
+                        font-weight: 500;
+                        color: #9ca3af;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    
+                    .curl-input {
+                        background: #1e293b;
+                        border: 1px solid #2d3748;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        color: #e5e7eb;
+                        width: 100%;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                    }
+                    
+                    .curl-input:focus {
+                        border-color: #3b82f6;
+                        outline: none;
+                    }
+                    
+                    /* URL输入框容器 */
+                    .curl-url-container {
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        position: relative;
+                    }
+                    
+                    /* 历史按钮样式 */
+                    .curl-history-btn {
+                        background: #1e293b;
+                        color: #9ca3af;
+                        border: none;
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 6px;
+                        margin-left: 8px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s;
+                    }
+                    
+                    .curl-history-btn:hover {
+                        background: #2d3748;
+                        color: #e5e7eb;
+                    }
+                    
+                    /* 历史记录面板 */
+                    .curl-history-panel {
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: #1f2937;
+                        border: 1px solid #374151;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                        z-index: 100;
+                        max-height: 300px;
+                        overflow-y: auto;
+                        margin-top: 5px;
+                    }
+                    
+                    .curl-history-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 8px 12px;
+                        border-bottom: 1px solid #374151;
+                        color: #e5e7eb;
+                        font-weight: 600;
+                    }
+                    
+                    .curl-history-header button {
+                        background: none;
+                        border: none;
+                        color: #9ca3af;
+                        cursor: pointer;
+                        font-size: 12px;
+                        padding: 3px 6px;
+                    }
+                    
+                    .curl-history-header button:hover {
+                        color: #e5e7eb;
+                        text-decoration: underline;
+                    }
+                    
+                    .curl-history-list {
+                        max-height: 250px;
+                        overflow-y: auto;
+                    }
+                    
+                    .curl-history-item {
+                        padding: 8px 12px;
+                        border-bottom: 1px solid #374151;
+                        cursor: pointer;
+                        color: #e5e7eb;
+                    }
+                    
+                    .curl-history-item:hover {
+                        background: #2d3748;
+                    }
+                    
+                    .curl-history-item .history-url {
+                        font-weight: 600;
+                        color: #60a5fa;
+                        margin-bottom: 4px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    
+                    .curl-history-item .history-method {
+                        display: inline-block;
+                        background: #1e40af;
+                        color: white;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        margin-right: 8px;
+                    }
+                    
+                    .curl-history-item .history-time {
+                        font-size: 12px;
+                        color: #9ca3af;
+                    }
+                    
+                    .curl-history-empty {
+                        padding: 12px;
+                        text-align: center;
+                        color: #9ca3af;
+                        font-style: italic;
+                    }
+                    }
+                    
+                    .curl-textarea {
+                        background: #1e293b;
+                        border: 1px solid #2d3748;
+                        border-radius: 6px;
+                        padding: 10px;
+                        color: #e5e7eb;
+                        width: 100%;
+                        min-height: 120px;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                        resize: vertical;
+                    }
+                    
+                    .curl-textarea:focus {
+                        border-color: #3b82f6;
+                        outline: none;
+                    }
+                    
+                    .curl-select {
+                        background: #1e293b;
+                        border: 1px solid #2d3748;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        color: #e5e7eb;
+                        width: 100%;
+                    }
+                    
+                    .curl-select:focus {
+                        border-color: #3b82f6;
+                        outline: none;
+                    }
+                    
+                    .headers-container, #formDataContainer {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    .header-item, .form-data-item {
+                        display: flex;
+                        gap: 8px;
+                    }
+                    
+                    .header-name, .header-value, .form-key, .form-value {
+                        flex: 1;
+                    }
+                    
+                    .curl-add-btn {
+                        background: #1e293b;
+                        color: #60a5fa;
+                        border: none;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 12px;
+                    }
+                    
+                    .curl-add-btn:hover {
+                        background: #2d3748;
+                    }
+                    
+                    .curl-remove-btn {
+                        background: #1e293b;
+                        color: #ef4444;
+                        border: none;
+                        padding: 0 8px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    
+                    .curl-remove-btn:hover {
+                        background: #2d3748;
+                    }
+                    
+                    .body-type-selector {
+                        margin-bottom: 10px;
+                    }
+                    
+                    .curl-actions {
+                        display: flex;
+                        gap: 10px;
+                        margin-top: 10px;
+                    }
+                    
+                    .curl-send-btn {
+                        background: #2563eb;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        font-weight: 500;
+                    }
+                    
+                    .curl-send-btn:hover {
+                        background: #1d4ed8;
+                    }
+                    
+                    .curl-clear-btn {
+                        background: #1e293b;
+                        color: #9ca3af;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    
+                    .curl-clear-btn:hover {
+                        background: #2d3748;
+                    }
+                    
+                    .curl-response {
+                        flex: 1;
+                        background: #111827;
+                        border-radius: 12px;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                    }
+                    
+                    .curl-response-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 1px solid #2d3748;
+                        padding-bottom: 12px;
+                        margin-bottom: 5px;
+                    }
+                    
+                    .curl-response-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    
+                    .response-status {
+                        padding: 3px 8px;
+                        border-radius: 10px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                    
+                    .response-status.success {
+                        background: rgba(16, 185, 129, 0.2);
+                        color: #34d399;
+                    }
+                    
+                    .response-status.error {
+                        background: rgba(239, 68, 68, 0.2);
+                        color: #f87171;
+                    }
+                    
+                    .response-time {
+                        font-size: 12px;
+                        color: #9ca3af;
+                    }
+                    
+                    .curl-copy-btn {
+                        background: #1e293b;
+                        color: #9ca3af;
+                        border: none;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 12px;
+                    }
+                    
+                    .curl-copy-btn:hover {
+                        background: #2d3748;
+                        color: #e5e7eb;
+                    }
+                    
+                    .curl-response-tabs {
+                        display: flex;
+                        gap: 10px;
+                        margin: 10px 0;
+                    }
+                    
+                    .curl-resp-tab-btn {
+                        background: #1e293b;
+                        border: none;
+                        padding: 6px 14px;
+                        border-radius: 6px;
+                        color: #9ca3af;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        font-size: 13px;
+                    }
+                    
+                    .curl-resp-tab-btn.active {
+                        background: #2563eb;
+                        color: white;
+                    }
+                    
+                    .curl-resp-tab-btn:hover:not(.active) {
+                        background: #334155;
+                    }
+                    
+                    .curl-response-content {
+                        flex: 1;
+                        overflow: auto;
+                        background: #0f172a;
+                        border-radius: 6px;
+                        padding: 10px;
+                    }
+                    
+                    .response-body-content, .response-headers-content {
+                        color: #e5e7eb;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                        font-size: 13px;
+                        line-height: 1.5;
+                        margin: 0;
+                        white-space: pre-wrap;
+                        word-break: break-word;
+                    }
+                    
+                    .error-message {
+                        color: #f87171;
+                        font-size: 13px;
+                        display: none;
+                    }
+                    
+                    /* 响应式调整 */
+                    @media (max-width: 768px) {
+                        .curl-content {
+                            flex-direction: column;
+                        }
+                        
+                        .curl-card, .curl-response {
+                            max-height: 500px;
+                        }
+                    }
+                </style>
+            `;
+        }
+        
+        function ensureCurl() {
+            let cv = document.querySelector('div.curl-view[data-key="curl"]');
+            if (!cv) {
+                cv = document.createElement('div');
+                cv.className = 'curl-view';
+                cv.dataset.key = 'curl';
+                document.querySelector('main').appendChild(cv);
+            }
+            cv.innerHTML = buildCurlHTML();
+            
+            wireCurl(cv);
+            return cv;
+        }
+        
+        function wireCurl(container) {
+            // 历史记录管理
+            const HISTORY_KEY = 'curl_request_history';
+            const MAX_HISTORY = 20;
+            
+            // 从LocalStorage加载历史记录
+            function loadHistory() {
+                const history = localStorage.getItem(HISTORY_KEY);
+                return history ? JSON.parse(history) : [];
+            }
+            
+            // 保存历史记录到LocalStorage
+            function saveHistory(history) {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            }
+            
+            // 添加一条新的历史记录
+            function addHistory(request) {
+                const history = loadHistory();
+                
+                // 检查是否已有相同的请求（相同的URL和方法）
+                const existingIndex = history.findIndex(item => 
+                    item.url === request.url && 
+                    item.method === request.method
+                );
+                
+                // 如果存在，删除旧的
+                if (existingIndex !== -1) {
+                    history.splice(existingIndex, 1);
+                }
+                
+                // 添加到开头
+                history.unshift(request);
+                
+                // 如果超过最大数量，删除多余的
+                if (history.length > MAX_HISTORY) {
+                    history.splice(MAX_HISTORY);
+                }
+                
+                saveHistory(history);
+                
+                // 更新UI
+                updateHistoryUI();
+            }
+            
+            // 清空历史记录
+            function clearHistory() {
+                localStorage.removeItem(HISTORY_KEY);
+                updateHistoryUI();
+            }
+            
+            // 更新历史记录UI
+            function updateHistoryUI() {
+                const historyList = container.querySelector('#historyList');
+                const history = loadHistory();
+                
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="curl-history-empty">暂无历史记录</div>';
+                    return;
+                }
+                
+                history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'curl-history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-url">${item.url}</div>
+                        <div>
+                            <span class="history-method">${item.method}</span>
+                            <span class="history-time">${item.time}</span>
+                        </div>
+                    `;
+                    
+                    // 点击加载历史记录
+                    historyItem.addEventListener('click', () => {
+                        loadHistoryItem(item);
+                        historyPanel.style.display = 'none';
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // 加载历史记录到表单
+            function loadHistoryItem(item) {
+                const curlUrl = container.querySelector('#curlUrl');
+                curlUrl.value = item.url;
+                
+                // 选择对应的请求方法
+                if (item.method === 'GET') {
+                    getTab.click();
+                } else if (item.method === 'POST') {
+                    postTab.click();
+                    
+                    // 设置请求体
+                    if (item.bodyType) {
+                        const bodyTypeSelect = container.querySelector('#bodyTypeSelect');
+                        bodyTypeSelect.value = item.bodyType;
+                        bodyTypeSelect.dispatchEvent(new Event('change'));
+                        
+                        if (item.bodyType === 'json' && item.body) {
+                            container.querySelector('#jsonBodyInput').value = item.body;
+                        } else if (item.bodyType === 'raw' && item.body) {
+                            container.querySelector('#rawBodyInput').value = item.body;
+                        }
+                    }
+                }
+                
+                // 设置请求头
+                if (item.headers && Object.keys(item.headers).length > 0) {
+                    const headersContainer = container.querySelector('#headersContainer');
+                    
+                    // 清除现有的请求头
+                    headersContainer.innerHTML = '';
+                    
+                    // 添加历史记录中的请求头
+                    Object.entries(item.headers).forEach(([name, value]) => {
+                        const headerItem = document.createElement('div');
+                        headerItem.className = 'header-item';
+                        headerItem.innerHTML = `
+                            <input type="text" class="curl-input header-name" placeholder="名称" value="${name}">
+                            <input type="text" class="curl-input header-value" placeholder="值" value="${value}">
+                            <button class="curl-remove-btn">删除</button>
+                        `;
+                        
+                        // 添加删除按钮事件
+                        const removeBtn = headerItem.querySelector('.curl-remove-btn');
+                        removeBtn.addEventListener('click', () => {
+                            headerItem.remove();
+                        });
+                        
+                        headersContainer.appendChild(headerItem);
+                    });
+                }
+            }
+            
+            // Tab切换
+            const getTab = container.querySelector('#getTab');
+            const postTab = container.querySelector('#postTab');
+            const bodySection = container.querySelector('#bodySection');
+            
+            getTab.addEventListener('click', () => {
+                getTab.classList.add('active');
+                postTab.classList.remove('active');
+                bodySection.style.display = 'none';
+            });
+            
+            postTab.addEventListener('click', () => {
+                postTab.classList.add('active');
+                getTab.classList.remove('active');
+                bodySection.style.display = 'flex';
+            });
+            
+            // 历史记录按钮和面板
+            const historyBtn = container.querySelector('#historyBtn');
+            const historyPanel = container.querySelector('#historyPanel');
+            const clearHistoryBtn = container.querySelector('#clearHistoryBtn');
+            
+            // 点击历史按钮显示/隐藏历史记录面板
+            historyBtn.addEventListener('click', () => {
+                if (historyPanel.style.display === 'none') {
+                    updateHistoryUI();
+                    historyPanel.style.display = 'block';
+                    
+                    // 点击其他地方关闭历史记录面板
+                    function closeHistoryPanel(e) {
+                        if (!historyPanel.contains(e.target) && e.target !== historyBtn) {
+                            historyPanel.style.display = 'none';
+                            document.removeEventListener('click', closeHistoryPanel);
+                        }
+                    }
+                    
+                    // 延迟添加事件，防止当前点击立即关闭面板
+                    setTimeout(() => {
+                        document.addEventListener('click', closeHistoryPanel);
+                    }, 0);
+                } else {
+                    historyPanel.style.display = 'none';
+                }
+            });
+            
+            // 清空历史记录
+            clearHistoryBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                clearHistory();
+            });
+            
+            // 初始化历史记录UI
+            updateHistoryUI();
+            
+            // 添加请求头
+            const addHeaderBtn = container.querySelector('#addHeaderBtn');
+            const headersContainer = container.querySelector('#headersContainer');
+            
+            addHeaderBtn.addEventListener('click', () => {
+                const headerItem = document.createElement('div');
+                headerItem.className = 'header-item';
+                headerItem.innerHTML = `
+                    <input type="text" class="curl-input header-name" placeholder="名称">
+                    <input type="text" class="curl-input header-value" placeholder="值">
+                    <button class="curl-remove-btn">删除</button>
+                `;
+                headersContainer.appendChild(headerItem);
+                
+                headerItem.querySelector('.curl-remove-btn').addEventListener('click', () => {
+                    headerItem.remove();
+                });
+            });
+            
+            // 初始请求头删除按钮
+            container.querySelector('#headersContainer .curl-remove-btn').addEventListener('click', (e) => {
+                e.target.closest('.header-item').remove();
+            });
+            
+            // 请求体类型切换
+            const bodyTypeSelect = container.querySelector('#bodyTypeSelect');
+            const jsonBody = container.querySelector('#jsonBody');
+            const formBody = container.querySelector('#formBody');
+            const rawBody = container.querySelector('#rawBody');
+            
+            bodyTypeSelect.addEventListener('change', () => {
+                const selectedValue = bodyTypeSelect.value;
+                
+                jsonBody.style.display = 'none';
+                formBody.style.display = 'none';
+                rawBody.style.display = 'none';
+                
+                if (selectedValue === 'json') {
+                    jsonBody.style.display = 'block';
+                } else if (selectedValue === 'form') {
+                    formBody.style.display = 'block';
+                } else if (selectedValue === 'raw') {
+                    rawBody.style.display = 'block';
+                }
+            });
+            
+            // 添加表单数据项
+            const addFormDataBtn = container.querySelector('#addFormDataBtn');
+            const formDataContainer = container.querySelector('#formDataContainer');
+            
+            addFormDataBtn.addEventListener('click', () => {
+                const formItem = document.createElement('div');
+                formItem.className = 'form-data-item';
+                formItem.innerHTML = `
+                    <input type="text" class="curl-input form-key" placeholder="键">
+                    <input type="text" class="curl-input form-value" placeholder="值">
+                    <button class="curl-remove-btn">删除</button>
+                `;
+                formDataContainer.appendChild(formItem);
+                
+                formItem.querySelector('.curl-remove-btn').addEventListener('click', () => {
+                    formItem.remove();
+                });
+            });
+            
+            // 初始表单数据删除按钮
+            container.querySelector('#formDataContainer .curl-remove-btn').addEventListener('click', (e) => {
+                e.target.closest('.form-data-item').remove();
+            });
+            
+            // 响应选项卡切换
+            const responseTab = container.querySelector('#responseTab');
+            const headersTab = container.querySelector('#headersTab');
+            const requestInfoTab = container.querySelector('#requestInfoTab');
+            const responseBody = container.querySelector('#responseBody');
+            const responseHeaders = container.querySelector('#responseHeaders');
+            const requestInfo = container.querySelector('#requestInfo');
+            
+            function activateTab(activeTab) {
+                // 隐藏所有内容
+                responseBody.style.display = 'none';
+                responseHeaders.style.display = 'none';
+                requestInfo.style.display = 'none';
+                
+                // 移除所有标签的活动状态
+                responseTab.classList.remove('active');
+                headersTab.classList.remove('active');
+                requestInfoTab.classList.remove('active');
+                
+                // 激活选中标签和内容
+                activeTab.classList.add('active');
+                
+                if (activeTab === responseTab) {
+                    responseBody.style.display = 'block';
+                } else if (activeTab === headersTab) {
+                    responseHeaders.style.display = 'block';
+                } else if (activeTab === requestInfoTab) {
+                    requestInfo.style.display = 'block';
+                }
+            }
+            
+            responseTab.addEventListener('click', () => activateTab(responseTab));
+            headersTab.addEventListener('click', () => activateTab(headersTab));
+            requestInfoTab.addEventListener('click', () => activateTab(requestInfoTab));
+            
+            // 复制响应
+            const copyResponseBtn = container.querySelector('#copyResponseBtn');
+            
+            copyResponseBtn.addEventListener('click', () => {
+                let content;
+                
+                if (responseBody.style.display === 'block') {
+                    content = container.querySelector('#responseBodyContent').textContent;
+                } else if (responseHeaders.style.display === 'block') {
+                    content = container.querySelector('#responseHeadersContent').textContent;
+                } else if (requestInfo.style.display === 'block') {
+                    content = container.querySelector('#requestInfoContent').textContent;
+                }
+                    
+                navigator.clipboard.writeText(content).then(() => {
+                    const originalText = copyResponseBtn.textContent;
+                    copyResponseBtn.textContent = '已复制!';
+                    setTimeout(() => {
+                        copyResponseBtn.textContent = originalText;
+                    }, 1500);
+                });
+            });
+            
+            // 清空按钮
+            const clearBtn = container.querySelector('#clearBtn');
+            
+            clearBtn.addEventListener('click', () => {
+                container.querySelector('#curlUrl').value = '';
+                container.querySelectorAll('#headersContainer .header-item').forEach((item, index) => {
+                    if (index > 0) item.remove(); // 保留第一个头部项
+                    else {
+                        item.querySelectorAll('input').forEach(input => input.value = '');
+                    }
+                });
+                
+                container.querySelector('#jsonBodyInput').value = '';
+                container.querySelectorAll('#formDataContainer .form-data-item').forEach((item, index) => {
+                    if (index > 0) item.remove(); // 保留第一个表单项
+                    else {
+                        item.querySelectorAll('input').forEach(input => input.value = '');
+                    }
+                });
+                container.querySelector('#rawBodyInput').value = '';
+                
+                container.querySelector('#responseBodyContent').textContent = '请先发送请求...';
+                container.querySelector('#responseHeadersContent').textContent = '请先发送请求...';
+                container.querySelector('#requestInfoContent').textContent = '请先发送请求...';
+                
+                const statusEl = container.querySelector('#responseStatus');
+                statusEl.textContent = '';
+                statusEl.className = 'response-status';
+                
+                container.querySelector('#responseTime').textContent = '';
+                container.querySelector('#curlError').style.display = 'none';
+            });
+            
+            // 发送请求
+            const sendRequestBtn = container.querySelector('#sendRequestBtn');
+            const curlUrl = container.querySelector('#curlUrl');
+            const curlError = container.querySelector('#curlError');
+            const responseStatus = container.querySelector('#responseStatus');
+            const responseTime = container.querySelector('#responseTime');
+            const responseBodyContent = container.querySelector('#responseBodyContent');
+            const responseHeadersContent = container.querySelector('#responseHeadersContent');
+            
+            sendRequestBtn.addEventListener('click', async () => {
+                // 验证URL
+                const url = curlUrl.value.trim();
+                if (!url) {
+                    curlError.textContent = '请输入有效的URL';
+                    curlError.style.display = 'block';
+                    return;
+                }
+                
+                // URL验证更宽松，允许用户输入不带协议的URL（如example.com）
+                // 实际发送请求时会自动添加协议
+                
+                // 重置错误和状态
+                curlError.style.display = 'none';
+                responseStatus.textContent = '请求中...';
+                responseStatus.className = 'response-status';
+                responseTime.textContent = '';
+                responseBodyContent.textContent = '加载中...';
+                responseHeadersContent.textContent = '加载中...';
+                container.querySelector('#requestInfoContent').textContent = '加载中...';
+                
+                // 获取请求方法
+                const method = getTab.classList.contains('active') ? 'GET' : 'POST';
+                
+                // 获取请求头
+                const headers = {};
+                container.querySelectorAll('#headersContainer .header-item').forEach(item => {
+                    const name = item.querySelector('.header-name').value.trim();
+                    const value = item.querySelector('.header-value').value.trim();
+                    if (name) headers[name] = value;
+                });
+                
+                // 准备请求体
+                let body = null;
+                if (method === 'POST') {
+                    const bodyType = bodyTypeSelect.value;
+                    
+                    if (bodyType === 'json') {
+                        const jsonValue = container.querySelector('#jsonBodyInput').value.trim();
+                        if (jsonValue) {
+                            try {
+                                // 验证JSON格式
+                                JSON.parse(jsonValue);
+                                body = jsonValue;
+                                if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+                            } catch (e) {
+                                curlError.textContent = 'JSON格式无效';
+                                curlError.style.display = 'block';
+                                responseBodyContent.textContent = '请先发送请求...';
+                                responseHeadersContent.textContent = '请先发送请求...';
+                                return;
+                            }
+                        }
+                    } else if (bodyType === 'form') {
+                        const formData = new FormData();
+                        let hasData = false;
+                        
+                        container.querySelectorAll('#formDataContainer .form-data-item').forEach(item => {
+                            const key = item.querySelector('.form-key').value.trim();
+                            const value = item.querySelector('.form-value').value.trim();
+                            if (key) {
+                                formData.append(key, value);
+                                hasData = true;
+                            }
+                        });
+                        
+                        if (hasData) {
+                            body = formData;
+                            // 不需要设置Content-Type，fetch会自动设置为multipart/form-data
+                        }
+                    } else if (bodyType === 'raw') {
+                        const rawValue = container.querySelector('#rawBodyInput').value.trim();
+                        if (rawValue) {
+                            body = rawValue;
+                            if (!headers['Content-Type']) headers['Content-Type'] = 'text/plain';
+                        }
+                    }
+                }
+                
+                // 开始计时
+                const startTime = Date.now();
+                
+                try {
+                    // 保存原始输入URL
+                    const inputUrl = url;
+                    
+                    // 创建最终请求URL对象
+                    let finalUrl;
+                    try {
+                        finalUrl = new URL(url);
+                        // 确保URL完整
+                        if (!finalUrl.protocol) {
+                            finalUrl = new URL('https://' + url);
+                        }
+                    } catch(e) {
+                        // 如果URL解析失败，尝试添加https://
+                        finalUrl = new URL('https://' + url);
+                    }
+                    
+                    // 将URL转换为字符串
+                    const requestUrl = finalUrl.toString();
+                    
+                    // 发送请求
+                    const response = await fetch(requestUrl, {
+                        method,
+                        headers,
+                        body,
+                    });
+                    
+                    // 计算请求时间
+                    const endTime = Date.now();
+                    const timeTaken = endTime - startTime;
+                    responseTime.textContent = `${timeTaken}ms`;
+                    
+                    // 保存请求到历史记录
+                    const historyItem = {
+                        url: inputUrl,
+                        method,
+                        time: new Date().toLocaleString(),
+                        headers: { ...headers },
+                    };
+                    
+                    // 如果是POST请求，保存请求体信息
+                    if (method === 'POST' && body) {
+                        const bodyTypeSelect = container.querySelector('#bodyTypeSelect');
+                        historyItem.bodyType = bodyTypeSelect.value;
+                        historyItem.body = body instanceof FormData ? '[FormData]' : body;
+                    }
+                    
+                    // 添加到历史记录
+                    addHistory(historyItem);
+                    
+                    // 设置状态
+                    responseStatus.textContent = `${response.status} ${response.statusText}`;
+                    responseStatus.className = `response-status ${response.ok ? 'success' : 'error'}`;
+                    
+                    // 获取实际请求的URL（可能包含重定向后的URL）
+                    const actualUrl = response.url;
+                    
+                    // 获取响应体
+                    const contentType = response.headers.get('content-type');
+                    let responseData;
+                    let responseType = 'text';
+                    
+                    // 根据内容类型处理响应
+                    if (contentType) {
+                        // 显示响应类型
+                        container.querySelector('#responseContentType').textContent = `内容类型: ${contentType}`;
+                        
+                        if (contentType.includes('application/json')) {
+                            responseType = 'json';
+                            try {
+                                responseData = await response.json();
+                                responseBodyContent.textContent = JSON.stringify(responseData, null, 2);
+                                responseBodyContent.classList.add('json-response');
+                            } catch (e) {
+                                responseData = await response.text();
+                                responseBodyContent.textContent = responseData;
+                                responseBodyContent.classList.remove('json-response');
+                            }
+                        } else if (contentType.includes('text/html')) {
+                            responseType = 'html';
+                            responseData = await response.text();
+                            responseBodyContent.textContent = responseData;
+                            responseBodyContent.classList.add('html-response');
+                        } else if (contentType.includes('text/')) {
+                            responseType = 'text';
+                            responseData = await response.text();
+                            responseBodyContent.textContent = responseData;
+                            responseBodyContent.classList.remove('json-response', 'html-response');
+                        } else if (contentType.includes('image/')) {
+                            responseType = 'image';
+                            responseBodyContent.textContent = '[图像内容] - 无法在文本视图中显示';
+                            responseBodyContent.classList.remove('json-response', 'html-response');
+                        } else {
+                            responseData = await response.text();
+                            responseBodyContent.textContent = responseData;
+                            responseBodyContent.classList.remove('json-response', 'html-response');
+                        }
+                    } else {
+                        container.querySelector('#responseContentType').textContent = '内容类型: 未知';
+                        responseData = await response.text();
+                        responseBodyContent.textContent = responseData;
+                        responseBodyContent.classList.remove('json-response', 'html-response');
+                    }
+                    
+                    // 设置响应头
+                    const headersText = Array.from(response.headers.entries())
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n');
+                    responseHeadersContent.textContent = headersText;
+                    
+                    // 设置请求信息
+                    const requestHeadersText = Object.entries(headers)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n');
+                        
+                    const requestBodyText = (() => {
+                        if (method === 'GET') return '无请求体 (GET请求)';
+                        if (!body) return '无请求体';
+                        
+                        if (typeof body === 'string') {
+                            try {
+                                // 尝试格式化JSON字符串
+                                const parsedJson = JSON.parse(body);
+                                return JSON.stringify(parsedJson, null, 2);
+                            } catch (e) {
+                                // 不是JSON，直接返回原始字符串
+                                return body;
+                            }
+                        } else if (body instanceof FormData) {
+                            // FormData不能直接查看，返回提示信息
+                            return '[FormData: 表单数据]';
+                        }
+                        
+                        return '无法显示请求体';
+                    })();
+                    
+                    const requestInfoText = 
+`输入URL: ${inputUrl}
+实际请求URL: ${actualUrl}
+请求方法: ${method}
+HTTP版本: HTTP/1.1
 
-        function wireCurrency(container) {
+请求标头:
+${requestHeadersText || '无自定义请求头'}
+
+请求体:
+${requestBodyText}`;
+
+                    container.querySelector('#requestInfoContent').textContent = requestInfoText;
+                    
+                } catch (error) {
+                    // 显示错误
+                    responseStatus.textContent = '请求失败';
+                    responseStatus.className = 'response-status error';
+                    responseBodyContent.textContent = `Error: ${error.message}`;
+                    responseHeadersContent.textContent = '请求失败，无法获取响应头';
+                    
+                    // 计算请求时间
+                    const endTime = Date.now();
+                    const timeTaken = endTime - startTime;
+                    responseTime.textContent = `${timeTaken}ms`;
+                    
+                    // 即使失败也展示请求信息
+                    const requestHeadersText = Object.entries(headers)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n');
+                    
+                    let requestBodyText = '无请求体';
+                    if (method === 'POST' && body) {
+                        if (typeof body === 'string') {
+                            try {
+                                const parsedJson = JSON.parse(body);
+                                requestBodyText = JSON.stringify(parsedJson, null, 2);
+                            } catch (e) {
+                                requestBodyText = body;
+                            }
+                        } else if (body instanceof FormData) {
+                            requestBodyText = '[FormData: 表单数据]';
+                        }
+                    }
+                    
+                    // 获取尝试请求的URL
+                    let attemptedUrl = inputUrl;
+                    try {
+                        // 如果我们创建了finalUrl，显示它
+                        if (typeof finalUrl !== 'undefined' && finalUrl instanceof URL) {
+                            attemptedUrl = finalUrl.toString();
+                        }
+                    } catch (e) {
+                        // 如果出错，使用原始URL
+                    }
+                    
+                    const requestInfoText = 
+`输入URL: ${inputUrl}
+尝试请求URL: ${attemptedUrl}
+请求方法: ${method}
+HTTP版本: HTTP/1.1
+
+请求标头:
+${requestHeadersText || '无自定义请求头'}
+
+请求体:
+${requestBodyText}
+
+错误信息:
+${error.message}`;
+
+                    container.querySelector('#requestInfoContent').textContent = requestInfoText;
+                }
+            });
+        }        function wireCurrency(container) {
             const amountInput = container.querySelector('#amountInput');
             const fromCurrency = container.querySelector('#fromCurrency');
             const toCurrency = container.querySelector('#toCurrency');
@@ -3854,7 +5088,7 @@
         function switchSite(key) {
             if (current === key) return;
             current = key;
-            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view, div.currency-view').forEach(el => {
+            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view, div.currency-view, div.curl-view').forEach(el => {
                 const isActive = el.dataset.key === key;
                 el.classList.toggle('active', isActive);
                 // 确保非活动视图隐藏，活动视图显示
@@ -3921,6 +5155,9 @@
             } else if (site.key === 'currency') {
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
                 el = ensureCurrency();
+            } else if (site.key === 'curl') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureCurl();
             } else {
                 // 非时间页则停止计时器
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
@@ -3929,7 +5166,7 @@
             el.classList.add('active');
             el.style.display = 'flex'; // 确保当前活动视图是显示的
             renderList();
-            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec' || site.key === 'crypto' || site.key === 'currency') { hideStatus(); } else { showStatus('加载中...'); }
+            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec' || site.key === 'crypto' || site.key === 'currency' || site.key === 'curl') { hideStatus(); } else { showStatus('加载中...'); }
             window.llmHub?.persistLastSite?.(key);
             // 独立窗口按钮逻辑已移除
         }
@@ -3943,11 +5180,22 @@
                 if (currencyIndex !== -1) {
                     sites.splice(currencyIndex, 1);
                 }
-                // 在加解密工具后面插入货币转换工具
+                // 先移除可能已存在的curl工具
+                const curlIndex = sites.findIndex(s => s.key === 'curl');
+                if (curlIndex !== -1) {
+                    sites.splice(curlIndex, 1);
+                }
+                // 在加解密工具后面插入货币转换工具和curl工具
                 sites.splice(cryptoIndex + 1, 0, { key: 'currency', title: '货币转换' });
-            } else if (!sites.find(s => s.key === 'currency')) {
+                sites.splice(cryptoIndex + 2, 0, { key: 'curl', title: 'CURL工具' });
+            } else {
                 // 如果找不到加解密工具，就添加到末尾
-                sites.push({ key: 'currency', title: '货币转换' });
+                if (!sites.find(s => s.key === 'currency')) {
+                    sites.push({ key: 'currency', title: '货币转换' });
+                }
+                if (!sites.find(s => s.key === 'curl')) {
+                    sites.push({ key: 'curl', title: 'CURL工具' });
+                }
             }
 
             // 确保currency工具已被添加到moduleVisibility中
