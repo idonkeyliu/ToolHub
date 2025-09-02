@@ -278,8 +278,10 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: opacity 0.3s ease; /* 只对opacity做过渡，避免布局变化导致抖动 */
-            will-change: opacity; /* 提示浏览器做优化 */
+            transition: opacity 0.3s ease;
+            /* 只对opacity做过渡，避免布局变化导致抖动 */
+            will-change: opacity;
+            /* 提示浏览器做优化 */
         }
 
         iframe.site-frame.active,
@@ -3330,15 +3332,15 @@
             const cv = document.createElement('div');
             cv.className = 'currency-view';
             cv.dataset.key = 'currency';
-            
+
             // 重要：为视图设置固定高度以防止布局抖动
             cv.style.height = '100%';
             cv.style.position = 'absolute';
             cv.style.inset = '0';
             cv.style.overflow = 'auto';
-            
+
             document.querySelector('main').appendChild(cv);
-            
+
             // 先将视图设为透明，避免闪烁
             cv.style.opacity = '0';
             cv.innerHTML = buildCurrencyHTML();
@@ -3355,16 +3357,16 @@
 
             // 初始化货币转换功能
             wireCurrency(cv);
-            
+
             // 确保DOM完全渲染后再显示，使用setTimeout而不是requestAnimationFrame
             // 因为requestAnimationFrame可能在元素大小计算完成前执行
             setTimeout(() => {
                 cv.style.opacity = '1';
                 cv.style.transition = 'opacity 0.3s ease';
             }, 50);
-            
+
             return cv;
-        }        function buildCurlHTML() {
+        } function buildCurlHTML() {
             return `<div class="curl-container">
                 <div class="curl-content">
                     <div class="curl-card">
@@ -5076,20 +5078,20 @@ ${error.message}`;
             // 准备汇率容器并添加高度锁定以防止抖动
             const currencyContainer = container.querySelector('.currency-container');
             currencyContainer.style.minHeight = '550px'; // 给容器一个最小高度，防止布局抖动
-            
+
             // 更好的方式处理汇率信息区域，不复制DOM节点
             setTimeout(() => {
                 const currencyInfo = container.querySelector('.currency-info');
                 const placeholder = container.querySelector('.currency-info-placeholder');
-                
+
                 if (currencyInfo) {
                     // 直接修改现有的汇率信息区域，而不是复制和替换
                     currencyInfo.style.visibility = 'visible';
-                    currencyInfo.style.position = 'static'; 
+                    currencyInfo.style.position = 'static';
                     currencyInfo.style.opacity = '1';
                     currencyInfo.style.transform = 'none';
                     currencyInfo.style.display = 'block';
-                    
+
                     // 隐藏占位符而不是替换它
                     if (placeholder) {
                         placeholder.style.display = 'none';
@@ -5583,19 +5585,19 @@ ${error.message}`;
                 el = ensureCrypto();
             } else if (site.key === 'currency') {
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
-                
+
                 // 保存滚动位置，避免闪烁
                 document.body.style.overflow = 'hidden';
-                
+
                 // 在切换到货币视图之前删除任何现有的货币视图，以确保我们是从头开始的
                 const existingView = document.querySelector('div.currency-view[data-key="currency"]');
                 if (existingView && existingView.parentNode) {
                     existingView.parentNode.removeChild(existingView);
                 }
-                
+
                 // 创建全新的货币视图
                 el = ensureCurrency();
-                
+
                 // 恢复滚动
                 setTimeout(() => {
                     document.body.style.overflow = '';
