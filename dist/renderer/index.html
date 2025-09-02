@@ -328,7 +328,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e 50%, #0d1114 100%);
             min-height: 100vh;
             position: relative;
             overflow: hidden;
@@ -346,7 +346,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
             animation: backgroundShift 20s ease-in-out infinite alternate;
@@ -360,7 +360,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
             animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
@@ -442,7 +442,7 @@
             border-radius: 20px;
             padding: 18px 20px;
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 0 8px 32px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -468,7 +468,7 @@
 
         .stamp-box:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 12px 40px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
@@ -492,7 +492,7 @@
             padding: 8px 16px;
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 10px rgba(0, 0, 0, 0.3),
                 0 0 0 rgba(0, 212, 255, 0);
         }
@@ -500,7 +500,7 @@
         .stamp-box .value:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 10px rgba(0, 0, 0, 0.3),
                 0 0 20px rgba(0, 212, 255, 0.4);
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
@@ -518,7 +518,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 0 4px 15px rgba(78, 205, 196, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
             position: relative;
@@ -542,7 +542,7 @@
 
         .stamp-box .copy-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 8px 25px rgba(78, 205, 196, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
@@ -593,7 +593,7 @@
         .stamp-box input:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 6px rgba(0, 0, 0, 0.3),
                 0 0 15px rgba(0, 212, 255, 0.4);
             text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
@@ -1065,12 +1065,44 @@
             text-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
         }
 
-        /* 文本统计 */
+        /* 文本统计 - 酷炫版本 */
         div.text-view {
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: #0d1114;
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 文本统计工具背景动画粒子效果 */
+        div.text-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        div.text-view::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
+            animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
+            pointer-events: none;
         }
 
         .text-wrap {
@@ -1080,6 +1112,8 @@
             flex-direction: row;
             gap: 16px;
             align-items: stretch;
+            position: relative;
+            z-index: 1;
         }
 
         .text-left {
@@ -1093,44 +1127,139 @@
             flex-direction: column;
         }
 
+        .stat-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            border: 1px solid #2a3440;
+            border-radius: 16px;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideInRight 0.6s ease-out 0.2s both;
+        }
+
         .text-area {
             width: 100%;
             height: 70vh;
-            background: #0f151a;
-            color: #e5e7eb;
-            border: 1px solid #223038;
-            border-radius: 10px;
-            padding: 10px 12px;
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            color: #00d4ff;
+            border: 2px solid #223038;
+            border-radius: 20px;
+            padding: 20px 24px;
             font-size: 14px;
             line-height: 1.6;
             resize: vertical;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 4px 15px rgba(0, 0, 0, 0.3),
+                0 0 0 rgba(0, 212, 255, 0);
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 
+                inset 0 4px 15px rgba(0, 0, 0, 0.3),
+                0 0 25px rgba(0, 212, 255, 0.4);
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+        }
+
+        @keyframes slideInLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .stat-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 15px;
+            animation: slideInRight 0.6s ease-out 0.4s both;
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .stat-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: #11181d;
-            border: 1px solid #223038;
-            border-radius: 10px;
-            padding: 10px 12px;
+            gap: 12px;
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            border: 1px solid #2a3440;
+            border-radius: 16px;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stat-item:hover::before {
+            left: 100%;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .stat-item .label {
-            color: #c7d0d6;
-            font-size: 13px;
+            color: #00d4ff;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
         }
 
         .stat-item .value {
             margin-left: auto;
-            color: #9bd2eb;
+            color: #ffffff;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-weight: 700;
+            font-size: 16px;
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            border: 1px solid #223038;
+            border-radius: 10px;
+            padding: 6px 12px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
         /* 计算器 */
@@ -2516,14 +2645,15 @@
             return `
             <div class="text-wrap">
                 <div class="text-left">
-                    <textarea class="text-area" id="textInput" placeholder="在此粘贴或输入文本..."></textarea>
+                    <textarea class="text-area" id="textInput" placeholder="✍️ 在此粘贴或输入文本进行统计..."></textarea>
                 </div>
                 <div class="text-right">
+                    <div class="stat-header">📊 统计结果</div>
                     <div class="stat-grid">
-                        <div class="stat-item"><div class="label">字符数（含空白）</div><div class="value" id="vChars">0</div></div>
-                        <div class="stat-item"><div class="label">字符数（不含空白）</div><div class="value" id="vCharsNoSpace">0</div></div>
-                        <div class="stat-item"><div class="label">行数</div><div class="value" id="vLines">0</div></div>
-                        <div class="stat-item"><div class="label">单词数</div><div class="value" id="vWords">0</div></div>
+                        <div class="stat-item"><div class="label">📝 字符数（含空白）</div><div class="value" id="vChars">0</div></div>
+                        <div class="stat-item"><div class="label">🔤 字符数（不含空白）</div><div class="value" id="vCharsNoSpace">0</div></div>
+                        <div class="stat-item"><div class="label">📄 行数</div><div class="value" id="vLines">0</div></div>
+                        <div class="stat-item"><div class="label">📋 单词数</div><div class="value" id="vWords">0</div></div>
                     </div>
                 </div>
             </div>`;
