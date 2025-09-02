@@ -323,16 +323,48 @@
             color: #fff;
         }
 
-        /* 时间视图布局与样式 */
+        /* 时间视图布局与样式 - 酷炫版本 */
         div.time-view {
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: #0d1114;
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
             padding-bottom: 3vh;
             /* 减少底部间距 */
             padding-top: 3vh;
             /* 添加顶部间距，让内容整体上移 */
+        }
+
+        /* 时间工具背景动画粒子效果 */
+        div.time-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        div.time-view::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
+            animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
+            pointer-events: none;
         }
 
         .time-wrap {
@@ -342,6 +374,8 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+            z-index: 1;
         }
 
         .time-big {
@@ -403,48 +437,114 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #11181d;
-            border: 1px solid #223038;
-            border-radius: 12px;
-            padding: 14px 16px;
-            transition: all 0.2s ease;
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            border: 1px solid #2a3440;
+            border-radius: 20px;
+            padding: 18px 20px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .stamp-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stamp-box:hover::before {
+            left: 100%;
         }
 
         .stamp-box:hover {
-            border-color: #2a3440;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .stamp-box .label {
-            color: #c7d0d6;
-            font-size: 14px;
-            font-weight: 500;
+            color: #00d4ff;
+            font-size: 15px;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
         }
 
         .stamp-box .value {
             margin-left: auto;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            color: #9bd2eb;
+            color: #00d4ff;
             font-size: 16px;
-            background: #0f151a;
-            border: 1px solid #223038;
-            border-radius: 8px;
-            padding: 4px 12px;
+            font-weight: 600;
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            border: 2px solid #223038;
+            border-radius: 12px;
+            padding: 8px 16px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.3),
+                0 0 0 rgba(0, 212, 255, 0);
+        }
+
+        .stamp-box .value:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 212, 255, 0.4);
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
         }
 
         .stamp-box .copy-btn {
-            padding: 5px 10px;
-            border: 1px solid #2a3440;
-            border-radius: 8px;
-            background: #1a2024;
-            color: #cfd5d9;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #4ecdc4 0%, #44a08d 100%);
+            color: #ffffff;
             cursor: pointer;
-            transition: all 0.15s ease;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 15px rgba(78, 205, 196, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stamp-box .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stamp-box .copy-btn:hover::before {
+            left: 100%;
         }
 
         .stamp-box .copy-btn:hover {
-            background: #223038;
-            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(78, 205, 196, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         /* Toast 提示 */
@@ -478,12 +578,25 @@
         .stamp-box input {
             flex: 1;
             min-width: 120px;
-            background: #0f151a;
-            color: #e5e7eb;
-            border: 1px solid #223038;
-            border-radius: 8px;
-            padding: 6px 8px;
-            font-size: 13px;
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            color: #00d4ff;
+            border: 2px solid #223038;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .stamp-box input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 
+                inset 0 2px 6px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(0, 212, 255, 0.4);
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
         }
 
         #dtRow input {
@@ -511,7 +624,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e 50%, #0d1114 100%);
             min-height: 100vh;
             position: relative;
             overflow: hidden;
@@ -525,7 +638,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
             animation: backgroundShift 20s ease-in-out infinite alternate;
@@ -539,7 +652,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
             animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
@@ -547,8 +660,13 @@
         }
 
         @keyframes backgroundShift {
-            0% { transform: translateX(-10px) translateY(-10px); }
-            100% { transform: translateX(10px) translateY(10px); }
+            0% {
+                transform: translateX(-10px) translateY(-10px);
+            }
+
+            100% {
+                transform: translateX(10px) translateY(10px);
+            }
         }
 
         .pwd-wrap {
@@ -571,7 +689,7 @@
             border: 1px solid #2a3440;
             border-radius: 20px;
             padding: 20px 24px;
-            box-shadow: 
+            box-shadow:
                 0 8px 32px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -586,6 +704,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             100% {
                 opacity: 1;
                 transform: translateY(0);
@@ -609,7 +728,7 @@
 
         .pwd-card:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 12px 40px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
@@ -633,7 +752,7 @@
             font-weight: 600;
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 10px rgba(0, 0, 0, 0.3),
                 0 0 0 rgba(0, 212, 255, 0);
         }
@@ -641,7 +760,7 @@
         .pwd-output input:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 10px rgba(0, 0, 0, 0.3),
                 0 0 20px rgba(0, 212, 255, 0.4);
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
@@ -659,7 +778,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 0 4px 15px rgba(255, 107, 107, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
             position: relative;
@@ -683,7 +802,7 @@
 
         .pwd-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 8px 25px rgba(255, 107, 107, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
@@ -694,13 +813,13 @@
 
         .pwd-btn#pwdCopy {
             background: linear-gradient(145deg, #4ecdc4 0%, #44a08d 100%);
-            box-shadow: 
+            box-shadow:
                 0 4px 15px rgba(78, 205, 196, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .pwd-btn#pwdCopy:hover {
-            box-shadow: 
+            box-shadow:
                 0 8px 25px rgba(78, 205, 196, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
@@ -730,7 +849,7 @@
             border-radius: 999px;
             overflow: hidden;
             position: relative;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 8px rgba(0, 0, 0, 0.4),
                 0 0 0 rgba(34, 197, 94, 0);
             transition: box-shadow 0.3s ease;
@@ -757,29 +876,44 @@
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         @keyframes glow {
-            0% { 
-                box-shadow: 
+            0% {
+                box-shadow:
                     inset 0 2px 10px rgba(0, 0, 0, 0.3),
                     0 0 20px rgba(0, 212, 255, 0.4);
             }
-            50% { 
-                box-shadow: 
+
+            50% {
+                box-shadow:
                     inset 0 2px 10px rgba(0, 0, 0, 0.3),
                     0 0 30px rgba(0, 212, 255, 0.8);
             }
-            100% { 
-                box-shadow: 
+
+            100% {
+                box-shadow:
                     inset 0 2px 10px rgba(0, 0, 0, 0.3),
                     0 0 20px rgba(0, 212, 255, 0.4);
             }
@@ -817,7 +951,7 @@
         .pwd-kv input[type="number"]:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 
+            box-shadow:
                 inset 0 2px 6px rgba(0, 0, 0, 0.3),
                 0 0 15px rgba(0, 212, 255, 0.4);
         }
@@ -850,7 +984,7 @@
             background: linear-gradient(145deg, #00d4ff 0%, #0099cc 100%);
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 
+            box-shadow:
                 0 4px 12px rgba(0, 212, 255, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
@@ -858,7 +992,7 @@
 
         .pwd-kv input[type="range"]::-webkit-slider-thumb:hover {
             transform: scale(1.1);
-            box-shadow: 
+            box-shadow:
                 0 6px 20px rgba(0, 212, 255, 0.6),
                 inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
@@ -892,7 +1026,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 
+            box-shadow:
                 0 4px 12px rgba(0, 0, 0, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
@@ -915,7 +1049,7 @@
         .opt-chip:hover {
             border-color: #00d4ff;
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 8px 20px rgba(0, 212, 255, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
@@ -926,7 +1060,7 @@
             accent-color: #00d4ff;
         }
 
-        .opt-chip input:checked + * {
+        .opt-chip input:checked+* {
             color: #ffffff;
             text-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
         }
@@ -2331,7 +2465,7 @@
                 }
                 paintStrength(pwd);
             }
-            
+
             function typePassword(input, password) {
                 let i = 0;
                 const typeInterval = setInterval(() => {
@@ -2349,7 +2483,7 @@
                 }, 30);
             }
             genBtn?.addEventListener('click', doGen);
-            copyBtn?.addEventListener('click', () => { 
+            copyBtn?.addEventListener('click', () => {
                 if (out?.value) {
                     copyText(out.value);
                     // 添加复制成功动画
