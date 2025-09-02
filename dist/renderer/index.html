@@ -1070,7 +1070,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e 50%, #0d1114 100%);
             min-height: 100vh;
             position: relative;
             overflow: hidden;
@@ -1084,7 +1084,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
             animation: backgroundShift 20s ease-in-out infinite alternate;
@@ -1098,7 +1098,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
             animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
@@ -1138,7 +1138,7 @@
             border: 1px solid #2a3440;
             border-radius: 16px;
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
-            box-shadow: 
+            box-shadow:
                 0 6px 20px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             animation: slideInRight 0.6s ease-out 0.2s both;
@@ -1158,7 +1158,7 @@
             font-weight: 500;
             text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 inset 0 4px 15px rgba(0, 0, 0, 0.3),
                 0 0 0 rgba(0, 212, 255, 0);
             animation: slideInLeft 0.6s ease-out;
@@ -1167,7 +1167,7 @@
         .text-area:focus {
             outline: none;
             border-color: #00d4ff;
-            box-shadow: 
+            box-shadow:
                 inset 0 4px 15px rgba(0, 0, 0, 0.3),
                 0 0 25px rgba(0, 212, 255, 0.4);
             text-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
@@ -1178,6 +1178,7 @@
                 opacity: 0;
                 transform: translateX(-30px);
             }
+
             100% {
                 opacity: 1;
                 transform: translateX(0);
@@ -1196,6 +1197,7 @@
                 opacity: 0;
                 transform: translateX(30px);
             }
+
             100% {
                 opacity: 1;
                 transform: translateX(0);
@@ -1211,7 +1213,7 @@
             border-radius: 16px;
             padding: 16px 20px;
             transition: all 0.3s ease;
-            box-shadow: 
+            box-shadow:
                 0 6px 20px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -1236,7 +1238,7 @@
 
         .stat-item:hover {
             transform: translateY(-2px);
-            box-shadow: 
+            box-shadow:
                 0 10px 30px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
@@ -1262,32 +1264,65 @@
             box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
-        /* 计算器 */
+        /* 计算器 - 酷炫版本 */
         div.calc-view {
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            background: #0d1114;
+            background: linear-gradient(135deg, #0d1114 0%, #1a1f2e  50%, #0d1114 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 计算器背景动画粒子效果 */
+        div.calc-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        div.calc-view::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
+            animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
+            pointer-events: none;
         }
 
         .calc-wrap {
-            width: min(720px, 96%);
-            /* 扩大到1.5倍宽度 */
-            margin: 8vh auto 0;
-            /* 稍微上移一点以适应更大的高度 */
-            padding: 42px 36px;
-            /* 等比例增加内边距 */
-            background: linear-gradient(145deg, #0e1620, #182636);
-            border-radius: 42px;
-            /* 等比例增加圆角 */
+            width: min(580px, 90%);
+            /* 缩小宽度从720px到580px */
+            margin: 4vh auto 0;
+            /* 向上移动，从8vh减少到4vh */
+            padding: 32px 28px;
+            /* 缩小内边距从42px 36px到32px 28px */
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            border-radius: 32px;
+            /* 缩小圆角从42px到32px */
             box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                0 8px 20px rgba(0, 0, 0, 0.3),
-                inset 0 1px 2px rgba(255, 255, 255, 0.1),
-                inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 8px 30px rgba(0, 0, 0, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(70, 90, 120, 0.15);
+            border: 1px solid #2a3440;
             position: relative;
+            z-index: 1;
+            animation: slideInUp 0.8s ease-out;
             overflow: hidden;
         }
 
@@ -1307,66 +1342,80 @@
         .calc-display {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
             margin-top: 0;
-            margin-bottom: 30px;
-            border-radius: 24px;
+            margin-bottom: 24px;
+            border-radius: 20px;
             box-shadow:
                 inset 0 3px 7px rgba(0, 0, 0, 0.3),
                 inset 0 1px 3px rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            background: linear-gradient(to bottom, #0b1116, #11181f);
-            padding: 5px;
-            border: 1px solid #1d2c38;
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            padding: 6px;
+            border: 2px solid #223038;
         }
 
         .calc-input {
             width: 100%;
-            background: #0f151a;
-            color: #e5e7eb;
-            border: 1px solid #1a252e;
-            border-radius: 18px;
-            padding: 18px 22px;
-            font-size: 26px;
-            /* 增大字体大小 */
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            color: #00d4ff;
+            border: 2px solid #223038;
+            border-radius: 15px;
+            padding: 14px 18px;
+            font-size: 22px;
+            /* 缩小字体从26px到22px */
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
             box-shadow:
                 inset 0 3px 8px rgba(0, 0, 0, 0.3),
-                inset 0 1px 2px rgba(0, 0, 0, 0.2);
+                0 0 0 rgba(0, 212, 255, 0);
             transition: all 0.3s ease;
-            height: 76px;
-            /* 增大固定高度 */
+            height: 60px;
+            /* 缩小高度从76px到60px */
         }
 
         .calc-input:focus {
-            border-color: #4a6a85;
-            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(74, 106, 133, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 
+                inset 0 3px 8px rgba(0, 0, 0, 0.3), 
+                0 0 25px rgba(0, 212, 255, 0.5);
             outline: none;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
         }
 
         /* 结果展示：无边框盒子，右对齐大号数字 + 细分隔线 */
         .calc-result {
             position: relative;
-            margin: 0 0 30px;
-            padding: 0 8px;
+            margin: 0 0 24px;
+            padding: 0 6px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            color: #f59e0b;
-            font-size: 52px;
-            /* 增大结果字体大小 */
+            color: #ff6b6b;
+            font-size: 42px;
+            /* 缩小字体从52px到42px */
             font-weight: 800;
             text-align: right;
-            line-height: 1.2;
-            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
-            transition: all 0.2s ease;
-            height: 64px;
-            /* 增加固定高度 */
-            min-height: 64px;
+            line-height: 1.1;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+            transition: all 0.3s ease;
+            height: 72px;
+            /* 增加高度从52px到72px */
+            min-height: 72px;
             /* 确保最小高度 */
             display: flex;
-            align-items: flex-end;
+            align-items: center;
+            /* 改为居中对齐，避免文字超出 */
             justify-content: flex-end;
             /* 右对齐 */
+            background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
+            border-radius: 14px;
+            border: 2px solid #223038;
+            padding: 16px 20px;
+            /* 增加内边距 */
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.3),
+                0 0 0 rgba(255, 107, 107, 0);
         }
 
         .calc-result::after {
@@ -1400,77 +1449,110 @@
         }
 
         .calc-grid {
-            margin-top: 30px;
+            margin-top: 24px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 20px;
-            /* 增加间距 */
-            max-width: 540px;
-            /* 1.5倍的原来宽度 */
+            gap: 16px;
+            /* 缩小间距从20px到16px */
+            max-width: 420px;
+            /* 缩小最大宽度从540px到420px */
             margin-left: auto;
             margin-right: auto;
         }
 
         .btn {
-            padding: 20px 0;
-            /* 增加内边距 */
+            padding: 16px 0;
+            /* 缩小内边距从20px到16px */
             text-align: center;
-            border: 1px solid #2a3440;
-            border-radius: 28px;
-            /* 增加圆润度 */
-            background: linear-gradient(to bottom, #1b2530, #131a20);
-            color: #d6dde1;
+            border: 2px solid #2a3440;
+            border-radius: 22px;
+            /* 缩小圆角从28px到22px */
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            color: #ffffff;
             cursor: pointer;
             user-select: none;
-            font-size: 28px;
-            /* 进一步增大字体大小 */
-            font-weight: 500;
+            font-size: 22px;
+            /* 缩小字体从28px到22px */
+            font-weight: 600;
             /* 增加字体粗细 */
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             /* 更平滑的过渡效果 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.1);
             /* 强化立体感 */
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
             transform: translateY(2px) scale(.97);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.3), 
+                inset 0 2px 8px rgba(0, 0, 0, 0.3);
             /* 按下时减小阴影且添加内阴影 */
-            background: linear-gradient(to bottom, #131a20, #131a20);
-            /* 按下时取消渐变 */
         }
 
         .btn:hover {
-            background: linear-gradient(to bottom, #263a47, #1a2936);
-            color: #fff;
-            border-color: #4a6a85;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-            /* 悬停时增加阴影 */
+            transform: translateY(-2px);
+            border-color: #00d4ff;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(0, 212, 255, 0.3);
+            /* 悬停时增加阴影和发光效果 */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
         .btn.num {
-            background: linear-gradient(to bottom, #1d4263, #14314a);
-            border-color: #1f4a6b;
-            color: #d7ecff;
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #3b82f6;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
         }
 
         .btn.num:hover {
-            background: linear-gradient(to bottom, #23506f, #194060);
-            border-color: #2a5f89;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                0 0 25px rgba(37, 99, 235, 0.5);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
         .btn.op {
-            background: linear-gradient(to bottom, #472e5c, #3b254d);
-            border-color: #55346d;
-            color: #f3e8ff;
+            background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
+            border-color: #f59e0b;
+            color: #ffffff;
             font-weight: bold;
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn.op:hover {
+            background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
+            border-color: #fcd34d;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                0 0 25px rgba(245, 158, 11, 0.5);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
         /* 添加按钮按下和悬停的波纹效果 */
@@ -1495,45 +1577,40 @@
             opacity: 1;
         }
 
-        .btn.op:hover {
-            background: #472c5c;
-            border-color: #6a408a;
-        }
+        /* 移除重复的op悬停样式 */
 
         .btn.ctrl {
-            background: linear-gradient(to bottom, #5a3826, #4a2e1f);
-            border-color: #704329;
-            color: #ffe6c2;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+            border-color: #ef4444;
+            color: #ffffff;
             font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        /* AC按钮特殊黄色样式 */
-        .btn.ctrl[data-act="ac"] {
-            background: linear-gradient(to bottom, #d9a900, #bb8f00);
-            border-color: #e6b300;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
         }
 
         .btn.ctrl:hover {
-            background: linear-gradient(to bottom, #6a4430, #583424);
-            border-color: #8a5639;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            background: linear-gradient(145deg, #f87171 0%, #ef4444 100%);
+            border-color: #fca5a5;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                0 0 25px rgba(239, 68, 68, 0.5);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
         }
 
-        /* AC按钮特殊悬停效果 */
+        /* AC按钮特殊样式 */
+        .btn.ctrl[data-act="ac"] {
+            background: linear-gradient(145deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
         .btn.ctrl[data-act="ac"]:hover {
-            background: linear-gradient(to bottom, #edba00, #d9a900);
-            border-color: #ffc700;
-            box-shadow: 0 5px 12px rgba(203, 157, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-        }
-
-        .btn.ctrl[data-act="ac"]:active {
-            background: linear-gradient(to bottom, #bb8f00, #a37b00);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px 5px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, #34d399 0%, #10b981 100%);
+            border-color: #6ee7b7;
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.2),
+                0 0 25px rgba(16, 185, 129, 0.5);
         }
 
         .calc-row {
@@ -1546,21 +1623,21 @@
 
         /* 放大底部 AC/回退按钮 */
         .calc-row {
-            max-width: 540px;
-            /* 1.5倍的原来宽度 */
-            margin: 20px auto 0;
+            max-width: 420px;
+            /* 缩小最大宽度从540px到420px */
+            margin: 16px auto 0;
             display: flex;
-            gap: 20px;
-            /* 增加间距 */
+            gap: 16px;
+            /* 缩小间距从20px到16px */
         }
 
         .calc-row .btn {
             flex: 1 1 0;
-            height: 80px;
-            /* 增加高度 */
-            font-size: 30px;
-            /* 进一步增大字体大小 */
-            border-radius: 28px;
+            height: 64px;
+            /* 缩小高度从80px到64px */
+            font-size: 24px;
+            /* 缩小字体从30px到24px */
+            border-radius: 22px;
             /* 保持和其他按钮一致的圆润感 */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
             /* 更强的阴影效果 */
