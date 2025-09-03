@@ -32,6 +32,7 @@ const FRAME_BYPASS_HOSTS = [
     'chatgpt.com',
     'gemini.google.com',
     'accounts.google.com', // Gemini 登录/刷新Cookie流程
+    'aistudio.google.com', // Google AI Studio
     'kimi.moonshot.cn',
     'grok.com',
     'accounts.x.ai' // Grok 登录重定向域
@@ -42,6 +43,7 @@ const UA_MAP: Record<string, string> = {
     'chat.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'auth.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'chatgpt.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'aistudio.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'grok.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
 };
 
