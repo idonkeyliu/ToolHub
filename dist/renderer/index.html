@@ -2838,7 +2838,7 @@
             display: grid;
             grid-template-columns: 1fr 400px;
             gap: 40px;
-            grid-template-areas: 
+            grid-template-areas:
                 "main conversion"
                 "palette preset";
         }
@@ -2935,8 +2935,10 @@
         }
 
         .brightness-slider {
-            writing-mode: bt-lr; /* IE */
-            -webkit-appearance: slider-vertical; /* WebKit */
+            writing-mode: bt-lr;
+            /* IE */
+            -webkit-appearance: slider-vertical;
+            /* WebKit */
             width: 30px;
             height: 200px;
             background: linear-gradient(to top, #000, #fff);
@@ -3005,7 +3007,10 @@
             display: flex;
         }
 
-        .color-input, .rgb-input, .hsl-input, .hsv-input {
+        .color-input,
+        .rgb-input,
+        .hsl-input,
+        .hsv-input {
             flex: 1;
             padding: 12px 16px;
             background: rgba(0, 0, 0, 0.3);
@@ -3018,12 +3023,17 @@
             transition: all 0.3s ease;
         }
 
-        .color-input:focus, .rgb-input:focus, .hsl-input:focus, .hsv-input:focus {
+        .color-input:focus,
+        .rgb-input:focus,
+        .hsl-input:focus,
+        .hsv-input:focus {
             border-color: #FF6B35;
             box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
         }
 
-        .rgb-inputs, .hsl-inputs, .hsv-inputs {
+        .rgb-inputs,
+        .hsl-inputs,
+        .hsv-inputs {
             display: flex;
             gap: 8px;
             flex: 1;
@@ -3046,7 +3056,8 @@
             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
         }
 
-        .color-palette-section, .preset-colors-section {
+        .color-palette-section,
+        .preset-colors-section {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
@@ -3054,7 +3065,8 @@
             backdrop-filter: blur(10px);
         }
 
-        .color-palette-section h3, .preset-colors-section h3 {
+        .color-palette-section h3,
+        .preset-colors-section h3 {
             color: white;
             font-size: 20px;
             font-weight: 700;
@@ -3098,13 +3110,15 @@
             transform: translateY(-2px);
         }
 
-        .color-palette, .preset-grid {
+        .color-palette,
+        .preset-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
             gap: 12px;
         }
 
-        .palette-color, .preset-color {
+        .palette-color,
+        .preset-color {
             width: 50px;
             height: 50px;
             border-radius: 12px;
@@ -3114,7 +3128,8 @@
             position: relative;
         }
 
-        .palette-color:hover, .preset-color:hover {
+        .palette-color:hover,
+        .preset-color:hover {
             transform: scale(1.1);
             border-color: rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -3145,7 +3160,7 @@
         @media (max-width: 1200px) {
             .color-container {
                 grid-template-columns: 1fr;
-                grid-template-areas: 
+                grid-template-areas:
                     "main"
                     "conversion"
                     "palette"
@@ -3158,14 +3173,14 @@
                 flex-direction: column;
                 gap: 20px;
             }
-            
+
             .brightness-slider {
                 writing-mode: initial;
                 -webkit-appearance: auto;
                 width: 200px;
                 height: 30px;
             }
-            
+
             .color-container {
                 padding: 20px;
                 gap: 20px;
@@ -3236,6 +3251,7 @@
     <script>
         const builtinSites = [
             { key: 'openai', title: 'OpenAI', url: 'https://chat.openai.com', partition: 'persist:openai' },
+            { key: 'lmarena', title: 'LMArena', url: 'https://lmarena.ai/', partition: 'persist:lmarena' },
             { key: 'gemini', title: 'Gemini', url: 'https://gemini.google.com', partition: 'persist:gemini' },
             { key: 'aistudio', title: 'AIStudio', url: 'https://aistudio.google.com/', partition: 'persist:aistudio' },
             { key: 'deepseek', title: 'DeepSeek', url: 'https://chat.deepseek.com', partition: 'persist:deepseek' },
@@ -7668,7 +7684,7 @@ ${error.message}`;
             const colorCursor = container.querySelector('#colorCursor');
             const brightnessSlider = container.querySelector('#brightnessSlider');
             const colorPalette = container.querySelector('#colorPalette');
-            
+
             // 输入元素
             const hexInput = container.querySelector('#hexInput');
             const rgbR = container.querySelector('#rgbR');
@@ -7680,10 +7696,10 @@ ${error.message}`;
             const hsvH = container.querySelector('#hsvH');
             const hsvS = container.querySelector('#hsvS');
             const hsvV = container.querySelector('#hsvV');
-            
+
             let currentColor = { h: 16, s: 79, v: 100 }; // HSV格式
             let savedColors = JSON.parse(localStorage.getItem('colorPalette') || '[]');
-            
+
             // 颜色转换函数
             function hsvToRgb(h, s, v) {
                 h = h / 360;
@@ -7693,27 +7709,27 @@ ${error.message}`;
                 const x = c * (1 - Math.abs((h * 6) % 2 - 1));
                 const m = v - c;
                 let r, g, b;
-                
-                if (h < 1/6) [r, g, b] = [c, x, 0];
-                else if (h < 2/6) [r, g, b] = [x, c, 0];
-                else if (h < 3/6) [r, g, b] = [0, c, x];
-                else if (h < 4/6) [r, g, b] = [0, x, c];
-                else if (h < 5/6) [r, g, b] = [x, 0, c];
-                else [r, g, b] = [c, 0, x];
-                
+
+                if (h < 1 / 6) [r, g, b] = [c, x, 0];
+                else if (h < 2 / 6) [r, g, b] = [x, c, 0];
+                else if (h < 3 / 6) [r, g, b] = [0, c, x];
+                else if (h < 4 / 6) [r, g, b] = [0, x, c];
+                else if (h < 5 / 6) [r, g, b] = [x, 0, c];
+                else[r, g, b] = [c, 0, x];
+
                 return {
                     r: Math.round((r + m) * 255),
                     g: Math.round((g + m) * 255),
                     b: Math.round((b + m) * 255)
                 };
             }
-            
+
             function rgbToHsv(r, g, b) {
                 r /= 255; g /= 255; b /= 255;
                 const max = Math.max(r, g, b);
                 const min = Math.min(r, g, b);
                 const diff = max - min;
-                
+
                 let h = 0;
                 if (diff !== 0) {
                     if (max === r) h = ((g - b) / diff + 6) % 6;
@@ -7721,20 +7737,20 @@ ${error.message}`;
                     else h = (r - g) / diff + 4;
                 }
                 h *= 60;
-                
+
                 const s = max === 0 ? 0 : (diff / max) * 100;
                 const v = max * 100;
-                
+
                 return { h: Math.round(h), s: Math.round(s), v: Math.round(v) };
             }
-            
+
             function rgbToHsl(r, g, b) {
                 r /= 255; g /= 255; b /= 255;
                 const max = Math.max(r, g, b);
                 const min = Math.min(r, g, b);
                 const diff = max - min;
                 const sum = max + min;
-                
+
                 let h = 0;
                 if (diff !== 0) {
                     if (max === r) h = ((g - b) / diff + 6) % 6;
@@ -7742,17 +7758,17 @@ ${error.message}`;
                     else h = (r - g) / diff + 4;
                 }
                 h *= 60;
-                
+
                 const l = sum / 2;
                 const s = diff === 0 ? 0 : diff / (1 - Math.abs(2 * l - 1));
-                
+
                 return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
             }
-            
+
             function rgbToHex(r, g, b) {
                 return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
             }
-            
+
             function hexToRgb(hex) {
                 const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
                 return result ? {
@@ -7761,26 +7777,26 @@ ${error.message}`;
                     b: parseInt(result[3], 16)
                 } : null;
             }
-            
+
             // 绘制色环
             function drawColorWheel() {
                 const ctx = colorWheel.getContext('2d');
                 const centerX = colorWheel.width / 2;
                 const centerY = colorWheel.height / 2;
                 const radius = Math.min(centerX, centerY) - 20;
-                
+
                 // 清除画布
                 ctx.clearRect(0, 0, colorWheel.width, colorWheel.height);
-                
+
                 // 绘制色环
                 for (let angle = 0; angle < 360; angle += 1) {
                     const startAngle = (angle - 1) * Math.PI / 180;
                     const endAngle = angle * Math.PI / 180;
-                    
+
                     for (let r = 0; r < radius; r += 1) {
                         const saturation = r / radius * 100;
                         const rgb = hsvToRgb(angle, saturation, currentColor.v);
-                        
+
                         ctx.strokeStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
@@ -7789,17 +7805,17 @@ ${error.message}`;
                     }
                 }
             }
-            
+
             // 更新颜色显示
             function updateColorDisplay() {
                 const rgb = hsvToRgb(currentColor.h, currentColor.s, currentColor.v);
                 const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
                 const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-                
+
                 // 更新预览
                 colorPreview.style.background = hex;
                 colorName.textContent = hex;
-                
+
                 // 更新输入框
                 hexInput.value = hex;
                 rgbR.value = rgb.r;
@@ -7811,29 +7827,29 @@ ${error.message}`;
                 hsvH.value = currentColor.h;
                 hsvS.value = currentColor.s;
                 hsvV.value = currentColor.v;
-                
+
                 // 更新光标位置
                 updateCursorPosition();
-                
+
                 // 重绘色环
                 drawColorWheel();
             }
-            
+
             function updateCursorPosition() {
                 const centerX = colorWheel.width / 2;
                 const centerY = colorWheel.height / 2;
                 const radius = Math.min(centerX, centerY) - 20;
-                
+
                 const angle = currentColor.h * Math.PI / 180;
                 const distance = (currentColor.s / 100) * radius;
-                
+
                 const x = centerX + Math.cos(angle) * distance;
                 const y = centerY + Math.sin(angle) * distance;
-                
+
                 colorCursor.style.left = x - 10 + 'px';
                 colorCursor.style.top = y - 10 + 'px';
             }
-            
+
             // 色环点击事件
             colorWheel.addEventListener('click', (e) => {
                 const rect = colorWheel.getBoundingClientRect();
@@ -7841,40 +7857,40 @@ ${error.message}`;
                 const centerY = colorWheel.height / 2;
                 const x = e.clientX - rect.left - centerX;
                 const y = e.clientY - rect.top - centerY;
-                
+
                 const angle = Math.atan2(y, x) * 180 / Math.PI;
                 const distance = Math.sqrt(x * x + y * y);
                 const radius = Math.min(centerX, centerY) - 20;
-                
+
                 currentColor.h = angle < 0 ? angle + 360 : angle;
                 currentColor.s = Math.min(distance / radius * 100, 100);
-                
+
                 updateColorDisplay();
             });
-            
+
             // 亮度滑块事件
             brightnessSlider.addEventListener('input', (e) => {
                 currentColor.v = parseInt(e.target.value);
                 updateColorDisplay();
             });
-            
+
             // 标签切换
             container.querySelectorAll('.conv-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     container.querySelectorAll('.conv-tab').forEach(t => t.classList.remove('active'));
                     container.querySelectorAll('.conv-input-group').forEach(g => g.classList.remove('active'));
-                    
+
                     tab.classList.add('active');
                     container.querySelector(`.conv-input-group[data-type="${tab.dataset.type}"]`).classList.add('active');
                 });
             });
-            
+
             // 复制按钮事件
             container.querySelectorAll('.copy-color-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const type = btn.dataset.type;
                     let text = '';
-                    
+
                     if (type === 'hex') {
                         text = hexInput.value;
                     } else if (type === 'rgb') {
@@ -7884,13 +7900,13 @@ ${error.message}`;
                     } else if (type === 'hsv') {
                         text = `hsv(${hsvH.value}, ${hsvS.value}%, ${hsvV.value}%)`;
                     }
-                    
+
                     copyText(text);
                     btn.textContent = '已复制';
                     setTimeout(() => btn.textContent = '复制', 1000);
                 });
             });
-            
+
             // 调色板功能
             function renderPalette() {
                 colorPalette.innerHTML = '';
@@ -7908,7 +7924,7 @@ ${error.message}`;
                             updateColorDisplay();
                         }
                     });
-                    
+
                     // 删除按钮
                     const deleteBtn = document.createElement('div');
                     deleteBtn.className = 'delete-color';
@@ -7919,12 +7935,12 @@ ${error.message}`;
                         localStorage.setItem('colorPalette', JSON.stringify(savedColors));
                         renderPalette();
                     });
-                    
+
                     div.appendChild(deleteBtn);
                     colorPalette.appendChild(div);
                 });
             }
-            
+
             // 添加到调色板
             container.querySelector('#addToPalette').addEventListener('click', () => {
                 const hex = hexInput.value;
@@ -7934,14 +7950,14 @@ ${error.message}`;
                     renderPalette();
                 }
             });
-            
+
             // 清空调色板
             container.querySelector('#clearPalette').addEventListener('click', () => {
                 savedColors = [];
                 localStorage.setItem('colorPalette', JSON.stringify(savedColors));
                 renderPalette();
             });
-            
+
             // 预设颜色点击
             container.querySelectorAll('.preset-color').forEach(preset => {
                 preset.addEventListener('click', () => {
@@ -7955,7 +7971,7 @@ ${error.message}`;
                     }
                 });
             });
-            
+
             // 输入框事件
             hexInput.addEventListener('input', (e) => {
                 const hex = e.target.value;
@@ -7967,7 +7983,7 @@ ${error.message}`;
                     updateColorDisplay();
                 }
             });
-            
+
             [rgbR, rgbG, rgbB].forEach(input => {
                 input.addEventListener('input', () => {
                     const r = parseInt(rgbR.value) || 0;
@@ -7979,7 +7995,7 @@ ${error.message}`;
                     updateColorDisplay();
                 });
             });
-            
+
             // 初始化
             updateColorDisplay();
             renderPalette();

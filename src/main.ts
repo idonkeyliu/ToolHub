@@ -15,6 +15,7 @@ const store = new Store<PersistShape>();
 
 const sites: SiteDef[] = [
     { key: 'openai', title: 'OpenAI ChatGPT', url: 'https://chat.openai.com', partition: 'persist:openai' },
+    { key: 'lmarena', title: 'LMArena', url: 'https://lmarena.ai/', partition: 'persist:lmarena' },
     { key: 'gemini', title: 'Google Gemini', url: 'https://gemini.google.com', partition: 'persist:gemini' },
     { key: 'deepseek', title: 'DeepSeek', url: 'https://chat.deepseek.com', partition: 'persist:deepseek' },
     { key: 'kimi', title: 'Kimi (Moonshot)', url: 'https://kimi.moonshot.cn', partition: 'persist:kimi' },
@@ -35,7 +36,8 @@ const FRAME_BYPASS_HOSTS = [
     'aistudio.google.com', // Google AI Studio
     'kimi.moonshot.cn',
     'grok.com',
-    'accounts.x.ai' // Grok 登录重定向域
+    'accounts.x.ai', // Grok 登录重定向域
+    'lmarena.ai' // LM Arena 排行榜
 ];
 
 // 按域自定义 UA（用户需求：GPT / Grok）。可按需再扩展。
@@ -44,7 +46,8 @@ const UA_MAP: Record<string, string> = {
     'auth.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'chatgpt.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'aistudio.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'grok.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+    'grok.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'lmarena.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
 };
 
 function installFrameBypass() {
@@ -101,6 +104,20 @@ function installFrameBypass() {
             if (UA_MAP[host] && (details.resourceType === 'mainFrame' || details.resourceType === 'subFrame')) {
                 details.requestHeaders['User-Agent'] = UA_MAP[host];
             }
+
+            // 为LMArena添加额外的请求头来避免403错误
+            if (host === 'lmarena.ai') {
+                details.requestHeaders['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8';
+                details.requestHeaders['Accept-Language'] = 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7';
+                details.requestHeaders['Accept-Encoding'] = 'gzip, deflate, br';
+                details.requestHeaders['Cache-Control'] = 'no-cache';
+                details.requestHeaders['Pragma'] = 'no-cache';
+                details.requestHeaders['Upgrade-Insecure-Requests'] = '1';
+                details.requestHeaders['Sec-Fetch-Dest'] = 'document';
+                details.requestHeaders['Sec-Fetch-Mode'] = 'navigate';
+                details.requestHeaders['Sec-Fetch-Site'] = 'none';
+                details.requestHeaders['Sec-Fetch-User'] = '?1';
+            }
         } catch { /* ignore */ }
         callback({ requestHeaders: details.requestHeaders });
     });
@@ -111,7 +128,8 @@ function installPermissions() {
         'chat.openai.com', 'auth.openai.com', 'chatgpt.com', 'ab.chatgpt.com',
         'gemini.google.com', 'accounts.google.com',
         'chat.deepseek.com', 'kimi.moonshot.cn',
-        'grok.com', 'accounts.x.ai'
+        'grok.com', 'accounts.x.ai',
+        'lmarena.ai'
     ]);
     const allowPerms = new Set<Parameters<Electron.Session['setPermissionRequestHandler']>[0] extends (a: any, b: infer P, ...rest: any) => any ? P : string>([
         'clipboard-read',
@@ -124,6 +142,7 @@ function installPermissions() {
     const sessions: Electron.Session[] = [
         session.defaultSession,
         session.fromPartition('persist:openai'),
+        session.fromPartition('persist:lmarena'),
         session.fromPartition('persist:gemini'),
         session.fromPartition('persist:deepseek'),
         session.fromPartition('persist:kimi'),
