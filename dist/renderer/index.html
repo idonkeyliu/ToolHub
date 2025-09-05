@@ -3186,6 +3186,206 @@
                 gap: 20px;
             }
         }
+
+        /* ===== 设备信息工具样式 ===== */
+        .deviceinfo-wrap {
+            flex: 1;
+            overflow-y: auto;
+            background: #0d1114;
+            padding: 20px;
+        }
+
+        .deviceinfo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(48, 54, 61, 0.6);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .deviceinfo-header {
+            padding: 30px 30px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #1e2328 0%, #161b22 100%);
+            border-bottom: 1px solid rgba(48, 54, 61, 0.8);
+        }
+
+        .deviceinfo-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .deviceinfo-subtitle {
+            color: #8b949e;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .deviceinfo-sections {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        .info-section {
+            background: linear-gradient(145deg, #0d1117 0%, #161b22 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(48, 54, 61, 0.4);
+            overflow: hidden;
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e2328 0%, #161b22 100%);
+            border-bottom: 1px solid rgba(48, 54, 61, 0.6);
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+
+        .section-icon {
+            font-size: 18px;
+        }
+
+        .info-grid {
+            padding: 20px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 16px;
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(48, 54, 61, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #8b949e;
+            font-size: 14px;
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #f0f6fc;
+            font-size: 14px;
+            font-family: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', Consolas, 'Courier New', monospace;
+            text-align: right;
+            word-break: break-all;
+            max-width: 60%;
+        }
+
+        .deviceinfo-actions {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            border-top: 1px solid rgba(48, 54, 61, 0.6);
+        }
+
+        .action-btn {
+            padding: 12px 24px;
+            margin: 0 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #21262d 0%, #161b22 100%);
+            color: #f0f6fc;
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+
+        .action-btn.secondary:hover {
+            border-color: rgba(255, 107, 53, 0.4);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1100px) {
+            .deviceinfo-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .deviceinfo-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .deviceinfo-header,
+            .deviceinfo-sections,
+            .deviceinfo-actions {
+                padding: 20px;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .info-label {
+                min-width: auto;
+            }
+
+            .info-value {
+                max-width: 100%;
+                text-align: left;
+            }
+
+            .action-btn {
+                display: block;
+                width: 100%;
+                margin: 8px 0;
+            }
+        }
     </style>
 </head>
 
@@ -7387,7 +7587,7 @@ ${error.message}`;
         function switchSite(key) {
             if (current === key) return;
             current = key;
-            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view, div.currency-view, div.curl-view, div.calendar-view, div.color-view').forEach(el => {
+            document.querySelectorAll('iframe.site-frame, webview.site-view, div.time-view, div.pwd-view, div.text-view, div.calc-view, div.dns-view, div.json-view, div.codec-view, div.crypto-view, div.currency-view, div.curl-view, div.calendar-view, div.color-view, div.deviceinfo-view').forEach(el => {
                 const isActive = el.dataset.key === key;
                 el.classList.toggle('active', isActive);
                 // 确保非活动视图隐藏，活动视图显示
@@ -7479,6 +7679,9 @@ ${error.message}`;
             } else if (site.key === 'color') {
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
                 el = ensureColor();
+            } else if (site.key === 'deviceinfo') {
+                if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
+                el = ensureDeviceInfo();
             } else {
                 // 非时间页则停止计时器
                 if (timeTimer) { clearInterval(timeTimer); timeTimer = null; timePrevSec = null; }
@@ -7487,7 +7690,7 @@ ${error.message}`;
             el.classList.add('active');
             el.style.display = 'flex'; // 确保当前活动视图是显示的
             renderList();
-            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec' || site.key === 'crypto' || site.key === 'currency' || site.key === 'curl' || site.key === 'calendar' || site.key === 'color') { hideStatus(); } else { showStatus('加载中...'); }
+            if (site.key === 'time' || site.key === 'pwd' || site.key === 'text' || site.key === 'calc' || site.key === 'dns' || site.key === 'json' || site.key === 'codec' || site.key === 'crypto' || site.key === 'currency' || site.key === 'curl' || site.key === 'calendar' || site.key === 'color' || site.key === 'deviceinfo') { hideStatus(); } else { showStatus('加载中...'); }
             window.llmHub?.persistLastSite?.(key);
             // 独立窗口按钮逻辑已移除
         }
@@ -7511,11 +7714,12 @@ ${error.message}`;
                 if (calendarIndex !== -1) {
                     sites.splice(calendarIndex, 1);
                 }
-                // 在加解密工具后面插入货币转换工具、curl工具、万年历工具和颜色工具
+                // 在加解密工具后面插入货币转换工具、curl工具、万年历工具、颜色工具和设备信息工具
                 sites.splice(cryptoIndex + 1, 0, { key: 'currency', title: '货币转换' });
                 sites.splice(cryptoIndex + 2, 0, { key: 'curl', title: 'CURL工具' });
                 sites.splice(cryptoIndex + 3, 0, { key: 'calendar', title: '万年历' });
                 sites.splice(cryptoIndex + 4, 0, { key: 'color', title: '颜色工具' });
+                sites.splice(cryptoIndex + 5, 0, { key: 'deviceinfo', title: '设备信息' });
             } else {
                 // 如果找不到加解密工具，就添加到末尾
                 if (!sites.find(s => s.key === 'currency')) {
@@ -7529,6 +7733,9 @@ ${error.message}`;
                 }
                 if (!sites.find(s => s.key === 'color')) {
                     sites.push({ key: 'color', title: '颜色工具' });
+                }
+                if (!sites.find(s => s.key === 'deviceinfo')) {
+                    sites.push({ key: 'deviceinfo', title: '设备信息' });
                 }
             }
 
@@ -7999,6 +8206,416 @@ ${error.message}`;
             // 初始化
             updateColorDisplay();
             renderPalette();
+        }
+
+        // ===== 设备信息功能 =====
+        
+        function buildDeviceInfoHTML() {
+            return `
+            <div class="deviceinfo-wrap">
+                <div class="deviceinfo-container">
+                    <div class="deviceinfo-header">
+                        <h2>设备信息</h2>
+                        <div class="deviceinfo-subtitle">系统、浏览器、硬件信息一览</div>
+                    </div>
+                    
+                    <div class="deviceinfo-sections">
+                        <!-- 系统信息 -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <span class="section-icon">💻</span>
+                                <span>系统信息</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">操作系统</div>
+                                    <div class="info-value" id="osInfo">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">平台架构</div>
+                                    <div class="info-value" id="platformInfo">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">用户代理</div>
+                                    <div class="info-value" id="userAgent">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">语言</div>
+                                    <div class="info-value" id="languageInfo">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 浏览器信息 -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <span class="section-icon">🌐</span>
+                                <span>浏览器信息</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">浏览器</div>
+                                    <div class="info-value" id="browserInfo">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">浏览器版本</div>
+                                    <div class="info-value" id="browserVersion">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">渲染引擎</div>
+                                    <div class="info-value" id="engineInfo">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Cookie 启用</div>
+                                    <div class="info-value" id="cookieEnabled">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 屏幕信息 -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <span class="section-icon">🖥️</span>
+                                <span>显示信息</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">屏幕分辨率</div>
+                                    <div class="info-value" id="screenResolution">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">可用区域</div>
+                                    <div class="info-value" id="availableScreen">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">颜色深度</div>
+                                    <div class="info-value" id="colorDepth">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">像素密度</div>
+                                    <div class="info-value" id="pixelRatio">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 硬件信息 -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <span class="section-icon">⚡</span>
+                                <span>硬件信息</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">CPU 核心数</div>
+                                    <div class="info-value" id="cpuCores">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">内存容量</div>
+                                    <div class="info-value" id="memoryInfo">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">存储配额</div>
+                                    <div class="info-value" id="storageQuota">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">网络连接</div>
+                                    <div class="info-value" id="connectionInfo">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 功能支持 -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <span class="section-icon">🔧</span>
+                                <span>功能支持</span>
+                            </div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">WebGL</div>
+                                    <div class="info-value" id="webglSupport">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">WebRTC</div>
+                                    <div class="info-value" id="webrtcSupport">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Service Worker</div>
+                                    <div class="info-value" id="swSupport">-</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">本地存储</div>
+                                    <div class="info-value" id="localStorageSupport">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="deviceinfo-actions">
+                        <button id="refreshDeviceInfo" class="action-btn primary">🔄 刷新信息</button>
+                        <button id="exportDeviceInfo" class="action-btn secondary">📋 复制报告</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function ensureDeviceInfo() {
+            let dv = document.querySelector('div.deviceinfo-view[data-key="deviceinfo"]');
+            if (!dv) {
+                dv = document.createElement('div');
+                dv.className = 'deviceinfo-view';
+                dv.dataset.key = 'deviceinfo';
+                document.querySelector('main').appendChild(dv);
+            }
+            dv.innerHTML = buildDeviceInfoHTML();
+            wireDeviceInfo(dv);
+            return dv;
+        }
+
+        function wireDeviceInfo(container) {
+            // 获取设备信息的函数
+            function collectDeviceInfo() {
+                // 浏览器用户代理解析
+                function parseUserAgent() {
+                    const ua = navigator.userAgent;
+                    let browserName = 'Unknown';
+                    let browserVersion = 'Unknown';
+                    let engineName = 'Unknown';
+                    
+                    // 检测浏览器
+                    if (ua.includes('Chrome') && !ua.includes('Edg')) {
+                        browserName = 'Chrome';
+                        const match = ua.match(/Chrome\/([0-9.]+)/);
+                        browserVersion = match ? match[1] : 'Unknown';
+                        engineName = 'Blink';
+                    } else if (ua.includes('Firefox')) {
+                        browserName = 'Firefox';
+                        const match = ua.match(/Firefox\/([0-9.]+)/);
+                        browserVersion = match ? match[1] : 'Unknown';
+                        engineName = 'Gecko';
+                    } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                        browserName = 'Safari';
+                        const match = ua.match(/Version\/([0-9.]+)/);
+                        browserVersion = match ? match[1] : 'Unknown';
+                        engineName = 'WebKit';
+                    } else if (ua.includes('Edg')) {
+                        browserName = 'Edge';
+                        const match = ua.match(/Edg\/([0-9.]+)/);
+                        browserVersion = match ? match[1] : 'Unknown';
+                        engineName = 'Blink';
+                    }
+                    
+                    return { browserName, browserVersion, engineName };
+                }
+                
+                // 操作系统检测
+                function getOperatingSystem() {
+                    const ua = navigator.userAgent;
+                    const platform = navigator.platform;
+                    
+                    if (ua.includes('Windows NT')) {
+                        const match = ua.match(/Windows NT ([0-9.]+)/);
+                        const version = match ? match[1] : '';
+                        const versionMap = {
+                            '10.0': 'Windows 10/11',
+                            '6.3': 'Windows 8.1',
+                            '6.2': 'Windows 8',
+                            '6.1': 'Windows 7'
+                        };
+                        return versionMap[version] || 'Windows';
+                    } else if (ua.includes('Mac OS X')) {
+                        const match = ua.match(/Mac OS X ([0-9_]+)/);
+                        const version = match ? match[1].replace(/_/g, '.') : '';
+                        return 'macOS ' + version;
+                    } else if (ua.includes('Linux')) {
+                        return 'Linux';
+                    } else if (ua.includes('Android')) {
+                        const match = ua.match(/Android ([0-9.]+)/);
+                        const version = match ? match[1] : '';
+                        return 'Android ' + version;
+                    } else if (ua.includes('iPhone') || ua.includes('iPad')) {
+                        const match = ua.match(/OS ([0-9_]+)/);
+                        const version = match ? match[1].replace(/_/g, '.') : '';
+                        return 'iOS ' + version;
+                    }
+                    
+                    return platform || 'Unknown';
+                }
+                
+                // 网络连接信息
+                function getConnectionInfo() {
+                    if ('connection' in navigator) {
+                        const conn = navigator.connection;
+                        return conn.effectiveType || conn.type || 'Unknown';
+                    }
+                    return 'Unknown';
+                }
+                
+                // 存储配额检测
+                async function getStorageQuota() {
+                    if ('storage' in navigator && 'estimate' in navigator.storage) {
+                        try {
+                            const estimate = await navigator.storage.estimate();
+                            const quota = estimate.quota;
+                            const usage = estimate.usage;
+                            return (quota / 1024 / 1024 / 1024).toFixed(2) + ' GB (已用: ' + (usage / 1024 / 1024).toFixed(2) + ' MB)';
+                        } catch (e) {
+                            return 'Unknown';
+                        }
+                    }
+                    return 'Not supported';
+                }
+                
+                // 功能支持检测
+                function checkFeatureSupport() {
+                    const webgl = (() => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+                        } catch (e) {
+                            return false;
+                        }
+                    })();
+                    
+                    const webrtc = !!(window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+                    const serviceWorker = 'serviceWorker' in navigator;
+                    const localStorage = (() => {
+                        try {
+                            const test = '__localStorage_test__';
+                            localStorage.setItem(test, test);
+                            localStorage.removeItem(test);
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    })();
+                    
+                    return { webgl, webrtc, serviceWorker, localStorage };
+                }
+                
+                const { browserName, browserVersion, engineName } = parseUserAgent();
+                const features = checkFeatureSupport();
+                
+                return {
+                    os: getOperatingSystem(),
+                    platform: navigator.platform || 'Unknown',
+                    userAgent: navigator.userAgent,
+                    language: navigator.language || 'Unknown',
+                    browserName,
+                    browserVersion,
+                    engineName,
+                    cookieEnabled: navigator.cookieEnabled,
+                    screenResolution: screen.width + ' × ' + screen.height,
+                    availableScreen: screen.availWidth + ' × ' + screen.availHeight,
+                    colorDepth: screen.colorDepth + ' 位',
+                    pixelRatio: window.devicePixelRatio || 1,
+                    cpuCores: navigator.hardwareConcurrency || 'Unknown',
+                    memoryInfo: navigator.deviceMemory ? (navigator.deviceMemory + ' GB') : 'Unknown',
+                    connectionInfo: getConnectionInfo(),
+                    features,
+                    getStorageQuota
+                };
+            }
+            
+            // 更新设备信息显示
+            async function updateDeviceInfo() {
+                const info = collectDeviceInfo();
+                
+                // 更新各个字段
+                container.querySelector('#osInfo').textContent = info.os;
+                container.querySelector('#platformInfo').textContent = info.platform;
+                container.querySelector('#userAgent').textContent = info.userAgent;
+                container.querySelector('#languageInfo').textContent = info.language;
+                
+                container.querySelector('#browserInfo').textContent = info.browserName;
+                container.querySelector('#browserVersion').textContent = info.browserVersion;
+                container.querySelector('#engineInfo').textContent = info.engineName;
+                container.querySelector('#cookieEnabled').textContent = info.cookieEnabled ? '是' : '否';
+                
+                container.querySelector('#screenResolution').textContent = info.screenResolution;
+                container.querySelector('#availableScreen').textContent = info.availableScreen;
+                container.querySelector('#colorDepth').textContent = info.colorDepth;
+                container.querySelector('#pixelRatio').textContent = info.pixelRatio + 'x';
+                
+                container.querySelector('#cpuCores').textContent = info.cpuCores;
+                container.querySelector('#memoryInfo').textContent = info.memoryInfo;
+                container.querySelector('#connectionInfo').textContent = info.connectionInfo;
+                
+                container.querySelector('#webglSupport').textContent = info.features.webgl ? '支持' : '不支持';
+                container.querySelector('#webrtcSupport').textContent = info.features.webrtc ? '支持' : '不支持';
+                container.querySelector('#swSupport').textContent = info.features.serviceWorker ? '支持' : '不支持';
+                container.querySelector('#localStorageSupport').textContent = info.features.localStorage ? '支持' : '不支持';
+                
+                // 异步获取存储配额
+                try {
+                    const quota = await info.getStorageQuota();
+                    container.querySelector('#storageQuota').textContent = quota;
+                } catch (e) {
+                    container.querySelector('#storageQuota').textContent = 'Unknown';
+                }
+            }
+            
+            // 导出设备信息
+            function exportDeviceInfo() {
+                const info = collectDeviceInfo();
+                const report = '设备信息报告\\n' +
+'生成时间: ' + new Date().toLocaleString() + '\\n\\n' +
+'=== 系统信息 ===\\n' +
+'操作系统: ' + info.os + '\\n' +
+'平台架构: ' + info.platform + '\\n' +
+'语言: ' + info.language + '\\n\\n' +
+'=== 浏览器信息 ===\\n' +
+'浏览器: ' + info.browserName + ' ' + info.browserVersion + '\\n' +
+'渲染引擎: ' + info.engineName + '\\n' +
+'用户代理: ' + info.userAgent + '\\n' +
+'Cookie 启用: ' + (info.cookieEnabled ? '是' : '否') + '\\n\\n' +
+'=== 显示信息 ===\\n' +
+'屏幕分辨率: ' + info.screenResolution + '\\n' +
+'可用区域: ' + info.availableScreen + '\\n' +
+'颜色深度: ' + info.colorDepth + '\\n' +
+'像素密度: ' + info.pixelRatio + 'x\\n\\n' +
+'=== 硬件信息 ===\\n' +
+'CPU 核心数: ' + info.cpuCores + '\\n' +
+'内存容量: ' + info.memoryInfo + '\\n' +
+'网络连接: ' + info.connectionInfo + '\\n\\n' +
+'=== 功能支持 ===\\n' +
+'WebGL: ' + (info.features.webgl ? '支持' : '不支持') + '\\n' +
+'WebRTC: ' + (info.features.webrtc ? '支持' : '不支持') + '\\n' +
+'Service Worker: ' + (info.features.serviceWorker ? '支持' : '不支持') + '\\n' +
+'本地存储: ' + (info.features.localStorage ? '支持' : '不支持') + '\\n';
+                
+                // 复制到剪贴板
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(report).then(() => {
+                        alert('设备信息已复制到剪贴板！');
+                    }).catch(() => {
+                        // 回退方法
+                        const textarea = document.createElement('textarea');
+                        textarea.value = report;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('设备信息已复制到剪贴板！');
+                    });
+                } else {
+                    // 回退方法
+                    const textarea = document.createElement('textarea');
+                    textarea.value = report;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('设备信息已复制到剪贴板！');
+                }
+            }
+            
+            // 绑定事件
+            container.querySelector('#refreshDeviceInfo').addEventListener('click', updateDeviceInfo);
+            container.querySelector('#exportDeviceInfo').addEventListener('click', exportDeviceInfo);
+            
+            // 初始化设备信息
+            updateDeviceInfo();
         }
 
         // 设置面板相关功能
