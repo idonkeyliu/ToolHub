@@ -12,7 +12,9 @@ contextBridge.exposeInMainWorld('llmHub', {
     openExternal: (url: string) => ipcRenderer.send('open-external', url),
     persistLastSite: (key: string) => ipcRenderer.send('persist-last-site', key),
     clearActivePartition: (partition: string) => ipcRenderer.send('clear-active-partition', partition),
-    openSiteWindow: (key: string) => ipcRenderer.send('open-site-window', key)
+    openSiteWindow: (key: string) => ipcRenderer.send('open-site-window', key),
+    saveFile: (options: { defaultName: string; filters: { name: string; extensions: string[] }[]; data: string }) => 
+        ipcRenderer.invoke('save-file', options),
 });
 
 // 接收主进程数据

@@ -9,6 +9,12 @@ import { template } from './template';
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
 
+// Electron IPC 接口
+declare const llmHub: {
+  saveFile: (options: { defaultName: string; filters: { name: string; extensions: string[] }[]; data: string }) => 
+    Promise<{ success: boolean; canceled?: boolean; filePath?: string; error?: string }>;
+};
+
 interface ImageState {
   originalImage: HTMLImageElement | null;
   currentImageData: ImageData | null;
@@ -31,7 +37,7 @@ export class ImageTool extends Tool {
     key: 'image',
     title: '图片工具',
     category: ToolCategory.UTILITY,
-    icon: '🖼️',
+    icon: '🏞️',
     description: '图片裁剪、压缩、旋转、滤镜等处理',
     keywords: ['图片', 'image', '裁剪', 'crop', '压缩', 'compress', '旋转', '滤镜'],
   };
@@ -391,7 +397,6 @@ export class ImageTool extends Tool {
     
     this.isCropping = true;
     const overlay = this.querySelector<HTMLElement>('#cropOverlay');
-    const cropBox = this.querySelector<HTMLElement>('#cropBox');
     const btnCrop = this.querySelector<HTMLElement>('#btnCrop');
     const btnCropConfirm = this.querySelector<HTMLElement>('#btnCropConfirm');
     const btnCropCancel = this.querySelector<HTMLElement>('#btnCropCancel');
@@ -401,14 +406,24 @@ export class ImageTool extends Tool {
     if (btnCropConfirm) btnCropConfirm.style.display = 'flex';
     if (btnCropCancel) btnCropCancel.style.display = 'flex';
 
-    // 初始化裁剪框
-    const rect = this.canvas.getBoundingClientRect();
-    const padding = 40;
+    // 获取 canvas 相对于容器的位置
+    const canvasWrap = this.querySelector<HTMLElement>('#imageCanvasWrap');
+    if (!canvasWrap) return;
+    
+    const wrapRect = canvasWrap.getBoundingClientRect();
+    const canvasRect = this.canvas.getBoundingClientRect();
+    
+    // canvas 在容器中的偏移（因为居中显示）
+    const offsetX = canvasRect.left - wrapRect.left;
+    const offsetY = canvasRect.top - wrapRect.top;
+    
+    // 初始化裁剪框 - 覆盖整个 canvas
+    const padding = 20;
     this.cropRect = {
-      x: padding,
-      y: padding,
-      width: rect.width - padding * 2,
-      height: rect.height - padding * 2,
+      x: offsetX + padding,
+      y: offsetY + padding,
+      width: canvasRect.width - padding * 2,
+      height: canvasRect.height - padding * 2,
     };
 
     this.updateCropBox();
@@ -518,12 +533,28 @@ export class ImageTool extends Tool {
   private applyCrop(): void {
     if (!this.canvas || !this.ctx) return;
 
-    const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
+    // 获取 canvas 相对于容器的位置
+    const canvasWrap = this.querySelector<HTMLElement>('#imageCanvasWrap');
+    if (!canvasWrap) return;
+    
+    const wrapRect = canvasWrap.getBoundingClientRect();
+    const canvasRect = this.canvas.getBoundingClientRect();
+    
+    // canvas 在容器中的偏移
+    const offsetX = canvasRect.left - wrapRect.left;
+    const offsetY = canvasRect.top - wrapRect.top;
+    
+    // 计算裁剪框相对于 canvas 的位置（而非容器）
+    const relativeX = this.cropRect.x - offsetX;
+    const relativeY = this.cropRect.y - offsetY;
+    
+    // 缩放比例：canvas 实际像素 vs 显示尺寸
+    const scaleX = this.canvas.width / canvasRect.width;
+    const scaleY = this.canvas.height / canvasRect.height;
 
-    const cropX = Math.max(0, this.cropRect.x * scaleX);
-    const cropY = Math.max(0, this.cropRect.y * scaleY);
+    // 计算实际裁剪区域
+    const cropX = Math.max(0, relativeX * scaleX);
+    const cropY = Math.max(0, relativeY * scaleY);
     const cropW = Math.min(this.canvas.width - cropX, this.cropRect.width * scaleX);
     const cropH = Math.min(this.canvas.height - cropY, this.cropRect.height * scaleY);
 
@@ -724,43 +755,65 @@ export class ImageTool extends Tool {
     }
   }
 
-  private exportImage(): void {
-    if (!this.canvas) return;
-
-    const format = (this.querySelector<HTMLSelectElement>('#exportFormat')?.value || 'jpeg') as string;
-    const quality = parseInt(this.querySelector<HTMLInputElement>('#exportQuality')?.value || '85') / 100;
-
-    const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'png' ? 'image/png' : 'image/webp';
-    const ext = format === 'jpeg' ? 'jpg' : format;
-
-    // 应用滤镜到导出
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = this.canvas.width;
-    tempCanvas.height = this.canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    if (tempCtx) {
-      const { brightness, contrast, saturate, grayscale, blur } = this.state.filters;
-      tempCtx.filter = `
-        brightness(${brightness}%)
-        contrast(${contrast}%)
-        saturate(${saturate}%)
-        grayscale(${grayscale}%)
-        blur(${blur}px)
-      `;
-      tempCtx.drawImage(this.canvas, 0, 0);
+  private async exportImage(): Promise<void> {
+    if (!this.canvas) {
+      alert('请先选择图片');
+      return;
     }
 
-    const dataUrl = (tempCanvas || this.canvas).toDataURL(mimeType, quality);
+    try {
+      const format = (this.querySelector<HTMLSelectElement>('#exportFormat')?.value || 'jpeg') as string;
+      const quality = parseInt(this.querySelector<HTMLInputElement>('#exportQuality')?.value || '85') / 100;
 
-    // 下载
-    const link = document.createElement('a');
-    const baseName = this.fileName.replace(/\.[^.]+$/, '');
-    link.download = `${baseName}_edited.${ext}`;
-    link.href = dataUrl;
-    link.click();
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'png' ? 'image/png' : 'image/webp';
+      const ext = format === 'jpeg' ? 'jpg' : format;
 
-    toast('图片已导出');
+      // 应用滤镜到导出
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = this.canvas.width;
+      tempCanvas.height = this.canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      
+      if (tempCtx) {
+        const { brightness, contrast, saturate, grayscale, blur } = this.state.filters;
+        tempCtx.filter = `
+          brightness(${brightness}%)
+          contrast(${contrast}%)
+          saturate(${saturate}%)
+          grayscale(${grayscale}%)
+          blur(${blur}px)
+        `;
+        tempCtx.drawImage(this.canvas, 0, 0);
+      }
+
+      const dataUrl = (tempCanvas || this.canvas).toDataURL(mimeType, quality);
+      const baseName = this.fileName.replace(/\.[^.]+$/, '') || 'image';
+      const fileName = `${baseName}_edited.${ext}`;
+
+      // 使用 Electron 的保存对话框
+      const result = await llmHub.saveFile({
+        defaultName: fileName,
+        filters: [
+          { name: format.toUpperCase(), extensions: [ext] },
+          { name: '所有文件', extensions: ['*'] }
+        ],
+        data: dataUrl
+      });
+
+      if (result.canceled) {
+        // 用户取消，不提示
+        return;
+      }
+
+      if (result.success) {
+        alert(`导出成功！\n\n保存位置：${result.filePath}`);
+      } else {
+        alert(`导出失败：${result.error || '未知错误'}`);
+      }
+    } catch (e) {
+      alert('导出失败，请重试');
+      console.error('Export error:', e);
+    }
   }
 
   private extractColors(): void {
