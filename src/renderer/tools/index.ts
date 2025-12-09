@@ -10,6 +10,10 @@ import { CalcTool } from './calc/CalcTool';
 import { DnsTool } from './dns/DnsTool';
 import { CodecTool } from './codec/CodecTool';
 import { CryptoTool } from './crypto/CryptoTool';
+import { CurlTool } from './curl/CurlTool';
+import { CurrencyTool } from './currency/CurrencyTool';
+import { ColorTool } from './color/ColorTool';
+import { CalendarTool } from './calendar/CalendarTool';
 
 export const tools = [
   TimestampTool,
@@ -20,5 +24,9 @@ export const tools = [
   DnsTool,
   CodecTool,
   CryptoTool,
-  // 后续迁移的工具在这里添加
+  CurlTool,
+  CurrencyTool,
+  ColorTool,
+  CalendarTool,
+  // 所有工具已迁移完成
 ];
