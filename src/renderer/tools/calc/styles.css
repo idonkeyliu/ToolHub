@@ -1,5 +1,5 @@
 /**
- * 计算器工具样式 - 简洁版
+ * 计算器工具样式
  */
 
 .calc-view {
@@ -12,11 +12,11 @@
 }
 
 .calc-wrap {
-  width: min(480px, 90%);
+  width: min(420px, 92%);
   padding: 28px 24px;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 20px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 24px;
 }
 
 .calc-display {
@@ -24,29 +24,29 @@
   grid-template-columns: 1fr;
   gap: 10px;
   margin-bottom: 20px;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.9);
   border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 16px;
+  padding: 12px;
 }
 
 .calc-input {
   width: 100%;
-  background: rgba(15, 23, 42, 0.8);
-  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.6);
+  color: #f1f5f9;
   border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 20px;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 22px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 500;
   transition: all 0.2s;
-  height: 54px;
+  height: 58px;
 }
 
 .calc-input:focus {
-  border-color: #1e293b;
-  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   outline: none;
 }
 
@@ -56,21 +56,21 @@
 
 .calc-result {
   margin: 0 0 20px;
-  padding: 14px 18px;
+  padding: 16px 20px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: #f472b6;
-  font-size: 36px;
+  color: #22d3ee;
+  font-size: 40px;
   font-weight: 700;
   text-align: right;
   line-height: 1.1;
-  height: 64px;
-  min-height: 64px;
+  height: 70px;
+  min-height: 70px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(30, 41, 59, 0.6);
   border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .calc-result.error {
@@ -89,88 +89,81 @@
 .calc-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  max-width: 380px;
+  gap: 10px;
+  max-width: 360px;
   margin: 0 auto;
 }
 
 .calc-view .btn {
-  padding: 14px 0;
+  padding: 16px 0;
   text-align: center;
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 12px;
-  background: rgba(30, 41, 59, 0.7);
-  color: #e2e8f0;
+  border: none;
+  border-radius: 14px;
   cursor: pointer;
   user-select: none;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .calc-view .btn:active {
-  transform: scale(.97);
+  transform: scale(.95);
 }
 
-.calc-view .btn:hover {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
-}
-
+/* 数字按钮 - 明亮的蓝灰色 */
 .calc-view .btn.num {
-  background: rgba(37, 99, 235, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: linear-gradient(145deg, #475569 0%, #334155 100%);
+  color: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .calc-view .btn.num:hover {
-  background: rgba(37, 99, 235, 0.3);
-  border-color: #3b82f6;
+  background: linear-gradient(145deg, #64748b 0%, #475569 100%);
 }
 
+/* 运算符按钮 - 明亮的橙色 */
 .calc-view .btn.op {
-  background: rgba(245, 158, 11, 0.2);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #fcd34d;
+  background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
 }
 
 .calc-view .btn.op:hover {
-  background: rgba(245, 158, 11, 0.3);
-  border-color: #f59e0b;
+  background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
 }
 
+/* 控制按钮 - 红色（退格） */
 .calc-view .btn.ctrl {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
 }
 
 .calc-view .btn.ctrl:hover {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: #ef4444;
+  background: linear-gradient(145deg, #f87171 0%, #ef4444 100%);
 }
 
+/* AC 按钮 - 绿色 */
 .calc-view .btn.ctrl[data-act="ac"] {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #6ee7b7;
+  background: linear-gradient(145deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 }
 
 .calc-view .btn.ctrl[data-act="ac"]:hover {
-  background: rgba(16, 185, 129, 0.3);
-  border-color: #10b981;
+  background: linear-gradient(145deg, #34d399 0%, #10b981 100%);
 }
 
 .calc-row {
-  max-width: 380px;
-  margin: 12px auto 0;
+  max-width: 360px;
+  margin: 10px auto 0;
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .calc-row .btn {
   flex: 1 1 0;
-  height: 56px;
-  font-size: 22px;
-  border-radius: 12px;
+  height: 60px;
+  font-size: 24px;
+  border-radius: 14px;
 }
