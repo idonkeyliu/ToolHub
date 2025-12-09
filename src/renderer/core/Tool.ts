@@ -13,10 +13,15 @@ export abstract class Tool implements ITool {
   protected container: HTMLElement | null = null;
 
   /** 是否已挂载 */
-  protected mounted = false;
+  private _mounted = false;
 
   /** 是否已激活 */
   protected active = false;
+
+  /** 获取挂载状态 */
+  get mounted(): boolean {
+    return this._mounted;
+  }
 
   /** 事件监听器清理函数 */
   protected cleanupFns: Array<() => void> = [];
@@ -44,7 +49,7 @@ export abstract class Tool implements ITool {
     element.dataset.key = this.config.key;
 
     container.appendChild(element);
-    this.mounted = true;
+    this._mounted = true;
 
     // 绑定事件
     this.bindEvents();
@@ -79,7 +84,7 @@ export abstract class Tool implements ITool {
     }
 
     this.container = null;
-    this.mounted = false;
+    this._mounted = false;
   }
 
   /**
@@ -95,9 +100,11 @@ export abstract class Tool implements ITool {
       return;
     }
 
-    const element = this.container?.querySelector(`.${this.config.key}-view`);
+    const element = this.container?.querySelector(`.${this.config.key}-view`) as HTMLElement;
     if (element) {
       element.classList.add('active');
+      // 清除可能存在的行内 display 样式，让 CSS 类生效
+      element.style.display = '';
     }
 
     this.active = true;
@@ -112,9 +119,10 @@ export abstract class Tool implements ITool {
       return;
     }
 
-    const element = this.container?.querySelector(`.${this.config.key}-view`);
+    const element = this.container?.querySelector(`.${this.config.key}-view`) as HTMLElement;
     if (element) {
       element.classList.remove('active');
+      element.style.display = 'none';
     }
 
     this.active = false;
