@@ -63,7 +63,8 @@ export class CalendarTool extends Tool {
     title: '万年历',
     category: ToolCategory.UTILITY,
     icon: '📅',
-    description: '农历、节气、节日查询'
+    description: '农历、节气、节日查询',
+    keywords: ['日历', 'calendar', '农历', '节气', '节日', '黄历'],
   };
 
   readonly config = CalendarTool.config;

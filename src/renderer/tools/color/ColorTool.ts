@@ -9,7 +9,8 @@ export class ColorTool extends Tool {
     title: '颜色工具',
     category: ToolCategory.CONVERTER,
     icon: '🎨',
-    description: '颜色选择、转换与调色板'
+    description: '颜色选择、转换与调色板',
+    keywords: ['颜色', 'color', 'hex', 'rgb', 'hsl', '调色板'],
   };
 
   readonly config = ColorTool.config;

@@ -8,7 +8,9 @@ export class CurlTool extends Tool {
     key: 'curl',
     title: 'CURL工具',
     category: ToolCategory.NETWORK,
-    icon: '🌐'
+    icon: '📡',
+    description: 'HTTP 请求测试与 cURL 命令解析',
+    keywords: ['curl', 'http', 'api', '请求', 'request', 'get', 'post'],
   };
 
   readonly config = CurlTool.config;
