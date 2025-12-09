@@ -7,7 +7,6 @@ import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { template } from './template';
-import './styles.css';
 
 export class TextStatsTool extends Tool {
   static readonly config: ToolConfig = {

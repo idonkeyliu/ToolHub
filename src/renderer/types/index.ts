@@ -23,6 +23,7 @@ export interface ToolConfig {
 /** 工具接口 */
 export interface ITool {
   config: ToolConfig;
+  mounted: boolean;
   render(): HTMLElement;
   mount(container: HTMLElement): void;
   unmount(): void;
