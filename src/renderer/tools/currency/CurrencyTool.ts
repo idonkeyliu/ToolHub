@@ -8,7 +8,9 @@ export class CurrencyTool extends Tool {
     key: 'currency',
     title: '货币转换',
     category: ToolCategory.CONVERTER,
-    icon: '💱'
+    icon: '💱',
+    description: '实时汇率查询与货币换算',
+    keywords: ['货币', 'currency', '汇率', '换算', '美元', '人民币'],
   };
 
   readonly config = CurrencyTool.config;
