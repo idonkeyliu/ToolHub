@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, dialog, shell, session, ipcMain, screen } from 'electron';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Store from 'electron-store';
 // Recreate __dirname in ESM
@@ -315,6 +316,26 @@ app.on('window-all-closed', () => {
 ipcMain.on('open-external', (_e, url) => {
     if (url)
         shell.openExternal(url);
+});
+// 保存文件对话框
+ipcMain.handle('save-file', async (_e, options) => {
+    const result = await dialog.showSaveDialog({
+        defaultPath: options.defaultName,
+        filters: options.filters,
+    });
+    if (result.canceled || !result.filePath) {
+        return { success: false, canceled: true };
+    }
+    try {
+        // data 是 base64 编码的图片数据
+        const base64Data = options.data.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        fs.writeFileSync(result.filePath, buffer);
+        return { success: true, filePath: result.filePath };
+    }
+    catch (err) {
+        return { success: false, error: String(err) };
+    }
 });
 // 打开站点独立窗口（为需要顶层环境的站点提供登录/完整功能）
 ipcMain.on('open-site-window', (_e, key) => {
