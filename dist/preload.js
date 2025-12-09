@@ -12,7 +12,8 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
     openExternal: (url) => electron_1.ipcRenderer.send('open-external', url),
     persistLastSite: (key) => electron_1.ipcRenderer.send('persist-last-site', key),
     clearActivePartition: (partition) => electron_1.ipcRenderer.send('clear-active-partition', partition),
-    openSiteWindow: (key) => electron_1.ipcRenderer.send('open-site-window', key)
+    openSiteWindow: (key) => electron_1.ipcRenderer.send('open-site-window', key),
+    saveFile: (options) => electron_1.ipcRenderer.invoke('save-file', options),
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {
