@@ -1,375 +1,176 @@
 /**
- * 计算器工具样式
+ * 计算器工具样式 - 简洁版
  */
 
-/* 主视图 */
 .calc-view {
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  background: linear-gradient(135deg, #0d1114 0%, #1a1f2e 50%, #0d1114 100%);
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
+  min-height: 100%;
+  padding: 40px 20px;
+  box-sizing: border-box;
 }
 
-/* 背景动画粒子效果 */
-.calc-view::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 20% 80%, rgba(120, 120, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 120, 120, 0.1) 0%, transparent 50%);
-  animation: backgroundShift 20s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-.calc-view::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(circle at 60% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 30% 70%, rgba(255, 107, 107, 0.08) 0%, transparent 40%);
-  animation: backgroundShift 25s ease-in-out infinite alternate-reverse;
-  pointer-events: none;
-}
-
-/* 计算器容器 */
 .calc-wrap {
-  width: min(580px, 90%);
-  margin: 4vh auto 0;
-  padding: 32px 28px;
-  background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
-  border-radius: 32px;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 8px 30px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid #2a3440;
-  position: relative;
-  z-index: 1;
-  animation: slideInUp 0.8s ease-out;
-  overflow: hidden;
+  width: min(480px, 90%);
+  padding: 28px 24px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 20px;
 }
 
-/* 机身质感 */
-.calc-wrap::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
-  border-radius: 36px 36px 0 0;
-  z-index: 1;
-}
-
-/* 显示区域 */
 .calc-display {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
-  align-items: center;
-  margin-top: 0;
-  margin-bottom: 24px;
-  border-radius: 20px;
-  box-shadow:
-    inset 0 3px 7px rgba(0, 0, 0, 0.3),
-    inset 0 1px 3px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-  background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
-  padding: 6px;
-  border: 2px solid #223038;
+  margin-bottom: 20px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 12px;
+  padding: 8px;
 }
 
-/* 输入框 */
 .calc-input {
   width: 100%;
-  background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
-  color: #00d4ff;
-  border: 2px solid #223038;
-  border-radius: 15px;
-  padding: 14px 18px;
-  font-size: 22px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-weight: 600;
-  text-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-  box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.3),
-    0 0 0 rgba(0, 212, 255, 0);
-  transition: all 0.3s ease;
-  height: 60px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #67e8f9;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+  transition: all 0.2s;
+  height: 54px;
 }
 
 .calc-input:focus {
-  border-color: #00d4ff;
-  box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.3),
-    0 0 25px rgba(0, 212, 255, 0.5);
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
   outline: none;
-  text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
 }
 
 .calc-input::placeholder {
-  color: rgba(0, 212, 255, 0.4);
+  color: #64748b;
 }
 
-/* 结果展示 */
 .calc-result {
-  position: relative;
-  margin: 0 0 24px;
-  padding: 16px 20px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  color: #ff6b6b;
-  font-size: 42px;
-  font-weight: 800;
+  margin: 0 0 20px;
+  padding: 14px 18px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #f472b6;
+  font-size: 36px;
+  font-weight: 700;
   text-align: right;
   line-height: 1.1;
-  text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
-  transition: all 0.3s ease;
-  height: 72px;
-  min-height: 72px;
+  height: 64px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: linear-gradient(145deg, #0a0f13 0%, #1a1f2a 100%);
-  border-radius: 14px;
-  border: 2px solid #223038;
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 0 0 rgba(255, 107, 107, 0);
-}
-
-.calc-result::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -10px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(245, 158, 11, .55), rgba(0, 0, 0, 0));
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 10px;
 }
 
 .calc-result.error {
-  color: #fca5a5;
+  color: #f87171;
 }
 
 .calc-result.pop {
-  animation: calcPop .18s ease-out;
+  animation: calcPop .15s ease-out;
 }
 
 @keyframes calcPop {
-  0% {
-    transform: scale(.98);
-    opacity: .85;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(.98); opacity: .85; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* 按钮网格 */
 .calc-grid {
-  margin-top: 24px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
+  gap: 12px;
+  max-width: 380px;
+  margin: 0 auto;
 }
 
-/* 按钮基础样式 */
 .calc-view .btn {
-  padding: 16px 0;
+  padding: 14px 0;
   text-align: center;
-  border: 2px solid #2a3440;
-  border-radius: 22px;
-  background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
-  color: #ffffff;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.7);
+  color: #e2e8f0;
   cursor: pointer;
   user-select: none;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow:
-    0 6px 15px rgba(0, 0, 0, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-}
-
-.calc-view .btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s ease;
-}
-
-.calc-view .btn:hover::before {
-  left: 100%;
+  transition: all 0.2s;
 }
 
 .calc-view .btn:active {
-  transform: translateY(2px) scale(.97);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: scale(.97);
 }
 
 .calc-view .btn:hover {
-  transform: translateY(-2px);
-  border-color: #00d4ff;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 0 20px rgba(0, 212, 255, 0.3);
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  border-color: #0d9488;
+  background: rgba(13, 148, 136, 0.1);
 }
 
-/* 数字按钮 */
 .calc-view .btn.num {
-  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 100%);
-  border-color: #3b82f6;
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+  background: rgba(37, 99, 235, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
 }
 
 .calc-view .btn.num:hover {
-  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
-  border-color: #60a5fa;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 0 25px rgba(37, 99, 235, 0.5);
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  background: rgba(37, 99, 235, 0.3);
+  border-color: #3b82f6;
 }
 
-/* 运算符按钮 */
 .calc-view .btn.op {
-  background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
-  border-color: #f59e0b;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fcd34d;
 }
 
 .calc-view .btn.op:hover {
-  background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
-  border-color: #fcd34d;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 0 25px rgba(245, 158, 11, 0.5);
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
 }
 
-/* 控制按钮 */
 .calc-view .btn.ctrl {
-  background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
-  border-color: #ef4444;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
 }
 
 .calc-view .btn.ctrl:hover {
-  background: linear-gradient(145deg, #f87171 0%, #ef4444 100%);
-  border-color: #fca5a5;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 0 25px rgba(239, 68, 68, 0.5);
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
 }
 
-/* AC按钮特殊样式 */
 .calc-view .btn.ctrl[data-act="ac"] {
-  background: linear-gradient(145deg, #10b981 0%, #059669 100%);
-  border-color: #10b981;
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
 }
 
 .calc-view .btn.ctrl[data-act="ac"]:hover {
-  background: linear-gradient(145deg, #34d399 0%, #10b981 100%);
-  border-color: #6ee7b7;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 0 25px rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
 }
 
-/* 按钮波纹效果 */
-.calc-view .btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.4s, height 0.4s;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.calc-view .btn:hover::after {
-  width: 120%;
-  height: 120%;
-  opacity: 1;
-}
-
-/* 底部按钮行 */
 .calc-row {
-  max-width: 420px;
-  margin: 16px auto 0;
+  max-width: 380px;
+  margin: 12px auto 0;
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .calc-row .btn {
   flex: 1 1 0;
-  height: 64px;
-  font-size: 24px;
-  border-radius: 22px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-}
-
-/* 动画 */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes backgroundShift {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.6;
-  }
+  height: 56px;
+  font-size: 22px;
+  border-radius: 12px;
 }
