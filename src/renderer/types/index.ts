@@ -51,6 +51,8 @@ export enum EventType {
   TOOL_CHANGE = 'tool:change',
   TOAST_SHOW = 'toast:show',
   TOAST_HIDE = 'toast:hide',
+  FAVORITE_CHANGE = 'favorite:change',
+  THEME_CHANGE = 'theme:change',
 }
 
 /** Toast 数据 */
