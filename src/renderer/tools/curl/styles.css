@@ -68,13 +68,13 @@
 }
 
 .curl-tab-btn:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
 .curl-tab-btn.active {
-  background: #0d9488;
-  border-color: #0d9488;
+  background: #3b82f6;
+  border-color: #3b82f6;
   color: white;
 }
 
@@ -105,9 +105,9 @@
 }
 
 .curl-input:focus {
-  border-color: #0d9488;
+  border-color: #1e293b;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .curl-url-container {
@@ -132,7 +132,7 @@
 }
 
 .curl-history-btn:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
@@ -150,9 +150,9 @@
 }
 
 .curl-textarea:focus {
-  border-color: #0d9488;
+  border-color: #1e293b;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .curl-select {
@@ -166,7 +166,7 @@
 }
 
 .curl-select:focus {
-  border-color: #0d9488;
+  border-color: #1e293b;
   outline: none;
 }
 
@@ -197,7 +197,7 @@
 }
 
 .curl-add-btn:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
@@ -227,7 +227,7 @@
 }
 
 .curl-send-btn {
-  background: #0d9488;
+  background: #3b82f6;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -238,7 +238,7 @@
 }
 
 .curl-send-btn:hover {
-  background: #14b8a6;
+  background: #60a5fa;
 }
 
 .curl-clear-btn {
@@ -252,7 +252,7 @@
 }
 
 .curl-clear-btn:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
@@ -342,13 +342,13 @@
 }
 
 .curl-resp-tab-btn.active {
-  background: #0d9488;
-  border-color: #0d9488;
+  background: #3b82f6;
+  border-color: #3b82f6;
   color: white;
 }
 
 .curl-resp-tab-btn:hover:not(.active) {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
@@ -445,7 +445,7 @@
 }
 
 .curl-history-count-badge {
-  background: #0d9488;
+  background: #3b82f6;
   color: white;
   padding: 2px 8px;
   border-radius: 10px;
@@ -486,7 +486,7 @@
 
 .curl-history-item .history-url {
   font-weight: 500;
-  color: #67e8f9;
+  color: #93c5fd;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;

@@ -37,13 +37,13 @@ div.crypto-view {
 }
 
 .crypto-tab:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
 .crypto-tab.active {
-  background: #0d9488;
-  border-color: #0d9488;
+  background: #3b82f6;
+  border-color: #3b82f6;
   color: #fff;
 }
 
@@ -88,8 +88,8 @@ div.crypto-view {
 
 .crypto-textarea:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .crypto-textarea::placeholder {
@@ -108,8 +108,8 @@ div.crypto-view {
 
 .crypto-input:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .crypto-input::placeholder {
@@ -134,7 +134,7 @@ div.crypto-view {
 }
 
 .crypto-btn:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 

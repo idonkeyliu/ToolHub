@@ -56,9 +56,9 @@
 }
 
 .json-btn:hover {
-  background: rgba(13, 148, 136, 0.1);
+  background: rgba(59, 130, 246, 0.1);
   color: #e2e8f0;
-  border-color: #0d9488;
+  border-color: #3b82f6;
 }
 
 .json-input {
@@ -80,8 +80,8 @@
 
 .json-input:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .json-input::placeholder {
@@ -106,13 +106,13 @@
 }
 
 .json-tab:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
 .json-tab.active {
-  background: #0d9488;
-  border-color: #0d9488;
+  background: #3b82f6;
+  border-color: #3b82f6;
   color: #fff;
 }
 
@@ -192,7 +192,7 @@
 }
 
 .jt-key {
-  color: #67e8f9;
+  color: #93c5fd;
   font-weight: 500;
 }
 
