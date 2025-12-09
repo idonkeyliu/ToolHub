@@ -19,7 +19,7 @@ export class JsonTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'json',
     title: 'JSON',
-    category: ToolCategory.UTILITY,
+    category: ToolCategory.DEVELOPER,
     icon: '📋',
     description: 'JSON 格式化、压缩、树形预览',
     keywords: ['json', '格式化', 'format', '解析', 'parse', '树形'],

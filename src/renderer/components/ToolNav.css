@@ -1,0 +1,127 @@
+/**
+ * 工具导航组件样式
+ */
+
+.tool-nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(13, 17, 20, 0.95);
+  border-right: 1px solid rgba(31, 38, 44, 0.7);
+}
+
+/* 分类标签 */
+.tool-nav-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(31, 38, 44, 0.5);
+}
+
+.tool-nav-cat {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(45, 55, 65, 0.5);
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tool-nav-cat:hover {
+  background: rgba(55, 65, 75, 0.65);
+  color: #e5e7eb;
+}
+
+.tool-nav-cat.active {
+  background: rgba(59, 130, 246, 0.85);
+  color: #fff;
+}
+
+/* 搜索框 */
+.tool-nav-search {
+  padding: 12px;
+  border-bottom: 1px solid rgba(31, 38, 44, 0.5);
+}
+
+.tool-nav-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid rgba(55, 65, 75, 0.5);
+  border-radius: 8px;
+  background: rgba(15, 23, 30, 0.8);
+  color: #e5e7eb;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.tool-nav-search-input:focus {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.tool-nav-search-input::placeholder {
+  color: #6b7280;
+}
+
+/* 工具列表 */
+.tool-nav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.tool-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #b4bdc6;
+}
+
+.tool-nav-item:hover {
+  background: rgba(55, 65, 75, 0.4);
+  color: #e5e7eb;
+}
+
+.tool-nav-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.tool-nav-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.tool-nav-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 滚动条样式 */
+.tool-nav-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tool-nav-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tool-nav-list::-webkit-scrollbar-thumb {
+  background: rgba(55, 70, 85, 0.5);
+  border-radius: 4px;
+}
+
+.tool-nav-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(70, 90, 110, 0.7);
+}
