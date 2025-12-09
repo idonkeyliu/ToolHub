@@ -8,6 +8,7 @@ import { TextStatsTool } from './text-stats/TextStatsTool';
 import { JsonTool } from './json/JsonTool';
 import { CalcTool } from './calc/CalcTool';
 import { DnsTool } from './dns/DnsTool';
+import { CodecTool } from './codec/CodecTool';
 
 export const tools = [
   TimestampTool,
@@ -16,5 +17,6 @@ export const tools = [
   JsonTool,
   CalcTool,
   DnsTool,
+  CodecTool,
   // 后续迁移的工具在这里添加
 ];
