@@ -1,10 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// 存储数据（在 preload 作用域内可修改）
+let _sites: any[] = [];
+let _lastSite = '';
+
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {
     version: '0.1.0',
-    sites: [],
-    lastSite: '',
+    get sites() { return _sites; },
+    get lastSite() { return _lastSite; },
     openExternal: (url: string) => ipcRenderer.send('open-external', url),
     persistLastSite: (key: string) => ipcRenderer.send('persist-last-site', key),
     clearActivePartition: (partition: string) => ipcRenderer.send('clear-active-partition', partition),
@@ -13,8 +17,10 @@ contextBridge.exposeInMainWorld('llmHub', {
 
 // 接收主进程数据
 ipcRenderer.on('init-data', (_e, payload) => {
-    (window as any).llmHub.sites = payload.sites;
-    (window as any).llmHub.lastSite = payload.lastSite;
+    _sites = payload.sites;
+    _lastSite = payload.lastSite;
+    // 触发自定义事件通知渲染进程数据已就绪
+    window.dispatchEvent(new CustomEvent('llmHub-ready'));
 });
 
 // 处理导航事件

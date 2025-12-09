@@ -7,7 +7,6 @@ import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { dnsTemplate } from './template';
-import './styles.css';
 
 interface DnsRow {
   name: string;

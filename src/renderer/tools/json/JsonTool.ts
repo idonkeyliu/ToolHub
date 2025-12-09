@@ -9,7 +9,6 @@ import { createElement } from '../../utils/dom';
 import { copyText } from '../../utils/clipboard';
 import { eventBus } from '../../core/EventBus';
 import { template } from './template';
-import './styles.css';
 
 type ParseResult =
   | { ok: true; data: unknown }

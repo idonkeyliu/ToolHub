@@ -1,7 +1,6 @@
 import { Tool } from '../../core/Tool';
-import { ToolConfig, ToolCategory } from '../../types';
+import { ToolConfig, ToolCategory } from '../../types/index';
 import { template } from './template';
-import './styles.css';
 
 // 农历数据 (1900-2100)
 const LUNAR_INFO = [

@@ -7,7 +7,6 @@ import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { cryptoTemplate } from './template';
-import './styles.css';
 
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
