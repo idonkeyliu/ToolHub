@@ -295,10 +295,23 @@
         div.codec-view.active,
         div.crypto-view.active,
         div.currency-view.active,
-        div.curl-view.active {
+        div.curl-view.active,
+        .tool-view.active {
             display: flex;
             opacity: 1;
             /* 确保活动视图显示 */
+        }
+
+        /* 新架构工具视图基础样式 */
+        .tool-view {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            overflow: auto;
+            background: #0d1117;
+            border-radius: 12px;
         }
 
         .status {
@@ -3262,6 +3275,8 @@
             { key: 'doubao', title: '豆包', url: 'https://www.doubao.com/', partition: 'persist:doubao' }
         ];
         const sites = (window.llmHub?.sites?.length ? window.llmHub.sites : builtinSites).map(s => ({ ...s }));
+        // 暴露 sites 到 window 供新架构使用
+        window.sites = sites;
 
         // 从本地存储加载模块可见性设置
         const moduleVisibility = JSON.parse(localStorage.getItem('moduleVisibility') || '{}');
@@ -8960,6 +8975,9 @@ ${error.message}`;
             console.log('window.llmHub:', window.llmHub);
         }, 500);
     </script>
+
+    <!-- 新架构入口 -->
+    <script type="module" src="./main.js"></script>
 </body>
 
 </html>
