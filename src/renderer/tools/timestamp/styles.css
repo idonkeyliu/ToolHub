@@ -102,14 +102,14 @@
 .time-view .stamp-value {
   font-size: 15px;
   font-weight: 500;
-  color: #67e8f9;
+  color: #e2e8f0;
   font-variant-numeric: tabular-nums;
   min-width: 120px;
 }
 
 .time-view .stamp-copy {
   padding: 6px 16px;
-  background: #0d9488;
+  background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -120,7 +120,7 @@
 }
 
 .time-view .stamp-copy:hover {
-  background: #14b8a6;
+  background: #60a5fa;
 }
 
 /* 转换行 */
@@ -155,8 +155,8 @@
 
 .time-view .convert-row input:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .time-view .convert-row input::placeholder {
@@ -178,14 +178,14 @@
 
 .time-view .convert-output {
   font-size: 14px;
-  color: #67e8f9;
+  color: #e2e8f0;
   min-width: 60px;
   font-variant-numeric: tabular-nums;
 }
 
 .time-view .convert-copy {
   padding: 8px 24px;
-  background: #0d9488;
+  background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -197,7 +197,7 @@
 }
 
 .time-view .convert-copy:hover {
-  background: #14b8a6;
+  background: #60a5fa;
 }
 
 /* 响应式 */
