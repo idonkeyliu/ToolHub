@@ -62,8 +62,8 @@
 }
 
 .currency-input:focus {
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
   outline: none;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .currency-select:focus {
-  border-color: #0d9488;
+  border-color: #1e293b;
   outline: none;
 }
 
@@ -96,7 +96,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: #0d9488;
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 50%;
@@ -105,7 +105,7 @@
 }
 
 .swap-btn:hover {
-  background: #14b8a6;
+  background: #60a5fa;
   transform: rotate(180deg);
 }
 
@@ -120,7 +120,7 @@
 
 .convert-btn, .copy-btn {
   flex: 1;
-  background: #0d9488;
+  background: #3b82f6;
   color: white;
   border: none;
   padding: 12px 16px;
@@ -132,7 +132,7 @@
 }
 
 .convert-btn:hover, .copy-btn:hover {
-  background: #14b8a6;
+  background: #60a5fa;
 }
 
 .exchange-rate-display {

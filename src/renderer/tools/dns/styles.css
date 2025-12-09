@@ -52,8 +52,8 @@ div.dns-view {
 
 .dns-input:focus {
   outline: none;
-  border-color: #0d9488;
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
 }
 
 .dns-select {
@@ -69,14 +69,14 @@ div.dns-view {
 
 .dns-select:focus {
   outline: none;
-  border-color: #0d9488;
+  border-color: #1e293b;
 }
 
 .dns-btn {
   padding: 10px 16px;
   border: none;
   border-radius: 8px;
-  background: #0d9488;
+  background: #3b82f6;
   color: #fff;
   cursor: pointer;
   font-size: 14px;
@@ -85,7 +85,7 @@ div.dns-view {
 }
 
 .dns-btn:hover {
-  background: #14b8a6;
+  background: #60a5fa;
 }
 
 .dns-chips {
@@ -111,12 +111,12 @@ div.dns-view {
 }
 
 .chip:hover {
-  border-color: #0d9488;
+  border-color: #3b82f6;
   color: #e2e8f0;
 }
 
 .chip input {
-  accent-color: #0d9488;
+  accent-color: #3b82f6;
 }
 
 .dns-grid {
@@ -164,9 +164,9 @@ div.dns-view {
 }
 
 .dns-copy:hover {
-  background: rgba(13, 148, 136, 0.1);
+  background: rgba(59, 130, 246, 0.1);
   color: #e2e8f0;
-  border-color: #0d9488;
+  border-color: #3b82f6;
 }
 
 .dns-list {
@@ -204,7 +204,7 @@ div.dns-view {
 }
 
 .dns-table td:nth-child(4) {
-  color: #67e8f9;
+  color: #e2e8f0;
   word-break: break-all;
 }
 
