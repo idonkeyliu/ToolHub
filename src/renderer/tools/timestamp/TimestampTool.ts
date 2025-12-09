@@ -53,7 +53,7 @@ export class TimestampTool extends Tool {
   // ==================== 私有方法 ====================
 
   private bindCopyButtons(): void {
-    const buttons = this.querySelectorAll<HTMLButtonElement>('.copy-btn');
+    const buttons = this.querySelectorAll<HTMLButtonElement>('.stamp-copy, .convert-copy');
     buttons.forEach((btn) => {
       this.addEventListener(btn, 'click', () => {
         const targetId = btn.dataset.target;
