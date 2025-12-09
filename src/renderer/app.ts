@@ -4,6 +4,8 @@
 
 import { toolRegistry } from './core/ToolRegistry';
 import { eventBus } from './core/EventBus';
+import { themeManager } from './core/ThemeManager';
+import { favoriteManager } from './core/FavoriteManager';
 import { EventType } from './types/index';
 import { tools } from './tools/index';
 import { Toast, toast } from './components/Toast';
@@ -45,16 +47,19 @@ export class App {
     // 3. 初始化搜索面板
     searchPanel.init();
 
-    // 4. 监听事件
+    // 4. 初始化主题（已在 ThemeManager 构造函数中完成）
+    console.log(`[App] Theme: ${themeManager.getResolvedTheme()}`);
+
+    // 5. 监听事件
     this.setupEventListeners();
 
-    // 5. 设置快捷键
+    // 6. 设置快捷键
     this.setupKeyboardShortcuts();
 
-    // 6. 获取主容器
+    // 7. 获取主容器
     this.container = document.querySelector('main');
 
-    // 7. 暴露到全局
+    // 8. 暴露到全局
     this.exposeToGlobal();
 
     console.log('[App] Initialization complete');
@@ -68,20 +73,26 @@ export class App {
     eventBus.on(EventType.TOOL_CHANGE, (data) => {
       this.switchTool(data.key);
     });
+
+    eventBus.on(EventType.FAVORITE_CHANGE, (data) => {
+      const action = data.action === 'add' ? '已收藏' : '已取消收藏';
+      const tool = toolRegistry.getInstance(data.key);
+      if (tool) {
+        toast({ message: `${tool.config.title} ${action}`, duration: 1500 });
+      }
+    });
   }
 
   /**
    * 设置键盘快捷键
-   * Cmd/Ctrl + 数字键 切换工具
    */
   private setupKeyboardShortcuts(): void {
     document.addEventListener('keydown', (e) => {
-      // Cmd/Ctrl + 数字键
+      // Cmd/Ctrl + 数字键 切换工具
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
         const toolKey = TOOL_SHORTCUTS[e.key];
         if (toolKey && toolRegistry.has(toolKey)) {
           e.preventDefault();
-          // 调用旧架构的 switchSite
           if (typeof (window as any).switchSite === 'function') {
             (window as any).switchSite(toolKey);
           } else {
@@ -89,6 +100,19 @@ export class App {
           }
           toast({ message: `切换到 ${toolRegistry.getInstance(toolKey)?.config.title}`, duration: 1500 });
         }
+      }
+
+      // Cmd/Ctrl + Shift + D 切换主题
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'd') {
+        e.preventDefault();
+        themeManager.toggle();
+        toast({ message: `已切换到${themeManager.getResolvedTheme() === 'dark' ? '深色' : '浅色'}主题`, duration: 1500 });
+      }
+
+      // Cmd/Ctrl + D 收藏当前工具
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'd' && this.currentKey) {
+        e.preventDefault();
+        favoriteManager.toggle(this.currentKey);
       }
     });
   }
@@ -139,9 +163,11 @@ export class App {
   private exposeToGlobal(): void {
     (window as any).__newApp = {
       switchTool: (key: string) => this.switchTool(key),
-      hasToolRegistry: toolRegistry,
+      toolRegistry,
       eventBus,
       toast,
+      themeManager,
+      favoriteManager,
     };
   }
 

@@ -1,0 +1,322 @@
+/**
+ * 主题变量定义
+ */
+
+/* 深色主题（默认） */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0d1114;
+  --bg-secondary: #161b20;
+  --bg-tertiary: #1a1f2e;
+  --bg-hover: rgba(55, 65, 75, 0.65);
+  --bg-active: rgba(59, 130, 246, 0.85);
+  
+  --text-primary: #e5e7eb;
+  --text-secondary: #b4bdc6;
+  --text-muted: #6b7280;
+  
+  --border-color: rgba(31, 38, 44, 0.7);
+  --border-light: #2a3441;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+}
+
+/* 浅色主题 */
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e5e7eb;
+  --bg-hover: rgba(0, 0, 0, 0.05);
+  --bg-active: rgba(59, 130, 246, 0.15);
+  
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-light: #e5e7eb;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+  
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --error-color: #dc2626;
+}
+
+/* 浅色主题下的全局样式覆盖 */
+.theme-light {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light::before {
+  opacity: 0.05 !important;
+}
+
+.theme-light header.topbar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.theme-light .item {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-secondary) !important;
+}
+
+.theme-light .item:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light .item.active {
+  background: var(--accent-color) !important;
+  color: #fff !important;
+}
+
+.theme-light main {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e5e7eb 50%, #f0f0f0 100%) !important;
+}
+
+.theme-light .content-container {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.theme-light .settings-btn {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-secondary) !important;
+}
+
+.theme-light .settings-btn:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 搜索面板浅色主题 */
+.theme-light .search-overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-light .search-panel {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-light .search-header {
+  border-bottom-color: var(--border-color) !important;
+}
+
+.theme-light .search-input {
+  color: var(--text-primary) !important;
+}
+
+.theme-light .search-kbd {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-muted) !important;
+}
+
+.theme-light .search-item:hover,
+.theme-light .search-item.selected {
+  background: var(--bg-active) !important;
+}
+
+.theme-light .search-item-icon {
+  background: var(--bg-tertiary) !important;
+}
+
+.theme-light .search-item-title {
+  color: var(--text-primary) !important;
+}
+
+.theme-light .search-item-category {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-muted) !important;
+}
+
+.theme-light .search-footer {
+  border-top-color: var(--border-color) !important;
+}
+
+.theme-light .search-footer kbd {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Toast 浅色主题 */
+.theme-light .toast {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* 工具内容区浅色主题 */
+.theme-light .tool-container {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light input,
+.theme-light textarea,
+.theme-light select {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-light button {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light button:hover {
+  background: var(--bg-hover) !important;
+}
+
+.theme-light button.primary {
+  background: var(--accent-color) !important;
+  color: #fff !important;
+}
+
+.theme-light button.primary:hover {
+  background: var(--accent-hover) !important;
+}
+
+/* ========================================
+   响应式布局
+   ======================================== */
+
+/* 平板设备 */
+@media (max-width: 1024px) {
+  header.topbar {
+    padding: 0 10px;
+  }
+  
+  .nav-list {
+    gap: 6px;
+  }
+  
+  .item {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .item span.icon {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+  }
+}
+
+/* 手机设备 */
+@media (max-width: 768px) {
+  header.topbar {
+    height: 40px;
+    padding: 0 8px;
+  }
+  
+  .brand {
+    font-size: 12px;
+  }
+  
+  .nav-list {
+    gap: 4px;
+    padding-left: 8px;
+  }
+  
+  .item {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .item span.icon {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+  
+  main {
+    top: 40px;
+    padding: 6px;
+  }
+  
+  .content-container {
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    border-radius: 8px;
+  }
+  
+  .settings-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+  
+  /* 搜索面板响应式 */
+  .search-panel {
+    width: 95vw !important;
+    max-height: 80vh;
+  }
+  
+  .search-header {
+    padding: 12px;
+  }
+  
+  .search-input {
+    font-size: 14px;
+  }
+  
+  .search-list {
+    max-height: 50vh;
+  }
+  
+  .search-item {
+    padding: 10px;
+  }
+  
+  .search-footer {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 480px) {
+  .brand {
+    display: none;
+  }
+  
+  .ver {
+    display: none;
+  }
+  
+  .item {
+    padding: 4px 6px;
+  }
+  
+  .item span.icon {
+    display: none;
+  }
+  
+  .search-overlay {
+    padding-top: 5vh !important;
+  }
+  
+  .search-footer span:last-child {
+    display: none;
+  }
+}
