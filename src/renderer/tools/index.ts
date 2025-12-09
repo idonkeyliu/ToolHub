@@ -14,6 +14,7 @@ import { CurlTool } from './curl/CurlTool';
 import { CurrencyTool } from './currency/CurrencyTool';
 import { ColorTool } from './color/ColorTool';
 import { CalendarTool } from './calendar/CalendarTool';
+import { ImageTool } from './image/ImageTool';
 
 export const tools = [
   TimestampTool,
@@ -28,5 +29,5 @@ export const tools = [
   CurrencyTool,
   ColorTool,
   CalendarTool,
-  // 所有工具已迁移完成
+  ImageTool,
 ];
