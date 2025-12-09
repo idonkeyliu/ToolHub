@@ -1,139 +1,125 @@
+/**
+ * CURL 工具样式 - 简洁版
+ */
+
 .curl-container {
   padding: 20px;
   max-width: 95%;
   margin: 0 auto;
-  color: #00d4ff;
+  color: #e2e8f0;
   height: calc(100% - 46px);
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .curl-content {
   display: flex;
   height: 100%;
   gap: 20px;
-  animation: slideInUp 0.6s ease backwards;
 }
 
 .curl-card {
   flex: 1;
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.3);
   border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
   overflow-y: auto;
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-card:hover {
-  border-color: #00d4ff;
-  box-shadow: 0 12px 35px rgba(0, 212, 255, 0.3);
+  border-color: rgba(100, 116, 139, 0.5);
 }
 
 .curl-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
   padding-bottom: 12px;
   margin-bottom: 5px;
 }
 
 .curl-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: #00d4ff;
-  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  color: #e2e8f0;
 }
 
 .curl-tabs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .curl-tab-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  padding: 6px 14px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  padding: 6px 12px;
   border-radius: 6px;
-  color: #00d4ff;
+  color: #94a3b8;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s;
 }
 
 .curl-tab-btn:hover {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: #00d4ff;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  border-color: #0d9488;
+  color: #e2e8f0;
 }
 
 .curl-tab-btn.active {
-  background: linear-gradient(135deg, #00d4ff, #0ea5e9);
-  border-color: #00d4ff;
+  background: #0d9488;
+  border-color: #0d9488;
   color: white;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .curl-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  animation: slideInUp 0.6s ease backwards;
 }
 
 .curl-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #00d4ff;
+  color: #94a3b8;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
 
 .curl-input {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
   border-radius: 6px;
   padding: 8px 12px;
-  color: #00d4ff;
+  color: #e2e8f0;
   width: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-input:focus {
-  border-color: #00d4ff;
+  border-color: #0d9488;
   outline: none;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-  background: rgba(15, 21, 26, 0.9);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
 }
 
 .curl-url-container {
   display: flex;
   align-items: center;
   width: 100%;
-  position: relative;
 }
 
 .curl-history-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  color: #00d4ff;
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.4);
   width: 36px;
   height: 36px;
   border-radius: 6px;
@@ -142,53 +128,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-history-btn:hover {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: #00d4ff;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-  transform: scale(1.05);
+  border-color: #0d9488;
+  color: #e2e8f0;
 }
 
 .curl-textarea {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
   border-radius: 6px;
   padding: 10px;
-  color: #00d4ff;
+  color: #e2e8f0;
   width: 100%;
-  min-height: 120px;
+  min-height: 100px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   resize: vertical;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-textarea:focus {
-  border-color: #00d4ff;
+  border-color: #0d9488;
   outline: none;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-  background: rgba(15, 21, 26, 0.9);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
 }
 
 .curl-select {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
   border-radius: 6px;
   padding: 8px 12px;
-  color: #00d4ff;
+  color: #e2e8f0;
   width: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-select:focus {
-  border-color: #00d4ff;
+  border-color: #0d9488;
   outline: none;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
 }
 
 .headers-container, #formDataContainer {
@@ -207,38 +186,34 @@
 }
 
 .curl-add-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  color: #00d4ff;
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.4);
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-add-btn:hover {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: #00d4ff;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  border-color: #0d9488;
+  color: #e2e8f0;
 }
 
 .curl-remove-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  color: #ff6b6b;
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 0 8px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-remove-btn:hover {
-  background: rgba(255, 107, 107, 0.1);
-  border-color: #ff6b6b;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .body-type-selector {
@@ -252,65 +227,56 @@
 }
 
 .curl-send-btn {
-  background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+  background: #0d9488;
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
   font-weight: 500;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
 }
 
 .curl-send-btn:hover {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
-  transform: translateY(-2px);
+  background: #14b8a6;
 }
 
 .curl-clear-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  color: #00d4ff;
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.4);
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-clear-btn:hover {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: #00d4ff;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-  transform: translateY(-1px);
+  border-color: #0d9488;
+  color: #e2e8f0;
 }
 
 .curl-response {
   flex: 1;
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.3);
   border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .curl-response:hover {
-  border-color: #00d4ff;
-  box-shadow: 0 12px 35px rgba(0, 212, 255, 0.3);
+  border-color: rgba(100, 116, 139, 0.5);
 }
 
 .curl-response-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #2d3748;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
   padding-bottom: 12px;
   margin-bottom: 5px;
   flex-wrap: wrap;
@@ -341,12 +307,12 @@
 
 .response-time {
   font-size: 12px;
-  color: #9ca3af;
+  color: #64748b;
 }
 
 .curl-copy-btn {
-  background: #1e293b;
-  color: #9ca3af;
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
   border: none;
   padding: 4px 8px;
   border-radius: 4px;
@@ -355,75 +321,62 @@
 }
 
 .curl-copy-btn:hover {
-  background: #2d3748;
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
 .curl-response-tabs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin: 10px 0;
 }
 
 .curl-resp-tab-btn {
-  background: rgba(15, 21, 26, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  padding: 6px 14px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  padding: 6px 12px;
   border-radius: 6px;
-  color: #00d4ff;
+  color: #94a3b8;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
   font-size: 13px;
 }
 
 .curl-resp-tab-btn.active {
-  background: linear-gradient(135deg, #00d4ff, #0ea5e9);
-  border-color: #00d4ff;
+  background: #0d9488;
+  border-color: #0d9488;
   color: white;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
 }
 
 .curl-resp-tab-btn:hover:not(.active) {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: #00d4ff;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  border-color: #0d9488;
+  color: #e2e8f0;
 }
 
 .curl-response-content {
   flex: 1;
   overflow: auto;
-  background: rgba(0, 212, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.3);
   border-radius: 6px;
   padding: 10px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.curl-response-content:hover {
-  border-color: rgba(0, 212, 255, 0.4);
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
 }
 
 .response-body-content, .response-headers-content, .request-info-content {
-  color: #00d4ff;
+  color: #e2e8f0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
 
 .error-message {
-  color: #ff6b6b;
+  color: #f87171;
   font-size: 13px;
   display: none;
-  text-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 6px;
   padding: 8px 12px;
   margin-top: 10px;
@@ -435,10 +388,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: #1e293b;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   z-index: 1000;
   width: 500px;
   max-width: 90vw;
@@ -446,12 +399,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translate(-50%, -48%); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 .curl-history-float-header {
@@ -459,28 +406,27 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid #374151;
-  background: #111827;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+  background: #0f172a;
 }
 
 .curl-history-float-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
 .curl-history-float-close {
   background: none;
   border: none;
-  color: #9ca3af;
-  font-size: 24px;
-  line-height: 1;
+  color: #64748b;
+  font-size: 20px;
   cursor: pointer;
   padding: 0 4px;
 }
 
 .curl-history-float-close:hover {
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
 .curl-history-float-body {
@@ -495,20 +441,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .curl-history-count-badge {
-  background: #2563eb;
+  background: #0d9488;
   color: white;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 12px;
 }
 
 .curl-history-clear-btn {
-  background: #1e293b;
-  color: #9ca3af;
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
   border: none;
   padding: 4px 8px;
   border-radius: 4px;
@@ -517,8 +463,7 @@
 }
 
 .curl-history-clear-btn:hover {
-  background: #2d3748;
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
 .curl-history-list {
@@ -529,19 +474,19 @@
 
 .curl-history-item {
   padding: 12px 16px;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
   cursor: pointer;
-  color: #e5e7eb;
+  color: #e2e8f0;
   transition: all 0.2s;
 }
 
 .curl-history-item:hover {
-  background: #2d3748;
+  background: rgba(100, 116, 139, 0.1);
 }
 
 .curl-history-item .history-url {
-  font-weight: 600;
-  color: #60a5fa;
+  font-weight: 500;
+  color: #67e8f9;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -597,7 +542,7 @@
 
 .curl-history-item .history-time {
   font-size: 12px;
-  color: #9ca3af;
+  color: #64748b;
 }
 
 .curl-history-item .history-actions {
@@ -614,20 +559,20 @@
 .curl-history-item .history-action-btn {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #64748b;
   cursor: pointer;
   padding: 2px;
   font-size: 14px;
 }
 
 .curl-history-item .history-action-btn:hover {
-  color: #e5e7eb;
+  color: #e2e8f0;
 }
 
 .curl-history-empty {
   padding: 24px;
   text-align: center;
-  color: #9ca3af;
+  color: #64748b;
   font-style: italic;
 }
 
@@ -638,16 +583,5 @@
   
   .curl-card, .curl-response {
     max-height: 500px;
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

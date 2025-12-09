@@ -1,155 +1,232 @@
 /**
- * 时间戳工具样式
+ * 时间戳工具样式 - 旧版风格
  */
 
 .time-view {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  gap: 40px;
+  gap: 24px;
+  min-height: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .time-view .time-wrap {
-  width: 100%;
-  max-width: 900px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 800px;
 }
 
 /* 大时钟 */
 .time-view .time-big {
-  font-size: 48px;
-  font-weight: 300;
+  font-size: 52px;
+  font-weight: 400;
   letter-spacing: 2px;
   text-align: center;
-  color: #fff;
-  text-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
   font-variant-numeric: tabular-nums;
   user-select: none;
 }
 
-.time-view .time-big .divider {
-  color: rgba(255, 255, 255, 0.4);
-  margin: 0 4px;
+.time-view .time-big .year {
+  color: #f472b6;
 }
 
-.time-view .time-big .year,
-.time-view .time-big .month,
-.time-view .time-big .day,
-.time-view .time-big .hour,
+.time-view .time-big .month {
+  color: #fb923c;
+}
+
+.time-view .time-big .day {
+  color: #facc15;
+}
+
+.time-view .time-big .divider {
+  color: #6b7280;
+}
+
+.time-view .time-big .space {
+  display: inline-block;
+  width: 24px;
+}
+
+.time-view .time-big .hour {
+  color: #4ade80;
+}
+
 .time-view .time-big .minute {
-  color: #60a5fa;
+  color: #22d3ee;
 }
 
 .time-view .time-big .second {
-  color: #34d399;
-  animation: pulse 1s ease-in-out infinite;
+  color: #a78bfa;
 }
 
-@keyframes pulse {
+.time-view .time-big .time-colon {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50% { opacity: 0.3; }
 }
 
-/* 时间戳网格 */
-.time-view .time-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+/* 时间戳行 */
+.time-view .time-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.time-view .stamp-box {
-  background: rgba(30, 41, 59, 0.6);
-  border-radius: 12px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  transition: all 0.3s ease;
+.time-view .stamp-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
 }
 
-.time-view .stamp-box:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.time-view .stamp-box.full {
-  grid-column: 1 / -1;
-}
-
-.time-view .stamp-box .label {
+.time-view .stamp-label {
   font-size: 13px;
   color: #94a3b8;
-  margin-bottom: 12px;
+  white-space: nowrap;
+}
+
+.time-view .stamp-value {
+  font-size: 15px;
   font-weight: 500;
-}
-
-.time-view .stamp-box .value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 16px;
+  color: #67e8f9;
   font-variant-numeric: tabular-nums;
-  word-break: break-all;
-  min-height: 32px;
+  min-width: 120px;
 }
 
-.time-view .stamp-box input {
-  width: auto;
-  padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-  color: #e2e8f0;
-  font-size: 14px;
-  margin-bottom: 12px;
-  margin-right: 8px;
-  transition: all 0.3s ease;
-}
-
-.time-view .stamp-box input:focus {
-  outline: none;
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.time-view .stamp-box input::placeholder {
-  color: #64748b;
-}
-
-.time-view .copy-btn {
-  padding: 8px 20px;
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
+.time-view .stamp-copy {
+  padding: 6px 16px;
+  background: #0d9488;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
-.time-view .copy-btn:hover {
-  background: rgba(59, 130, 246, 0.25);
-  border-color: rgba(59, 130, 246, 0.5);
-  transform: translateY(-1px);
+.time-view .stamp-copy:hover {
+  background: #14b8a6;
+}
+
+/* 转换行 */
+.time-view .convert-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.time-view .convert-label {
+  font-size: 13px;
+  color: #94a3b8;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.time-view .convert-row input {
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s;
+}
+
+.time-view .convert-row input:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+
+.time-view .convert-row input::placeholder {
+  color: #64748b;
+}
+
+.time-view .convert-row input#tsInput {
+  width: 200px;
+}
+
+.time-view .dt-input.dt-year {
+  width: 60px;
+}
+
+.time-view .dt-input.dt-small {
+  width: 50px;
+  text-align: center;
+}
+
+.time-view .convert-output {
+  font-size: 14px;
+  color: #67e8f9;
+  min-width: 60px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-view .convert-copy {
+  padding: 8px 24px;
+  background: #0d9488;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.time-view .convert-copy:hover {
+  background: #14b8a6;
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
   .time-view .time-big {
-    font-size: 32px;
+    font-size: 36px;
   }
-  .time-view .time-grid {
-    grid-template-columns: 1fr;
+  
+  .time-view .time-row {
+    flex-direction: column;
+    width: 100%;
   }
-  .time-view .stamp-box .value {
-    font-size: 20px;
+  
+  .time-view .stamp-inline {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .time-view .convert-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .time-view .convert-label {
+    margin-bottom: 8px;
+  }
+  
+  .time-view .convert-copy {
+    margin-left: 0;
+    margin-top: 8px;
   }
 }

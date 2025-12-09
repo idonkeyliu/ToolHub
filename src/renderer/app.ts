@@ -65,6 +65,15 @@ const TOOL_SHORTCUTS: Record<string, string> = {
   '0': 'color',
 };
 
+/** 导航可见性设置存储 key */
+const NAV_VISIBILITY_KEY = 'toolhub_nav_visibility';
+
+/** 导航可见性设置 */
+interface NavVisibility {
+  llm: Record<string, boolean>;
+  tools: Record<string, boolean>;
+}
+
 class App {
   private currentKey: string | null = null;
   private currentLLM: string | null = null;
@@ -73,6 +82,7 @@ class App {
   private llmNavList: HTMLElement | null = null;
   private llmContainer: HTMLElement | null = null;
   private webviews: Map<string, HTMLElement> = new Map();
+  private navVisibility: NavVisibility = { llm: {}, tools: {} };
 
   constructor() {
     // 等待 DOM 加载完成
@@ -97,37 +107,91 @@ class App {
       return;
     }
 
-    // 2. 注册所有工具
+    // 2. 加载导航可见性设置
+    this.loadNavVisibility();
+
+    // 3. 注册所有工具
     toolRegistry.registerAll(tools);
     console.log(`[App] Registered ${toolRegistry.size} tools`);
 
-    // 3. 初始化 Toast 组件
+    // 4. 初始化 Toast 组件
     Toast.getInstance();
 
-    // 4. 初始化主题
+    // 5. 初始化主题
     console.log(`[App] Theme: ${themeManager.getResolvedTheme()}`);
 
-    // 5. 渲染导航栏
+    // 6. 渲染导航栏
     this.renderNav();
     this.renderLLMNav();
 
-    // 6. 监听事件
+    // 7. 监听事件
     this.setupEventListeners();
 
-    // 7. 设置快捷键
+    // 8. 设置快捷键
     this.setupKeyboardShortcuts();
 
-    // 8. 隐藏加载状态
+    // 9. 设置设置面板
+    this.setupSettings();
+
+    // 10. 隐藏加载状态
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 9. 切换到第一个工具
-    const firstTool = toolRegistry.getAllConfigs()[0];
+    // 11. 切换到第一个可见的工具
+    const firstTool = toolRegistry.getAllConfigs().find(t => this.isToolVisible(t.key));
     if (firstTool) {
       this.switchTool(firstTool.key);
     }
 
     console.log('[App] Initialization complete');
+  }
+
+  private loadNavVisibility(): void {
+    try {
+      const saved = localStorage.getItem(NAV_VISIBILITY_KEY);
+      if (saved) {
+        this.navVisibility = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn('[App] Failed to load nav visibility settings');
+    }
+
+    // 初始化默认值（全部显示）
+    LLM_SITES.forEach(site => {
+      if (this.navVisibility.llm[site.key] === undefined) {
+        this.navVisibility.llm[site.key] = true;
+      }
+    });
+  }
+
+  private saveNavVisibility(): void {
+    try {
+      localStorage.setItem(NAV_VISIBILITY_KEY, JSON.stringify(this.navVisibility));
+    } catch (e) {
+      console.warn('[App] Failed to save nav visibility settings');
+    }
+  }
+
+  private isLLMVisible(key: string): boolean {
+    return this.navVisibility.llm[key] !== false;
+  }
+
+  private isToolVisible(key: string): boolean {
+    return this.navVisibility.tools[key] !== false;
+  }
+
+  private toggleLLMVisibility(key: string): void {
+    this.navVisibility.llm[key] = !this.isLLMVisible(key);
+    this.saveNavVisibility();
+    this.renderLLMNav();
+    this.renderSettingsLLMList();
+  }
+
+  private toggleToolVisibility(key: string): void {
+    this.navVisibility.tools[key] = !this.isToolVisible(key);
+    this.saveNavVisibility();
+    this.renderNav();
+    this.renderSettingsToolList();
   }
 
   private renderLLMNav(): void {
@@ -136,6 +200,8 @@ class App {
     this.llmNavList.innerHTML = '';
 
     LLM_SITES.forEach((site) => {
+      if (!this.isLLMVisible(site.key)) return;
+
       const item = document.createElement('div');
       item.className = 'nav-item llm-nav-item';
       item.dataset.key = site.key;
@@ -233,6 +299,13 @@ class App {
     this.navList.innerHTML = '';
 
     configs.forEach((config) => {
+      // 初始化工具可见性默认值
+      if (this.navVisibility.tools[config.key] === undefined) {
+        this.navVisibility.tools[config.key] = true;
+      }
+
+      if (!this.isToolVisible(config.key)) return;
+
       const item = document.createElement('div');
       item.className = 'nav-item tool-nav-item';
       item.dataset.key = config.key;
@@ -302,6 +375,99 @@ class App {
         e.preventDefault();
         favoriteManager.toggle(this.currentKey);
       }
+
+      // ESC 关闭设置面板
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('settingsModal');
+        if (modal?.classList.contains('show')) {
+          modal.classList.remove('show');
+        }
+      }
+    });
+  }
+
+  private setupSettings(): void {
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const settingsClose = document.getElementById('settingsClose');
+
+    if (!settingsBtn || !settingsModal || !settingsClose) return;
+
+    // 打开设置
+    settingsBtn.addEventListener('click', () => {
+      this.renderSettingsLLMList();
+      this.renderSettingsToolList();
+      settingsModal.classList.add('show');
+    });
+
+    // 关闭设置
+    settingsClose.addEventListener('click', () => {
+      settingsModal.classList.remove('show');
+    });
+
+    // 点击遮罩关闭
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.remove('show');
+      }
+    });
+  }
+
+  private renderSettingsLLMList(): void {
+    const container = document.getElementById('llmSettingsList');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    LLM_SITES.forEach((site) => {
+      const isVisible = this.isLLMVisible(site.key);
+      const item = document.createElement('div');
+      item.className = 'settings-item';
+      item.innerHTML = `
+        <div class="settings-checkbox ${isVisible ? 'checked' : ''}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="settings-item-icon" style="background:${site.color}">${site.icon}</div>
+        <div class="settings-item-label">${site.title}</div>
+      `;
+
+      item.addEventListener('click', () => {
+        this.toggleLLMVisibility(site.key);
+      });
+
+      container.appendChild(item);
+    });
+  }
+
+  private renderSettingsToolList(): void {
+    const container = document.getElementById('toolSettingsList');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const configs = toolRegistry.getAllConfigs();
+    configs.forEach((config) => {
+      const isVisible = this.isToolVisible(config.key);
+      const color = TOOL_COLORS[config.key] || '#6b7280';
+      const item = document.createElement('div');
+      item.className = 'settings-item';
+      item.innerHTML = `
+        <div class="settings-checkbox ${isVisible ? 'checked' : ''}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="settings-item-icon" style="background:${color}">${config.icon || ''}</div>
+        <div class="settings-item-label">${config.title}</div>
+      `;
+
+      item.addEventListener('click', () => {
+        this.toggleToolVisibility(config.key);
+      });
+
+      container.appendChild(item);
     });
   }
 
