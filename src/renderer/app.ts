@@ -7,7 +7,22 @@ import { eventBus } from './core/EventBus';
 import { EventType } from './types/index';
 import { tools } from './tools/index';
 import { Toast, toast } from './components/Toast';
+import { searchPanel } from './components/SearchPanel';
 import type { ToolConfig } from './types/index';
+
+/** 工具快捷键映射 */
+const TOOL_SHORTCUTS: Record<string, string> = {
+  '1': 'time',
+  '2': 'pwd',
+  '3': 'text',
+  '4': 'calc',
+  '5': 'json',
+  '6': 'codec',
+  '7': 'crypto',
+  '8': 'dns',
+  '9': 'curl',
+  '0': 'color',
+};
 
 export class App {
   private currentKey: string | null = null;
@@ -27,13 +42,19 @@ export class App {
     // 2. 初始化 Toast 组件
     Toast.getInstance();
 
-    // 3. 监听事件
+    // 3. 初始化搜索面板
+    searchPanel.init();
+
+    // 4. 监听事件
     this.setupEventListeners();
 
-    // 4. 获取主容器
+    // 5. 设置快捷键
+    this.setupKeyboardShortcuts();
+
+    // 6. 获取主容器
     this.container = document.querySelector('main');
 
-    // 5. 暴露到全局
+    // 7. 暴露到全局
     this.exposeToGlobal();
 
     console.log('[App] Initialization complete');
@@ -46,6 +67,29 @@ export class App {
 
     eventBus.on(EventType.TOOL_CHANGE, (data) => {
       this.switchTool(data.key);
+    });
+  }
+
+  /**
+   * 设置键盘快捷键
+   * Cmd/Ctrl + 数字键 切换工具
+   */
+  private setupKeyboardShortcuts(): void {
+    document.addEventListener('keydown', (e) => {
+      // Cmd/Ctrl + 数字键
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
+        const toolKey = TOOL_SHORTCUTS[e.key];
+        if (toolKey && toolRegistry.has(toolKey)) {
+          e.preventDefault();
+          // 调用旧架构的 switchSite
+          if (typeof (window as any).switchSite === 'function') {
+            (window as any).switchSite(toolKey);
+          } else {
+            this.switchTool(toolKey);
+          }
+          toast({ message: `切换到 ${toolRegistry.getInstance(toolKey)?.config.title}`, duration: 1500 });
+        }
+      }
     });
   }
 
