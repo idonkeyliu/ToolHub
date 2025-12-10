@@ -10,14 +10,23 @@
         "start": "electron .",
         "dev": "concurrently -n BUILD,ELECTRON -c green,cyan \"tsc -w\" \"wait-on dist/main.js && electron .\"",
         "dist:mac": "npm run build && electron-builder --mac dmg zip",
-        "dist:dir": "npm run build && electron-builder --dir"
+        "dist:dir": "npm run build && electron-builder --dir",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage"
     },
     "devDependencies": {
+        "@types/jsdom": "^27.0.0",
         "@types/node": "^20.0.0",
+        "@vitest/coverage-v8": "^1.0.0",
+        "@vitest/ui": "^1.0.0",
         "concurrently": "^8.2.0",
         "electron": "^28.3.3",
         "electron-builder": "^24.13.3",
+        "happy-dom": "^20.0.11",
+        "jsdom": "^27.3.0",
         "typescript": "^5.4.0",
+        "vitest": "^1.0.0",
         "wait-on": "^7.0.1"
     },
     "dependencies": {
