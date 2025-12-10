@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="tools/diff/styles.css" />
     <link rel="stylesheet" href="tools/jwt/styles.css" />
     <link rel="stylesheet" href="tools/regex/styles.css" />
+    <link rel="stylesheet" href="tools/stats/styles.css" />
     <style>
         * {
             box-sizing: border-box;
@@ -201,13 +202,34 @@
             display: flex;
         }
 
+        /* 统计面板 */
+        .stats-panel {
+            background: #1a1f25;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            width: calc(100vw - 100px);
+            max-width: 1400px;
+            height: calc(100vh - 30px);
+            max-height: calc(100vh - 30px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats-body {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        /* 设置面板 */
         .settings-panel {
             background: #1a1f25;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            width: 700px;
-            max-width: 90vw;
-            max-height: 80vh;
+            width: 92vw;
+            height: 88vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -318,13 +340,13 @@
         }
 
         .settings-item-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 5px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 600;
             color: #fff;
             flex-shrink: 0;
@@ -461,6 +483,13 @@
                     <div class="nav-list" id="navList"></div>
                 </div>
             </div>
+            <div class="settings-btn" id="statsBtn" title="使用统计">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 20V10"></path>
+                    <path d="M12 20V4"></path>
+                    <path d="M6 20v-6"></path>
+                </svg>
+            </div>
             <div class="settings-btn" id="settingsBtn" title="设置">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="3"></circle>
@@ -475,6 +504,22 @@
     </div>
 
     <div id="toast" class="toast"></div>
+
+    <!-- 统计弹窗 -->
+    <div class="settings-modal" id="statsModal">
+        <div class="stats-panel">
+            <div class="settings-header">
+                <h3>使用统计</h3>
+                <div class="settings-close" id="statsClose">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+            <div class="stats-body" id="statsBody"></div>
+        </div>
+    </div>
 
     <!-- 设置弹窗 -->
     <div class="settings-modal" id="settingsModal">
