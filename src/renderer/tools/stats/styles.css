@@ -1,0 +1,643 @@
+/* 统计面板样式 */
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  gap: 20px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #0d1114 0%, #111519 100%);
+}
+
+/* 头部 */
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.stats-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stats-title svg {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6;
+}
+
+.stats-period {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.period-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.period-btn:hover {
+  color: #e5e7eb;
+}
+
+.period-btn.active {
+  color: #fff;
+  background: #3b82f6;
+}
+
+/* 概览卡片 */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.overview-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.overview-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* 主体 */
+.stats-body {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+}
+
+.stats-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.stats-right {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 通用卡片 */
+.section-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+/* 热力图 */
+.heatmap-section {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.streak-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.streak-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.heatmap-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.heatmap-months {
+  display: flex;
+  padding-left: 32px;
+  font-size: 11px;
+  color: #6b7280;
+  position: relative;
+  height: 16px;
+  min-width: 100%;
+}
+
+.heatmap-months span {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.heatmap-content {
+  display: flex;
+  gap: 4px;
+  min-width: max-content;
+}
+
+.heatmap-weekdays {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  color: #6b7280;
+  padding-top: 0;
+  flex-shrink: 0;
+}
+
+.heatmap-weekdays span {
+  height: 14px;
+  line-height: 14px;
+  width: 24px;
+  text-align: right;
+  padding-right: 6px;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.heatmap-week {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.heatmap-day {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.heatmap-day:hover {
+  transform: scale(1.3);
+  z-index: 10;
+}
+
+.heatmap-day.level-0 { background: #1c2128; border: 1px solid rgba(48, 54, 61, 0.3); }
+.heatmap-day.level-1 { background: #0e4429; }
+.heatmap-day.level-2 { background: #006d32; }
+.heatmap-day.level-3 { background: #26a641; }
+.heatmap-day.level-4 { background: #39d353; }
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.legend-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.legend-boxes {
+  display: flex;
+  gap: 3px;
+}
+
+.legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-box.level-0 { background: #1c2128; border: 1px solid rgba(48, 54, 61, 0.3); }
+.legend-box.level-1 { background: #0e4429; }
+.legend-box.level-2 { background: #006d32; }
+.legend-box.level-3 { background: #26a641; }
+.legend-box.level-4 { background: #39d353; }
+
+/* 热力图 Tooltip */
+.heatmap-tooltip {
+  position: fixed;
+  padding: 8px 12px;
+  background: #1e2530;
+  border: 1px solid #3d4650;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #e5e7eb;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.heatmap-tooltip .tooltip-date {
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.heatmap-tooltip .tooltip-value {
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* 每日图表 */
+.chart-section {
+  flex: 1;
+  min-height: 200px;
+}
+
+.chart-container {
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 10px 0;
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.chart-bar {
+  width: 100%;
+  max-width: 24px;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s;
+  cursor: pointer;
+  min-height: 4px;
+}
+
+.chart-bar:hover {
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+  transform: scaleX(1.1);
+}
+
+.chart-label {
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+/* 工具排行 */
+.ranking-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ranking-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px;
+  border-radius: 6px;
+}
+
+.ranking-tab {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ranking-tab:hover {
+  color: #e5e7eb;
+}
+
+.ranking-tab.active {
+  color: #fff;
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.ranking-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.ranking-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ranking-rank {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.ranking-rank.top-1 {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000;
+}
+
+.ranking-rank.top-2 {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  color: #fff;
+}
+
+.ranking-rank.top-3 {
+  background: linear-gradient(135deg, #cd7f32, #b8860b);
+  color: #fff;
+}
+
+.ranking-rank.normal {
+  background: rgba(255, 255, 255, 0.05);
+  color: #6b7280;
+}
+
+.ranking-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ranking-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranking-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ranking-bar-wrapper {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.ranking-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.ranking-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* 时段分布 */
+.hours-section {
+  flex-shrink: 0;
+}
+
+.hours-chart {
+  display: flex;
+  gap: 2px;
+  height: 60px;
+  align-items: flex-end;
+}
+
+.hour-bar {
+  flex: 1;
+  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  border-radius: 2px 2px 0 0;
+  min-height: 4px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.hour-bar:hover {
+  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
+}
+
+.hours-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+/* 工具栏 */
+.stats-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.toolbar-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.toolbar-btn.danger:hover {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* 响应式 */
+@media (max-width: 1100px) {
+  .stats-body {
+    flex-direction: column;
+  }
+
+  .stats-right {
+    width: 100%;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .ranking-section,
+  .hours-section {
+    flex: 1;
+  }
+}
+
+@media (max-width: 800px) {
+  .stats-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-right {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-overview {
+    grid-template-columns: 1fr;
+  }
+}

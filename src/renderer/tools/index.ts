@@ -21,6 +21,7 @@ import { MongoTool } from './mongo/MongoTool';
 import { DiffTool } from './diff/DiffTool';
 import { JwtTool } from './jwt/JwtTool';
 import { RegexTool } from './regex/RegexTool';
+import { UsageTracker } from './stats/StatsTool';
 
 export const tools = [
   TimestampTool,
@@ -43,3 +44,6 @@ export const tools = [
   JwtTool,
   RegexTool,
 ];
+
+// 导出使用追踪器
+export { UsageTracker };
