@@ -18,6 +18,7 @@ import { ImageTool } from './image/ImageTool';
 import { DatabaseTool } from './database/DatabaseTool';
 import { RedisTool } from './redis/RedisTool';
 import { MongoTool } from './mongo/MongoTool';
+import { DiffTool } from './diff/DiffTool';
 
 export const tools = [
   TimestampTool,
@@ -36,4 +37,5 @@ export const tools = [
   DatabaseTool,
   RedisTool,
   MongoTool,
+  DiffTool,
 ];
