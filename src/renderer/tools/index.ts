@@ -19,6 +19,7 @@ import { DatabaseTool } from './database/DatabaseTool';
 import { RedisTool } from './redis/RedisTool';
 import { MongoTool } from './mongo/MongoTool';
 import { DiffTool } from './diff/DiffTool';
+import { JwtTool } from './jwt/JwtTool';
 
 export const tools = [
   TimestampTool,
@@ -38,4 +39,5 @@ export const tools = [
   RedisTool,
   MongoTool,
   DiffTool,
+  JwtTool,
 ];
