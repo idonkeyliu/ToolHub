@@ -7,7 +7,8 @@ import { eventBus } from './core/EventBus';
 import { themeManager } from './core/ThemeManager';
 import { favoriteManager } from './core/FavoriteManager';
 import { EventType } from './types/index';
-import { tools } from './tools/index';
+import { tools, UsageTracker } from './tools/index';
+import { StatsPanel } from './tools/stats/StatsPanel';
 import { Toast, toast } from './components/Toast';
 import type { ToolConfig } from './types/index';
 
@@ -53,6 +54,9 @@ const TOOL_COLORS: Record<string, string> = {
   database: '#f472b6',
   redis: '#dc2626',
   mongo: '#00ed64',
+  diff: '#7c3aed',
+  jwt: '#d946ef',
+  regex: '#0891b2',
 };
 
 /** 工具快捷键映射 */
@@ -87,6 +91,7 @@ class App {
   private llmContainer: HTMLElement | null = null;
   private webviews: Map<string, HTMLElement> = new Map();
   private navVisibility: NavVisibility = { llm: {}, tools: {} };
+  private statsPanel: StatsPanel | null = null;
 
   constructor() {
     // 等待 DOM 加载完成
@@ -137,17 +142,45 @@ class App {
     // 9. 设置设置面板
     this.setupSettings();
 
-    // 10. 隐藏加载状态
+    // 10. 设置统计面板
+    this.setupStats();
+
+    // 11. 设置页面卸载时保存使用数据
+    this.setupUnloadHandler();
+
+    // 12. 隐藏加载状态
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 11. 切换到第一个可见的工具
-    const firstTool = toolRegistry.getAllConfigs().find(t => this.isToolVisible(t.key));
-    if (firstTool) {
-      this.switchTool(firstTool.key);
+    // 13. 默认切换到 OpenAI
+    const firstLLM = LLM_SITES.find(site => this.isLLMVisible(site.key));
+    if (firstLLM) {
+      this.switchLLM(firstLLM.key);
+    } else {
+      // 如果没有可见的 LLM，则切换到第一个可见的工具
+      const firstTool = toolRegistry.getAllConfigs().find(t => this.isToolVisible(t.key));
+      if (firstTool) {
+        this.switchTool(firstTool.key);
+      }
     }
 
     console.log('[App] Initialization complete');
+  }
+
+  private setupUnloadHandler(): void {
+    // 页面关闭/刷新时保存使用数据
+    window.addEventListener('beforeunload', () => {
+      UsageTracker.end();
+    });
+
+    // 页面可见性变化时也保存（切换到后台）
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.currentKey) {
+        UsageTracker.end();
+      } else if (!document.hidden && this.currentKey) {
+        UsageTracker.start(this.currentKey);
+      }
+    });
   }
 
   private loadNavVisibility(): void {
@@ -221,6 +254,11 @@ class App {
 
   private switchLLM(key: string): void {
     if (!this.llmContainer || !this.container) return;
+
+    // 结束工具使用追踪
+    if (this.currentKey) {
+      UsageTracker.end();
+    }
 
     // 失活当前工具
     if (this.currentKey) {
@@ -417,6 +455,37 @@ class App {
     });
   }
 
+  private setupStats(): void {
+    const statsBtn = document.getElementById('statsBtn');
+    const statsModal = document.getElementById('statsModal');
+    const statsClose = document.getElementById('statsClose');
+    const statsBody = document.getElementById('statsBody');
+
+    if (!statsBtn || !statsModal || !statsClose || !statsBody) return;
+
+    // 打开统计面板
+    statsBtn.addEventListener('click', () => {
+      if (!this.statsPanel) {
+        this.statsPanel = new StatsPanel(statsBody);
+      } else {
+        this.statsPanel.refresh();
+      }
+      statsModal.classList.add('show');
+    });
+
+    // 关闭统计面板
+    statsClose.addEventListener('click', () => {
+      statsModal.classList.remove('show');
+    });
+
+    // 点击遮罩关闭
+    statsModal.addEventListener('click', (e) => {
+      if (e.target === statsModal) {
+        statsModal.classList.remove('show');
+      }
+    });
+  }
+
   private renderSettingsLLMList(): void {
     const container = document.getElementById('llmSettingsList');
     if (!container) return;
@@ -500,6 +569,11 @@ class App {
     this.currentLLM = null;
     this.updateLLMNavActive('');
 
+    // 结束上一个工具的使用追踪
+    if (this.currentKey) {
+      UsageTracker.end();
+    }
+
     // 失活当前工具
     if (this.currentKey && toolRegistry.has(this.currentKey)) {
       const currentTool = toolRegistry.getInstance(this.currentKey);
@@ -522,6 +596,9 @@ class App {
     // 激活工具
     tool.activate();
     this.currentKey = key;
+
+    // 开始新工具的使用追踪
+    UsageTracker.start(key);
 
     // 更新导航栏高亮
     this.updateNavActive(key);
