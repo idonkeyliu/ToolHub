@@ -55,6 +55,23 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
         executeCommand: (connectionId, command) => electron_1.ipcRenderer.invoke('redis:execute-command', connectionId, command),
         dbSize: (connectionId) => electron_1.ipcRenderer.invoke('redis:db-size', connectionId),
     },
+    // MongoDB 操作 API
+    mongo: {
+        testConnection: (config) => electron_1.ipcRenderer.invoke('mongo:test-connection', config),
+        connect: (config) => electron_1.ipcRenderer.invoke('mongo:connect', config),
+        disconnect: (connectionId) => electron_1.ipcRenderer.invoke('mongo:disconnect', connectionId),
+        listDatabases: (connectionId) => electron_1.ipcRenderer.invoke('mongo:list-databases', connectionId),
+        listCollections: (connectionId, database) => electron_1.ipcRenderer.invoke('mongo:list-collections', connectionId, database),
+        getCollectionStats: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:get-collection-stats', connectionId, database, collection),
+        findDocuments: (connectionId, database, collection, filter, sort, skip, limit) => electron_1.ipcRenderer.invoke('mongo:find-documents', connectionId, database, collection, filter, sort, skip, limit),
+        insertDocument: (connectionId, database, collection, document) => electron_1.ipcRenderer.invoke('mongo:insert-document', connectionId, database, collection, document),
+        updateDocument: (connectionId, database, collection, id, document) => electron_1.ipcRenderer.invoke('mongo:update-document', connectionId, database, collection, id, document),
+        deleteDocument: (connectionId, database, collection, id) => electron_1.ipcRenderer.invoke('mongo:delete-document', connectionId, database, collection, id),
+        getIndexes: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:get-indexes', connectionId, database, collection),
+        runCommand: (connectionId, database, command) => electron_1.ipcRenderer.invoke('mongo:run-command', connectionId, database, command),
+        dropCollection: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:drop-collection', connectionId, database, collection),
+        createCollection: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:create-collection', connectionId, database, collection),
+    },
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

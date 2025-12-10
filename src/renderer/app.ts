@@ -52,6 +52,7 @@ const TOOL_COLORS: Record<string, string> = {
   image: '#0ea5e9',
   database: '#f472b6',
   redis: '#dc2626',
+  mongo: '#00ed64',
 };
 
 /** 工具快捷键映射 */
