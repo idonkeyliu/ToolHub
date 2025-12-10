@@ -4,6 +4,25 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Store from 'electron-store';
+import { 
+    validateSQL, 
+    validateIdentifiers, 
+    buildUpdateStatement,
+    checkQueryLimit 
+} from './main/database/sql-validator.js';
+import type { 
+    DBClient, 
+    DBDrivers, 
+    MySQLDriver, 
+    PostgreSQLDriver, 
+    SQLiteDriver,
+    DBQueryResult,
+    TableStructureResult,
+    ColumnInfo,
+    DatabaseRow,
+    MySQLQueryResult
+} from './main/database/types.js';
+import { getErrorMessage } from './main/utils/error-handler.js';
 
 // Recreate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -25,33 +44,36 @@ interface DBConnectionConfig {
 interface DBConnection {
     id: string;
     config: DBConnectionConfig;
-    client: any;
+    client: DBClient;
 }
 
 const dbConnections: Map<string, DBConnection> = new Map();
 
-// 动态导入数据库驱动
-let mysql2: any = null;
-let pg: any = null;
-let betterSqlite3: any = null;
+// ✅ 数据库驱动（强类型）
+const dbDrivers: DBDrivers = {
+    mysql2: null,
+    pg: null,
+    betterSqlite3: null,
+};
 
-async function loadDBDrivers() {
+async function loadDBDrivers(): Promise<void> {
     try {
-        mysql2 = await import('mysql2/promise');
+        dbDrivers.mysql2 = await import('mysql2/promise') as MySQLDriver;
         console.log('[DB] MySQL driver loaded');
     } catch (e) {
         console.log('[DB] MySQL driver not available:', e);
     }
     
     try {
-        pg = await import('pg');
+        dbDrivers.pg = await import('pg') as PostgreSQLDriver;
         console.log('[DB] PostgreSQL driver loaded');
     } catch (e) {
         console.log('[DB] PostgreSQL driver not available:', e);
     }
     
     try {
-        betterSqlite3 = (await import('better-sqlite3')).default;
+        const sqlite = await import('better-sqlite3');
+        dbDrivers.betterSqlite3 = sqlite.default as SQLiteDriver;
         console.log('[DB] SQLite driver loaded');
     } catch (e) {
         console.log('[DB] SQLite driver not available:', e);
@@ -62,8 +84,8 @@ async function loadDBDrivers() {
 async function testDBConnection(config: DBConnectionConfig): Promise<{ success: boolean; error?: string }> {
     try {
         if (config.type === 'mysql') {
-            if (!mysql2) return { success: false, error: 'MySQL 驱动未安装，请运行: npm install mysql2' };
-            const connection = await mysql2.createConnection({
+            if (!dbDrivers.mysql2) return { success: false, error: 'MySQL 驱动未安装，请运行: npm install mysql2' };
+            const connection = await dbDrivers.mysql2.createConnection({
                 host: config.host,
                 port: config.port,
                 user: config.user,
@@ -74,8 +96,8 @@ async function testDBConnection(config: DBConnectionConfig): Promise<{ success: 
             await connection.end();
             return { success: true };
         } else if (config.type === 'postgresql') {
-            if (!pg) return { success: false, error: 'PostgreSQL 驱动未安装，请运行: npm install pg' };
-            const client = new pg.Client({
+            if (!dbDrivers.pg) return { success: false, error: 'PostgreSQL 驱动未安装，请运行: npm install pg' };
+            const client = new dbDrivers.pg!.Client({
                 host: config.host,
                 port: config.port,
                 user: config.user,
@@ -86,17 +108,17 @@ async function testDBConnection(config: DBConnectionConfig): Promise<{ success: 
             await client.end();
             return { success: true };
         } else if (config.type === 'sqlite') {
-            if (!betterSqlite3) return { success: false, error: 'SQLite 驱动未安装，请运行: npm install better-sqlite3' };
+            if (!dbDrivers.betterSqlite3) return { success: false, error: 'SQLite 驱动未安装，请运行: npm install better-sqlite3' };
             if (!config.sqlitePath || !fs.existsSync(config.sqlitePath)) {
                 return { success: false, error: '数据库文件不存在' };
             }
-            const db = new betterSqlite3(config.sqlitePath, { readonly: true });
+            const db = new dbDrivers.betterSqlite3(config.sqlitePath, { readonly: true });
             db.close();
             return { success: true };
         }
         return { success: false, error: '不支持的数据库类型' };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -105,8 +127,8 @@ async function connectDB(config: DBConnectionConfig): Promise<{ success: boolean
         const connectionId = `conn_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
         
         if (config.type === 'mysql') {
-            if (!mysql2) return { success: false, error: 'MySQL 驱动未安装' };
-            const pool = mysql2.createPool({
+            if (!dbDrivers.mysql2) return { success: false, error: 'MySQL 驱动未安装' };
+            const pool = dbDrivers.mysql2.createPool({
                 host: config.host,
                 port: config.port,
                 user: config.user,
@@ -118,8 +140,8 @@ async function connectDB(config: DBConnectionConfig): Promise<{ success: boolean
             dbConnections.set(connectionId, { id: connectionId, config, client: pool });
             return { success: true, connectionId };
         } else if (config.type === 'postgresql') {
-            if (!pg) return { success: false, error: 'PostgreSQL 驱动未安装' };
-            const pool = new pg.Pool({
+            if (!dbDrivers.pg) return { success: false, error: 'PostgreSQL 驱动未安装' };
+            const pool = new dbDrivers.pg.Pool({
                 host: config.host,
                 port: config.port,
                 user: config.user,
@@ -129,14 +151,14 @@ async function connectDB(config: DBConnectionConfig): Promise<{ success: boolean
             dbConnections.set(connectionId, { id: connectionId, config, client: pool });
             return { success: true, connectionId };
         } else if (config.type === 'sqlite') {
-            if (!betterSqlite3) return { success: false, error: 'SQLite 驱动未安装' };
-            const db = new betterSqlite3(config.sqlitePath);
+            if (!dbDrivers.betterSqlite3) return { success: false, error: 'SQLite 驱动未安装' };
+            const db = new dbDrivers.betterSqlite3(config.sqlitePath);
             dbConnections.set(connectionId, { id: connectionId, config, client: db });
             return { success: true, connectionId };
         }
         return { success: false, error: '不支持的数据库类型' };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -153,8 +175,8 @@ async function disconnectDB(connectionId: string): Promise<{ success: boolean; e
         
         dbConnections.delete(connectionId);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -166,19 +188,19 @@ async function getDatabases(connectionId: string): Promise<{ success: boolean; d
         let databases: string[] = [];
         
         if (conn.config.type === 'mysql') {
-            const [rows] = await conn.client.query('SHOW DATABASES');
-            databases = rows.map((r: any) => r.Database);
+            const [rows] = await conn.client.query('SHOW DATABASES') as MySQLQueryResult;
+            databases = (rows as DatabaseRow[]).map(r => r.Database as string);
         } else if (conn.config.type === 'postgresql') {
             const result = await conn.client.query("SELECT datname FROM pg_database WHERE datistemplate = false ORDER BY datname");
-            databases = result.rows.map((r: any) => r.datname);
+            databases = result.rows.map((r: DatabaseRow) => r.datname as string);
         } else if (conn.config.type === 'sqlite') {
             // SQLite 只有一个数据库
             databases = ['main'];
         }
         
         return { success: true, databases };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -190,11 +212,11 @@ async function getTables(connectionId: string, database: string): Promise<{ succ
         let tables: string[] = [];
         
         if (conn.config.type === 'mysql') {
-            const [rows] = await conn.client.query(`SHOW TABLES FROM \`${database}\``);
-            tables = rows.map((r: any) => Object.values(r)[0] as string);
+            const [rows] = await conn.client.query(`SHOW TABLES FROM \`${database}\``) as MySQLQueryResult;
+            tables = (rows as DatabaseRow[]).map(r => Object.values(r)[0] as string);
         } else if (conn.config.type === 'postgresql') {
             // 切换数据库需要新连接
-            const client = new pg.Client({
+            const client = new dbDrivers.pg!.Client({
                 host: conn.config.host,
                 port: conn.config.port,
                 user: conn.config.user,
@@ -203,38 +225,38 @@ async function getTables(connectionId: string, database: string): Promise<{ succ
             });
             await client.connect();
             const result = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
-            tables = result.rows.map((r: any) => r.tablename);
+            tables = result.rows.map(r => r.tablename as string);
             await client.end();
         } else if (conn.config.type === 'sqlite') {
-            const rows = conn.client.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all();
-            tables = rows.map((r: any) => r.name);
+            const rows = conn.client.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all() as DatabaseRow[];
+            tables = rows.map(r => r.name as string);
         }
         
         return { success: true, tables };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
-async function getTableStructure(connectionId: string, database: string, table: string): Promise<{ success: boolean; columns?: any[]; error?: string }> {
+async function getTableStructure(connectionId: string, database: string, table: string): Promise<TableStructureResult> {
     try {
         const conn = dbConnections.get(connectionId);
         if (!conn) return { success: false, error: '连接不存在' };
         
-        let columns: any[] = [];
+        let columns: ColumnInfo[] = [];
         
         if (conn.config.type === 'mysql') {
-            const [rows] = await conn.client.query(`DESCRIBE \`${database}\`.\`${table}\``);
-            columns = rows.map((r: any) => ({
-                name: r.Field,
-                type: r.Type,
+            const [rows] = await conn.client.query(`DESCRIBE \`${database}\`.\`${table}\``) as MySQLQueryResult;
+            columns = (rows as DatabaseRow[]).map(r => ({
+                name: r.Field as string,
+                type: r.Type as string,
                 nullable: r.Null === 'YES',
-                key: r.Key,
-                default: r.Default,
-                extra: r.Extra,
+                key: r.Key as string,
+                default: r.Default as string | null,
+                extra: r.Extra as string,
             }));
         } else if (conn.config.type === 'postgresql') {
-            const client = new pg.Client({
+            const client = new dbDrivers.pg!.Client({
                 host: conn.config.host,
                 port: conn.config.port,
                 user: conn.config.user,
@@ -248,40 +270,40 @@ async function getTableStructure(connectionId: string, database: string, table: 
                 WHERE table_name = $1
                 ORDER BY ordinal_position
             `, [table]);
-            columns = result.rows.map((r: any) => ({
-                name: r.column_name,
-                type: r.data_type,
+            columns = result.rows.map(r => ({
+                name: r.column_name as string,
+                type: r.data_type as string,
                 nullable: r.is_nullable === 'YES',
                 key: '',
-                default: r.column_default,
+                default: r.column_default as string | null,
                 extra: '',
             }));
             await client.end();
         } else if (conn.config.type === 'sqlite') {
-            const rows = conn.client.prepare(`PRAGMA table_info("${table}")`).all();
-            columns = rows.map((r: any) => ({
-                name: r.name,
-                type: r.type,
+            const rows = conn.client.prepare(`PRAGMA table_info("${table}")`).all() as DatabaseRow[];
+            columns = rows.map(r => ({
+                name: r.name as string,
+                type: r.type as string,
                 nullable: r.notnull === 0,
                 key: r.pk ? 'PRI' : '',
-                default: r.dflt_value,
+                default: r.dflt_value as string | null,
                 extra: '',
             }));
         }
         
         return { success: true, columns };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
-async function getTableData(connectionId: string, database: string, table: string, page: number, pageSize: number): Promise<{ success: boolean; data?: any[]; total?: number; error?: string }> {
+async function getTableData(connectionId: string, database: string, table: string, page: number, pageSize: number): Promise<DBQueryResult<DatabaseRow>> {
     try {
         const conn = dbConnections.get(connectionId);
         if (!conn) return { success: false, error: '连接不存在' };
         
         const offset = (page - 1) * pageSize;
-        let data: any[] = [];
+        let data: DatabaseRow[] = [];
         let total = 0;
         
         if (conn.config.type === 'mysql') {
@@ -290,7 +312,7 @@ async function getTableData(connectionId: string, database: string, table: strin
             const [rows] = await conn.client.query(`SELECT * FROM \`${database}\`.\`${table}\` LIMIT ${pageSize} OFFSET ${offset}`);
             data = rows;
         } else if (conn.config.type === 'postgresql') {
-            const client = new pg.Client({
+            const client = new dbDrivers.pg!.Client({
                 host: conn.config.host,
                 port: conn.config.port,
                 user: conn.config.user,
@@ -310,20 +332,26 @@ async function getTableData(connectionId: string, database: string, table: strin
         }
         
         return { success: true, data, total };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
-async function executeQuery(connectionId: string, database: string, sql: string): Promise<{ success: boolean; data?: any[]; affectedRows?: number; error?: string }> {
+async function executeQuery(connectionId: string, database: string, sql: string): Promise<DBQueryResult<DatabaseRow>> {
     try {
         const conn = dbConnections.get(connectionId);
         if (!conn) return { success: false, error: '连接不存在' };
         
-        // 简单的 SQL 注入防护：禁止某些危险操作
-        const upperSql = sql.toUpperCase().trim();
-        if (upperSql.includes('DROP DATABASE') || upperSql.includes('DROP SCHEMA')) {
-            return { success: false, error: '不允许执行 DROP DATABASE 操作' };
+        // ✅ 使用 SQL 验证器进行安全检查
+        const sqlValidation = validateSQL(sql);
+        if (!sqlValidation.valid) {
+            return { success: false, error: `SQL 验证失败: ${sqlValidation.error}` };
+        }
+        
+        // ✅ 检查查询限制（避免返回过多数据）
+        const limitCheck = checkQueryLimit(sql);
+        if (!limitCheck.valid && limitCheck.error) {
+            console.warn('[DB] Query limit warning:', limitCheck.error);
         }
         
         if (conn.config.type === 'mysql') {
@@ -336,7 +364,7 @@ async function executeQuery(connectionId: string, database: string, sql: string)
                 return { success: true, affectedRows: rows.affectedRows };
             }
         } else if (conn.config.type === 'postgresql') {
-            const client = new pg.Client({
+            const client = new dbDrivers.pg!.Client({
                 host: conn.config.host,
                 port: conn.config.port,
                 user: conn.config.user,
@@ -352,6 +380,7 @@ async function executeQuery(connectionId: string, database: string, sql: string)
                 return { success: true, affectedRows: result.rowCount || 0 };
             }
         } else if (conn.config.type === 'sqlite') {
+            const upperSql = sql.toUpperCase().trim();
             if (upperSql.startsWith('SELECT')) {
                 const rows = conn.client.prepare(sql).all();
                 return { success: true, data: rows };
@@ -362,8 +391,8 @@ async function executeQuery(connectionId: string, database: string, sql: string)
         }
         
         return { success: false, error: '不支持的数据库类型' };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -488,8 +517,8 @@ async function disconnectRedis(connectionId: string): Promise<{ success: boolean
         await conn.client.quit();
         redisConnections.delete(connectionId);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -499,8 +528,8 @@ async function redisSelectDB(connectionId: string, db: number): Promise<{ succes
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.select(db);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -510,8 +539,8 @@ async function redisScan(connectionId: string, cursor: string, pattern: string, 
         if (!conn) return { success: false, error: '连接不存在' };
         const [newCursor, keys] = await conn.client.scan(cursor, 'MATCH', pattern, 'COUNT', count);
         return { success: true, cursor: newCursor, keys };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -521,8 +550,8 @@ async function redisGetType(connectionId: string, key: string): Promise<{ succes
         if (!conn) return { success: false, error: '连接不存在' };
         const type = await conn.client.type(key);
         return { success: true, type };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -532,8 +561,8 @@ async function redisGetTTL(connectionId: string, key: string): Promise<{ success
         if (!conn) return { success: false, error: '连接不存在' };
         const ttl = await conn.client.ttl(key);
         return { success: true, ttl };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -544,8 +573,8 @@ async function redisSetTTL(connectionId: string, key: string, ttl: number): Prom
         if (ttl === -1) await conn.client.persist(key);
         else await conn.client.expire(key, ttl);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -555,8 +584,8 @@ async function redisDeleteKey(connectionId: string, key: string): Promise<{ succ
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.del(key);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -566,8 +595,8 @@ async function redisRenameKey(connectionId: string, oldKey: string, newKey: stri
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.rename(oldKey, newKey);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -577,8 +606,8 @@ async function redisGetString(connectionId: string, key: string): Promise<{ succ
         if (!conn) return { success: false, error: '连接不存在' };
         const value = await conn.client.get(key);
         return { success: true, value: value || '' };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -589,8 +618,8 @@ async function redisSetString(connectionId: string, key: string, value: string, 
         if (ttl && ttl > 0) await conn.client.setex(key, ttl, value);
         else await conn.client.set(key, value);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -600,8 +629,8 @@ async function redisGetHash(connectionId: string, key: string): Promise<{ succes
         if (!conn) return { success: false, error: '连接不存在' };
         const value = await conn.client.hgetall(key);
         return { success: true, value: value || {} };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -611,8 +640,8 @@ async function redisSetHashField(connectionId: string, key: string, field: strin
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.hset(key, field, value);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -622,8 +651,8 @@ async function redisDeleteHashField(connectionId: string, key: string, field: st
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.hdel(key, field);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -636,8 +665,8 @@ async function redisGetList(connectionId: string, key: string, start: number, st
             conn.client.llen(key),
         ]);
         return { success: true, value, total };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -648,8 +677,8 @@ async function redisPushList(connectionId: string, key: string, value: string, p
         if (position === 'left') await conn.client.lpush(key, value);
         else await conn.client.rpush(key, value);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -662,8 +691,8 @@ async function redisDeleteListItem(connectionId: string, key: string, index: num
         await conn.client.lset(key, index, placeholder);
         await conn.client.lrem(key, count, placeholder);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -673,8 +702,8 @@ async function redisGetSet(connectionId: string, key: string): Promise<{ success
         if (!conn) return { success: false, error: '连接不存在' };
         const value = await conn.client.smembers(key);
         return { success: true, value };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -684,8 +713,8 @@ async function redisAddSetMember(connectionId: string, key: string, member: stri
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.sadd(key, member);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -695,8 +724,8 @@ async function redisRemoveSetMember(connectionId: string, key: string, member: s
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.srem(key, member);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -716,8 +745,8 @@ async function redisGetZSet(connectionId: string, key: string, withScores: boole
             const members = await conn.client.zrange(key, 0, 99);
             return { success: true, value: members.map((m: string) => ({ member: m, score: 0 })), total };
         }
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -727,8 +756,8 @@ async function redisAddZSetMember(connectionId: string, key: string, member: str
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.zadd(key, score, member);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -738,8 +767,8 @@ async function redisRemoveZSetMember(connectionId: string, key: string, member: 
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.zrem(key, member);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -756,8 +785,8 @@ async function redisExecuteCommand(connectionId: string, command: string): Promi
         
         const result = await conn.client.call(cmd, ...args);
         return { success: true, result };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -767,8 +796,8 @@ async function redisDBSize(connectionId: string): Promise<{ success: boolean; si
         if (!conn) return { success: false, error: '连接不存在' };
         const size = await conn.client.dbsize();
         return { success: true, size };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -866,8 +895,8 @@ async function testMongoConnection(config: MongoConnectionConfig): Promise<{ suc
         await client.db('admin').command({ ping: 1 });
         await client.close();
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -884,8 +913,8 @@ async function connectMongo(config: MongoConnectionConfig): Promise<{ success: b
         await client.connect();
         mongoConnections.set(connectionId, { id: connectionId, config, client });
         return { success: true, connectionId };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -896,8 +925,8 @@ async function disconnectMongo(connectionId: string): Promise<{ success: boolean
         await conn.client.close();
         mongoConnections.delete(connectionId);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -908,8 +937,8 @@ async function mongoListDatabases(connectionId: string): Promise<{ success: bool
         const result = await conn.client.db('admin').admin().listDatabases();
         const databases = result.databases.map((db: any) => db.name);
         return { success: true, databases };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -919,8 +948,8 @@ async function mongoListCollections(connectionId: string, database: string): Pro
         if (!conn) return { success: false, error: '连接不存在' };
         const collections = await conn.client.db(database).listCollections().toArray();
         return { success: true, collections: collections.map((c: any) => c.name) };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -930,8 +959,8 @@ async function mongoGetCollectionStats(connectionId: string, database: string, c
         if (!conn) return { success: false, error: '连接不存在' };
         const stats = await conn.client.db(database).collection(collection).stats();
         return { success: true, stats: { count: stats.count || 0, size: stats.size || 0, avgObjSize: stats.avgObjSize || 0 } };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -950,8 +979,8 @@ async function mongoFindDocuments(connectionId: string, database: string, collec
         ]);
         
         return { success: true, documents, total };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -963,8 +992,8 @@ async function mongoInsertDocument(connectionId: string, database: string, colle
         const document = JSON.parse(documentStr);
         const result = await conn.client.db(database).collection(collection).insertOne(document);
         return { success: true, insertedId: result.insertedId.toString() };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -985,8 +1014,8 @@ async function mongoUpdateDocument(connectionId: string, database: string, colle
         
         await conn.client.db(database).collection(collection).replaceOne({ _id: objectId }, document);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1004,8 +1033,8 @@ async function mongoDeleteDocument(connectionId: string, database: string, colle
         
         await conn.client.db(database).collection(collection).deleteOne({ _id: objectId });
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1016,8 +1045,8 @@ async function mongoGetIndexes(connectionId: string, database: string, collectio
         
         const indexes = await conn.client.db(database).collection(collection).indexes();
         return { success: true, indexes: indexes.map((idx: any) => ({ name: idx.name, key: idx.key })) };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1037,8 +1066,8 @@ async function mongoRunCommand(connectionId: string, database: string, commandSt
         
         const result = await conn.client.db(database).command(command);
         return { success: true, result };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1048,8 +1077,8 @@ async function mongoDropCollection(connectionId: string, database: string, colle
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.db(database).collection(collection).drop();
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1059,8 +1088,8 @@ async function mongoCreateCollection(connectionId: string, database: string, col
         if (!conn) return { success: false, error: '连接不存在' };
         await conn.client.db(database).createCollection(collection);
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || String(e) };
+    } catch (e: unknown) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -1117,9 +1146,48 @@ function setupDBHandlers() {
     });
     
     ipcMain.handle('db:update-record', async (_e, connectionId: string, database: string, table: string, primaryKey: string, primaryValue: any, column: string, value: any) => {
-        // 简化实现
-        const sql = `UPDATE "${table}" SET "${column}" = '${value}' WHERE "${primaryKey}" = '${primaryValue}'`;
-        return executeQuery(connectionId, database, sql);
+        try {
+            const conn = dbConnections.get(connectionId);
+            if (!conn) return { success: false, error: '连接不存在' };
+            
+            // ✅ 验证标识符安全性
+            const identifiersValidation = validateIdentifiers([table, primaryKey, column]);
+            if (!identifiersValidation.valid) {
+                return { 
+                    success: false, 
+                    error: `标识符验证失败: ${identifiersValidation.invalidIdentifier || '未知标识符'} 不合法` 
+                };
+            }
+            
+            // ✅ 使用安全的 UPDATE 语句构建器
+            const updateStatement = buildUpdateStatement(table, column, primaryKey, conn.config.type);
+            
+            if (conn.config.type === 'mysql') {
+                await conn.client.query(`USE \`${database}\``);
+                const [result] = await conn.client.query(updateStatement.sql, [value, primaryValue]);
+                return { success: true, affectedRows: result.affectedRows };
+            } else if (conn.config.type === 'postgresql') {
+                const client = new dbDrivers.pg!.Client({
+                    host: conn.config.host,
+                    port: conn.config.port,
+                    user: conn.config.user,
+                    password: conn.config.password,
+                    database: database,
+                });
+                await client.connect();
+                const result = await client.query(updateStatement.sql, [value, primaryValue]);
+                await client.end();
+                return { success: true, affectedRows: result.rowCount || 0 };
+            } else if (conn.config.type === 'sqlite') {
+                const stmt = conn.client.prepare(updateStatement.sql);
+                const info = stmt.run(value, primaryValue);
+                return { success: true, affectedRows: info.changes };
+            }
+            
+            return { success: false, error: '不支持的数据库类型' };
+        } catch (e: unknown) {
+            return { success: false, error: getErrorMessage(e) };
+        }
     });
 }
 
