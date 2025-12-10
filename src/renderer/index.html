@@ -375,6 +375,29 @@
         }
 
         /* Toast 样式 */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 41, 59, 0.95);
+            color: #f1f5f9;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s, transform 0.25s, visibility 0.25s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
         #toast {
             position: fixed;
             bottom: 20px;
@@ -445,7 +468,7 @@
         <div id="llmContainer"></div>
     </div>
 
-    <div id="toast"></div>
+    <div id="toast" class="toast"></div>
 
     <!-- 设置弹窗 -->
     <div class="settings-modal" id="settingsModal">

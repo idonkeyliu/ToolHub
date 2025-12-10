@@ -1,5 +1,5 @@
 /**
- * 时间戳工具样式 - 美化版
+ * 时间戳工具样式 - 简洁版
  */
 
 .time-view {
@@ -7,7 +7,7 @@
   flex-direction: column;
   align-items: center;
   padding: 32px 24px;
-  gap: 28px;
+  gap: 24px;
   min-height: 100%;
   box-sizing: border-box;
   overflow-y: auto;
@@ -17,19 +17,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   width: 100%;
   max-width: 860px;
 }
 
-/* ==================== 顶部装饰时钟框 ==================== */
+/* ==================== 顶部时钟框 ==================== */
 .time-view .time-clock-frame {
   width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 12px;
-  padding: 24px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 10px;
+  padding: 20px;
   display: flex;
   justify-content: center;
 }
@@ -48,38 +48,37 @@
 }
 
 .time-view .clock-block {
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 38px;
-  font-weight: 600;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 36px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  min-width: 50px;
+  min-width: 48px;
   text-align: center;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.time-view .clock-block.year { color: #f472b6; min-width: 90px; }
+.time-view .clock-block.year { color: #e879f9; min-width: 86px; }
 .time-view .clock-block.month { color: #fb923c; }
-.time-view .clock-block.day { color: #facc15; }
-.time-view .clock-block.hour { color: #4ade80; }
-.time-view .clock-block.minute { color: #22d3ee; }
+.time-view .clock-block.day { color: #fbbf24; }
+.time-view .clock-block.hour { color: #34d399; }
+.time-view .clock-block.minute { color: #38bdf8; }
 .time-view .clock-block.second { color: #a78bfa; }
 
 .time-view .clock-sep {
-  font-size: 32px;
-  color: #64748b;
+  font-size: 28px;
+  color: #475569;
   font-weight: 300;
 }
 
 .time-view .clock-space {
-  width: 20px;
+  width: 16px;
 }
 
 .time-view .clock-colon {
-  font-size: 32px;
-  color: #64748b;
+  font-size: 28px;
+  color: #475569;
   font-weight: 300;
 }
 
@@ -101,19 +100,18 @@
 }
 
 .time-view .stamp-card {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 10px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
 }
 
 .time-view .stamp-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+  border-color: rgba(100, 116, 139, 0.4);
 }
 
 .time-view .stamp-card-header {
@@ -123,7 +121,7 @@
 }
 
 .time-view .stamp-card-icon {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .time-view .stamp-card-title {
@@ -133,35 +131,34 @@
 }
 
 .time-view .stamp-card-body {
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 6px;
   padding: 12px;
   text-align: center;
 }
 
 .time-view .stamp-card-value {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 500;
   color: #e2e8f0;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .time-view .stamp-card-copy {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff;
+  background: #475569;
+  color: #f1f5f9;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
 .time-view .stamp-card-copy:hover {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  transform: translateY(-1px);
+  background: #64748b;
 }
 
 /* ==================== 转换工具卡片组 ==================== */
@@ -173,19 +170,18 @@
 }
 
 .time-view .convert-card {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 12px;
-  padding: 20px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 10px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  transition: all 0.2s;
+  gap: 14px;
+  transition: border-color 0.2s;
 }
 
 .time-view .convert-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+  border-color: rgba(100, 116, 139, 0.4);
 }
 
 .time-view .convert-card-header {
@@ -193,23 +189,23 @@
   align-items: center;
   gap: 10px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
 }
 
 .time-view .convert-card-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .time-view .convert-card-title {
   font-size: 14px;
-  color: #e2e8f0;
-  font-weight: 600;
+  color: #cbd5e1;
+  font-weight: 500;
 }
 
 .time-view .convert-card-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .time-view .convert-input-group {
@@ -226,19 +222,18 @@
 
 .time-view .convert-input-group input {
   padding: 10px 12px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
   color: #e2e8f0;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
 }
 
 .time-view .convert-input-group input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #64748b;
 }
 
 .time-view .convert-input-group input::placeholder {
@@ -258,12 +253,12 @@
 }
 
 .time-view .convert-output {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 6px;
   padding: 10px 12px;
   font-size: 14px;
-  color: #64748b;
+  color: #94a3b8;
   font-variant-numeric: tabular-nums;
   min-height: 20px;
 }
@@ -299,20 +294,19 @@
 
 .time-view .convert-card-copy {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff;
+  background: #475569;
+  color: #f1f5f9;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: background 0.2s;
   margin-top: auto;
 }
 
 .time-view .convert-card-copy:hover {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  transform: translateY(-1px);
+  background: #64748b;
 }
 
 /* ==================== 响应式 ==================== */
@@ -323,13 +317,17 @@
   }
   
   .time-view .clock-block {
-    font-size: 32px;
-    min-width: 54px;
-    padding: 6px 12px;
+    font-size: 28px;
+    min-width: 44px;
+    padding: 5px 10px;
+  }
+  
+  .time-view .clock-block.year {
+    min-width: 70px;
   }
   
   .time-view .time-clock-frame {
-    padding: 20px 24px;
+    padding: 16px;
   }
   
   .time-view .dt-fields {
