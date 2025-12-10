@@ -19,18 +19,27 @@
 
 ### 🛠️ 内置实用工具
 
-- **⏰ 时间戳工具**: Unix时间戳转换、实时时钟显示
-- **🔑 密码生成器**: 安全密码生成、强度检测
-- **📝 文本处理**: 文本编辑、字符统计、格式转换
-- **🧮 计算器**: 简洁高效的数学计算器
-- **🌐 DNS 解析**: 多源DNS查询、记录类型支持
-- **📋 JSON 解析**: 智能格式化、树形展示、路径查询
-- **🔤 编解码工具**: URL、Base64、Unicode编解码转换
-- **🔐 加解密工具**: MD5哈希、AES/DES加解密
-- **💱 货币转换**: 实时汇率查询、多币种转换
-- **🔧 CURL工具**: HTTP请求构建、API测试
-- **📅 万年历**: 公历农历查询、节日节气显示
-- **🎨 颜色工具**: 颜色选择器、格式转换、调色板
+| 工具 | 功能描述 |
+|------|----------|
+| ⏰ 时间戳工具 | Unix时间戳转换、实时时钟显示 |
+| 🔑 密码生成器 | 安全密码生成、强度检测 |
+| 📝 文本处理 | 文本编辑、字符统计、格式转换 |
+| 🧮 计算器 | 简洁高效的数学计算器 |
+| 🌐 DNS 解析 | 多源DNS查询、记录类型支持 |
+| 📋 JSON 解析 | 智能格式化、树形展示、路径查询 |
+| 🔤 编解码工具 | URL、Base64、Unicode编解码转换 |
+| 🔐 加解密工具 | MD5哈希、AES/DES加解密 |
+| 💱 货币转换 | 实时汇率查询、多币种转换 |
+| 🔧 CURL工具 | HTTP请求构建、API测试 |
+| 📅 万年历 | 公历农历查询、节日节气显示 |
+| 🎨 颜色工具 | 颜色选择器、格式转换、调色板 |
+| 🖼️ 图片工具 | 图片压缩、格式转换、尺寸调整 |
+| 🗄️ 数据库工具 | MySQL/PostgreSQL/SQLite 连接管理 |
+| 📦 Redis 工具 | Redis 数据查看和操作 |
+| 📊 MongoDB 工具 | MongoDB 数据库管理 |
+| 📝 Diff 工具 | 文本差异对比 |
+| 🔐 JWT 工具 | JWT Token 解析和生成 |
+| 🔣 正则工具 | 正则表达式测试、常用模板 |
 
 ### 🎨 用户体验
 
@@ -39,51 +48,81 @@
 - **会话持久化**: 自动保存聊天状态和工具数据
 - **快捷操作**: 一键复制、粘贴、清空等便捷功能
 
-### Q: 应用启动失败怎么办？
+## 🚀 快速开始
 
-A: 确保已安装所有依赖，运行 `npm install` 重新安装。检查Node.js版本是否为16+。
+### 前置要求
 
-### Q: 工具显示不完整或布局异常？
+- **Node.js** v16+
+- **npm** 或 yarn
+- **macOS / Windows / Linux** 操作系统
 
-A: 尝试调整窗口大小或重启应用。某些工具采用响应式设计，会根据窗口大小自适应。
+### 安装与运行
 
-### Q: LMArena页面无法访问？
+```bash
+# 1. 克隆项目
+git clone https://github.com/rubylc/ToolHub.git
+cd ToolHub
 
-A: LMArena可能会出现Cloudflare验证，这是正常现象。应用已配置绕过机制，请耐心等待。
+# 2. 安装依赖
+npm install
 
-### Q: 设备信息中的内存显示不准确？
+# 3. 构建并运行
+npm run build
+npm start
 
-A: 应用会尽力获取系统真实内存信息，但受浏览器安全限制，部分信息可能不完全准确。20Windows%20%7C%20Linux-lightgrey.svg)
+# 4. 开发模式（实时编译）
+npm run dev
+```
 
-## ✨ 特性
+## 📦 打包发布
 
-### 🤖 AI 聊天平台
-- **OpenAI ChatGPT**: 最先进的对话AI
-- **LMArena**: 大语言模型竞技场和排行榜
-- **Google Gemini**: Google的多模态AI助手  
-- **DeepSeek**: 专业的代码生成AI
-- **Kimi**: Moonshot AI的长文本处理专家
-- **Grok**: xAI的实时信息AI
+### 使用打包脚本（推荐）
 
-### 🛠️ 内置实用工具
-- **⏰ 时间戳工具**: Unix时间戳转换、实时时钟显示
-- **🔑 密码生成器**: 安全密码生成、强度检测
-- **📝 文本处理**: 文本编辑、字符统计、格式转换
-- **🧮 计算器**: 简洁高效的数学计算器
-- **🌐 DNS 解析**: 多源DNS查询、记录类型支持
-- **� JSON 解析**: 智能格式化、树形展示、路径查询
-- **🔤 编解码工具**: URL、Base64、Unicode编解码转换
-- **🔐 加解密工具**: MD5哈希、AES/DES加解密
-- **💱 货币转换**: 实时汇率查询、多币种转换
-- **🔧 CURL工具**: HTTP请求构建、API测试
-- **📅 万年历**: 公历农历查询、节日节气显示
-- **🎨 颜色工具**: 颜色选择器、格式转换、调色板
+```bash
+# 添加执行权限
+chmod +x scripts/build.sh
 
-### 🎨 用户体验
-- **现代化界面**: 深色主题、霓虹风格设计
-- **智能布局**: 自适应窗口大小、响应式设计
-- **会话持久化**: 自动保存聊天状态和工具数据
-- **快捷操作**: 一键复制、粘贴、清空等便捷功能
+# 打包 macOS
+./scripts/build.sh mac
+
+# 打包 Windows
+./scripts/build.sh win
+
+# 打包 Linux
+./scripts/build.sh linux
+
+# 打包所有平台
+./scripts/build.sh all
+
+# 清理构建产物
+./scripts/build.sh clean
+
+# 查看帮助
+./scripts/build.sh help
+```
+
+### 使用 npm 命令
+
+```bash
+# macOS 打包 (dmg + zip)
+npm run dist:mac
+
+# 目录打包（所有平台）
+npm run dist:dir
+```
+
+### 构建产物
+
+打包完成后，文件位于 `dist/` 目录：
+
+| 平台 | 格式 | 文件 |
+|------|------|------|
+| macOS | DMG 安装包 | `ToolHub-x.x.x-arm64.dmg` |
+| macOS | ZIP 压缩包 | `ToolHub-x.x.x-arm64-mac.zip` |
+| Windows | 安装程序 | `ToolHub-x.x.x-Setup.exe` |
+| Windows | 便携版 | `ToolHub-x.x.x-portable.exe` |
+| Linux | AppImage | `ToolHub-x.x.x.AppImage` |
+| Linux | DEB 包 | `ToolHub-x.x.x.deb` |
 
 ## 🏗️ 项目结构
 
@@ -93,250 +132,89 @@ ToolHub/
 │   ├── main.ts              # 主进程 - 窗口管理、权限控制
 │   ├── preload.ts           # 预加载脚本 - 安全API桥接
 │   └── renderer/            # 渲染进程 - 用户界面
-│       ├── index.html       # 主界面 - 集成所有工具和AI平台
+│       ├── index.html       # 主界面
+│       ├── tools/           # 内置工具模块
+│       │   ├── timestamp/   # 时间戳工具
+│       │   ├── password/    # 密码生成器
+│       │   ├── json/        # JSON 解析
+│       │   ├── calc/        # 计算器
+│       │   ├── dns/         # DNS 解析
+│       │   ├── codec/       # 编解码工具
+│       │   ├── crypto/      # 加解密工具
+│       │   ├── curl/        # CURL 工具
+│       │   ├── currency/    # 货币转换
+│       │   ├── color/       # 颜色工具
+│       │   ├── calendar/    # 万年历
+│       │   ├── image/       # 图片工具
+│       │   ├── database/    # 数据库工具
+│       │   ├── redis/       # Redis 工具
+│       │   ├── mongo/       # MongoDB 工具
+│       │   ├── diff/        # Diff 工具
+│       │   ├── jwt/         # JWT 工具
+│       │   └── regex/       # 正则工具
 │       └── assets/          # 图标资源
-│           ├── deepseek.svg
-│           ├── gemini.svg
-│           ├── kimi.svg
-│           └── openai.svg
-├── package.json             # 项目配置和依赖
-├── tsconfig.json            # TypeScript配置
-├── README.md                # 项目文档
-└── assets/                  # 附加资源
-    └── README.txt
+├── scripts/
+│   ├── build.sh             # 打包脚本
+│   └── fix-imports.cjs      # 导入修复脚本
+├── assets/                  # 应用资源
+├── package.json             # 项目配置
+├── tsconfig.json            # TypeScript 配置
+└── README.md                # 项目文档
 ```
-
-## 🚀 快速开始
-
-### 前置要求
-
-- **Node.js** (v16+)
-- **npm** 或 yarn
-- **macOS/Windows/Linux** 操作系统
-
-### 安装与运行
-
-1. **克隆项目**
-
-   ```bash
-   git clone https://github.com/rubylc/ToolHub.git
-   cd ToolHub
-   ```
-
-2. **安装依赖**
-
-   ```bash
-   npm install
-   ```
-
-3. **构建并运行**
-
-   ```bash
-   # 构建项目
-   npm run build
-   
-   # 启动应用
-   npm start
-   ```
-
-4. **开发模式**（实时编译）
-
-   ```bash
-   npm run dev
-   ```
-
-### 打包发布
-
-- **macOS 打包**:
-  ```bash
-  npm run dist:mac
-  ```
-  
-- **目录打包**（所有平台）:
-  ```bash
-  npm run dist:dir
-  ```
-
-## 🎮 使用方法
-
-### AI 聊天平台
-1. **选择平台**: 点击顶部导航的 OpenAI、LMArena、Gemini、DeepSeek、Kimi 或 Grok
-2. **开始对话**: 在选定平台中登录并开始聊天
-3. **切换平台**: 随时点击其他标签页切换到不同的AI助手
-4. **会话保持**: 应用会自动保存各平台的登录状态和对话历史
-
-### 实用工具
-
-#### ⏰ 时间戳工具
-- **实时时钟**: 显示当前日期和时间
-- **Unix转换**: 时间戳与人类可读时间的双向转换
-- **快速复制**: 一键复制时间戳或格式化时间
-
-#### 🔐 密码生成器
-- **自定义长度**: 8-64位密码长度调节
-- **字符集选择**: 大小写字母、数字、符号可选组合
-- **强度检测**: 实时显示密码强度评估
-- **安全生成**: 使用加密随机数生成器
-
-#### 🧮 计算器
-- **基础运算**: 加减乘除、百分比运算
-- **表达式计算**: 支持括号和复合表达式
-- **快捷操作**: 支持键盘输入和鼠标点击
-- **错误处理**: 友好的错误提示和恢复
-
-#### 🌐 DNS 解析
-- **多源查询**: 同时查询 Google、Cloudflare DNS
-- **记录类型**: 支持 A、AAAA、CNAME、TXT、MX、NS、SRV、CAA、PTR
-- **自定义端点**: 支持添加自定义 DoH 服务器
-- **结果展示**: 表格/列表模式切换，支持复制结果
-
-#### 📝 JSON 解析
-- **智能解析**: 自动检测和格式化 JSON
-- **树形展示**: 可折叠的交互式树形结构
-- **工具栏**: 格式化、压缩、按键排序、复制粘贴
-- **便捷操作**: 展开/折叠全部、键值对导航
-
-#### 🔤 编解码工具
-- **URL 编解码**: 网址参数编码/解码转换
-- **Base64 编解码**: 文本与Base64格式互相转换
-- **Unicode 编解码**: 文本与Unicode编码互相转换
-- **双向操作**: 支持编码和解码的双向转换
-
-#### 🔐 加解密工具
-- **MD5 哈希**: 生成32位/16位大小写MD5值
-- **AES 加解密**: 对称加密算法，支持自定义密钥
-- **DES 加解密**: 经典加密算法，8字节密钥
-- **结果复制**: 一键复制加密/解密结果
-
-#### 💱 货币转换
-- **实时汇率**: 基于最新汇率数据的货币转换
-- **多币种支持**: 支持主流货币和加密货币
-- **历史汇率**: 查看汇率变化趋势
-- **快速转换**: 常用货币一键切换
-
-#### 🔧 CURL工具
-- **请求构建**: 可视化构建HTTP请求
-- **多种方法**: 支持GET、POST、PUT、DELETE等
-- **认证支持**: Bearer Token、Basic Auth等
-- **响应展示**: 格式化显示响应结果
-
-#### 📅 万年历
-- **公历农历**: 双历法日期显示
-- **节日节气**: 传统节日和二十四节气
-- **生肖干支**: 年份生肖和干支纪年
-- **现代设计**: 2025年炫酷霓虹风格界面
-
-#### 🎨 颜色工具
-- **颜色选择**: 拖拽式颜色选择器
-- **格式转换**: HEX、RGB、HSL、HSV互转
-- **调色板**: 保存和管理常用颜色
-- **预设颜色**: 内置常用颜色快速选择
 
 ## 🛠️ 技术栈
 
-### 前端技术
-
-- **Electron**: 跨平台桌面应用框架
-- **TypeScript**: 类型安全的JavaScript超集  
-- **HTML5/CSS3**: 现代化Web标准
-- **WebView**: 嵌入式浏览器组件
-- **DOM API**: 原生浏览器接口
-
-### 核心特性
-
-- **会话隔离**: 每个AI平台独立的持久化会话
-- **权限管理**: 细粒度的剪贴板和媒体权限控制
-- **响应式设计**: 自适应不同屏幕尺寸的界面布局
-- **安全沙箱**: 渲染进程隔离和上下文安全
-
-### 开发工具
-
-- **npm**: 包管理和脚本运行
-- **TSC**: TypeScript编译器
-- **electron-builder**: 应用打包和分发
-- **concurrently**: 并行开发任务管理
-- **wait-on**: 依赖就绪检测
-
-## 📁 核心文件说明
-
-### 主要组件
-
-- **`main.ts`**: Electron主进程，管理窗口、菜单、权限
-- **`preload.ts`**: 安全桥接脚本，暴露受控的Node.js API  
-- **`index.html`**: 单页面应用，集成所有AI平台和工具
-- **`package.json`**: 项目配置、依赖管理和构建脚本
-
-### 关键功能模块
-
-- **框架绕过**: 动态移除X-Frame-Options和CSP限制
-- **用户代理**: 按域名自定义UA字符串提升兼容性
-- **上下文菜单**: 全局右键复制粘贴功能
+| 类别 | 技术 |
+|------|------|
+| 框架 | Electron 28 |
+| 语言 | TypeScript 5.4 |
+| 数据库 | better-sqlite3, mysql2, pg, mongodb |
+| 缓存 | ioredis |
+| 打包 | electron-builder |
 
 ## 🔧 开发指南
 
 ### 添加新工具
 
-1. **定义工具配置**: 在 `builtinSites` 中添加新条目
-2. **创建UI函数**: 实现 `buildXxxHTML()` 和 `wireXxx()` 
-3. **集成到导航**: 在 `switchSite()` 中添加处理逻辑
-4. **添加样式**: 在 CSS 部分定义工具专用样式
-
-### 添加新AI平台
-
-1. **更新站点列表**: 修改 `builtinSites` 数组
-2. **配置会话隔离**: 设置独立的 `partition` 
-3. **权限适配**: 在 `FRAME_BYPASS_HOSTS` 中添加域名
-4. **可选UA设置**: 在 `UA_MAP` 中配置用户代理
+1. 在 `src/renderer/tools/` 下创建工具目录
+2. 创建 `template.ts`、`styles.css`、`XxxTool.ts`
+3. 在 `src/renderer/tools/index.ts` 中注册工具
+4. 在 `src/renderer/index.html` 中引入样式
 
 ### 调试技巧
 
-- **开发者工具**: `Cmd+Option+I` (macOS) 或 `Ctrl+Shift+I` (Windows/Linux)
-- **重载应用**: `Cmd+R` (macOS) 或 `Ctrl+R` (Windows/Linux)  
-- **网络调试**: 查看各AI平台的网络请求和响应
+- **开发者工具**: `Cmd+Option+I` (macOS) / `Ctrl+Shift+I` (Windows/Linux)
+- **重载应用**: `Cmd+R` (macOS) / `Ctrl+R` (Windows/Linux)
 
-## � 常见问题
+## ❓ 常见问题
 
-### Q: 页面显示区域太小怎么办？
+### Q: 应用启动失败？
+确保 Node.js 版本 ≥ 16，运行 `npm install` 重新安装依赖。
 
-A: 查看页面右上角的布局检测器，它会自动诊断并尝试修复布局问题。
+### Q: 打包失败 (better-sqlite3 编译错误)？
+确保使用 Electron 28.x 版本，清理缓存后重新安装：
+```bash
+rm -rf node_modules package-lock.json ~/.electron-gyp
+npm install
+```
 
-### Q: 如何添加新的LLM平台？
-
-A: 修改 `fallbackSites` 数组，添加新的站点配置。
-
-### Q: 应用启动失败怎么办？
-
-A: 确保已安装所有依赖，运行 `npm install` 重新安装。
+### Q: 工具显示异常？
+尝试调整窗口大小或重启应用，工具采用响应式设计。
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+MIT License - 详见 [LICENSE](LICENSE)
 
-## 🤝 贡献指南
+## 🤝 贡献
 
-欢迎为 ToolHub 做出贡献！你可以通过以下方式参与：
-
-- **报告Bug**: 在 GitHub Issues 中描述问题
-- **功能建议**: 提出新工具或改进建议
-- **代码贡献**: 提交 Pull Request
-- **文档改进**: 完善使用说明和开发文档
-
-### 贡献流程
+欢迎提交 Issue 和 Pull Request！
 
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add AmazingFeature'`)
+4. 推送分支 (`git push origin feature/AmazingFeature`)
 5. 创建 Pull Request
-
-## 📞 联系方式
-
-- **GitHub Issues**: 报告问题和建议
-- **邮件联系**: 项目维护者邮箱
-- **社区讨论**: GitHub Discussions
 
 ---
 
 **⭐ 如果 ToolHub 对你有帮助，请给个星标支持！**
-
-> ToolHub - 让AI和工具触手可及，提升你的工作效率
