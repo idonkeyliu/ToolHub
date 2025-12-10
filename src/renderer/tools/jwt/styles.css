@@ -1,0 +1,549 @@
+/**
+ * JWT 解析器样式
+ */
+
+.jwt-wrap {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.jwt-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* 输入区域 */
+.jwt-input-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.section-icon {
+  font-size: 16px;
+}
+
+.section-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #9ca3af;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+.jwt-input-wrapper {
+  position: relative;
+  padding: 12px 16px;
+}
+
+.jwt-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e5e7eb;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  word-break: break-all;
+}
+
+.jwt-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.jwt-input::placeholder {
+  color: #6b7280;
+}
+
+.jwt-parts-indicator {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.part-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.part-dot.header {
+  background: #f87171;
+}
+
+.part-dot.payload {
+  background: #a78bfa;
+}
+
+.part-dot.signature {
+  background: #34d399;
+}
+
+.part-dot.active {
+  opacity: 1;
+}
+
+/* 解析结果 */
+.jwt-result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.jwt-part {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.part-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.part-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.part-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.part-badge.header {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.part-badge.payload {
+  background: rgba(167, 139, 250, 0.2);
+  color: #a78bfa;
+}
+
+.part-badge.signature {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.part-alg {
+  font-size: 12px;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.part-claims {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+}
+
+.part-content {
+  padding: 12px 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.json-display {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e5e7eb;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.json-display .json-key {
+  color: #f87171;
+}
+
+.json-display .json-string {
+  color: #34d399;
+}
+
+.json-display .json-number {
+  color: #fbbf24;
+}
+
+.json-display .json-boolean {
+  color: #60a5fa;
+}
+
+.json-display .json-null {
+  color: #9ca3af;
+}
+
+.signature-display {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  color: #9ca3af;
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+/* 时间信息 */
+.time-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.time-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.time-value {
+  font-size: 12px;
+  color: #e5e7eb;
+  font-family: monospace;
+}
+
+/* 过期状态 */
+.expiry-status {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.expiry-status.show {
+  display: flex;
+}
+
+.expiry-status.valid {
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+  border-top: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.expiry-status.expired {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  border-top: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.expiry-status.not-yet {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  border-top: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* 验证区域 */
+.verify-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.verify-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.verify-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.verify-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.verify-toggle input {
+  accent-color: #3b82f6;
+}
+
+.verify-content {
+  padding: 12px 16px;
+}
+
+.secret-input-group {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.secret-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.secret-label input {
+  accent-color: #3b82f6;
+}
+
+.secret-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #e5e7eb;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.secret-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.verify-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.verify-btn {
+  padding: 8px 16px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.verify-btn:hover {
+  background: #2563eb;
+}
+
+.verify-result {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.verify-result.valid {
+  color: #34d399;
+}
+
+.verify-result.invalid {
+  color: #f87171;
+}
+
+/* 侧边栏 */
+.jwt-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sidebar-title {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.claims-list,
+.alg-list {
+  padding: 8px;
+}
+
+.claim-item,
+.alg-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.claim-item:hover,
+.alg-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.claim-key,
+.alg-name {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a78bfa;
+}
+
+.claim-desc,
+.alg-desc {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.claim-item.active {
+  background: rgba(167, 139, 250, 0.1);
+}
+
+.claim-item.active .claim-key {
+  color: #c4b5fd;
+}
+
+.claim-item.active .claim-desc {
+  color: #9ca3af;
+}
+
+/* 空状态 */
+.jwt-part.empty .part-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* 错误状态 */
+.jwt-part.error {
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+.jwt-part.error .part-badge {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.error-message {
+  color: #f87171;
+  font-size: 13px;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .jwt-wrap {
+    flex-direction: column;
+  }
+
+  .jwt-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-section {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .time-info {
+    grid-template-columns: 1fr;
+  }
+}
