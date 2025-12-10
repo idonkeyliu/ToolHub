@@ -26,6 +26,9 @@ const FRAME_BYPASS_HOSTS = [
     'gemini.google.com',
     'accounts.google.com', // Gemini 登录/刷新Cookie流程
     'aistudio.google.com', // Google AI Studio
+    'alkalimakersuite-pa.clients6.google.com', // AI Studio API
+    'makersuite.google.com', // AI Studio 旧域名
+    'generativelanguage.googleapis.com', // Gemini API
     'kimi.moonshot.cn',
     'grok.com',
     'accounts.x.ai', // Grok 登录重定向域
@@ -37,6 +40,9 @@ const UA_MAP = {
     'auth.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'chatgpt.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'aistudio.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'accounts.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'alkalimakersuite-pa.clients6.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'makersuite.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'grok.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'lmarena.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
 };
@@ -109,6 +115,20 @@ function installFrameBypass() {
                 details.requestHeaders['Sec-Fetch-Site'] = 'none';
                 details.requestHeaders['Sec-Fetch-User'] = '?1';
             }
+            // 为 Google AI Studio 添加额外请求头，避免跳转检测
+            if (host === 'aistudio.google.com' || host === 'accounts.google.com' || host.endsWith('.google.com')) {
+                details.requestHeaders['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8';
+                details.requestHeaders['Accept-Language'] = 'en-US,en;q=0.9';
+                details.requestHeaders['Accept-Encoding'] = 'gzip, deflate, br';
+                details.requestHeaders['Upgrade-Insecure-Requests'] = '1';
+                details.requestHeaders['Sec-Ch-Ua'] = '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"';
+                details.requestHeaders['Sec-Ch-Ua-Mobile'] = '?0';
+                details.requestHeaders['Sec-Ch-Ua-Platform'] = '"macOS"';
+                details.requestHeaders['Sec-Fetch-Dest'] = 'document';
+                details.requestHeaders['Sec-Fetch-Mode'] = 'navigate';
+                details.requestHeaders['Sec-Fetch-Site'] = 'none';
+                details.requestHeaders['Sec-Fetch-User'] = '?1';
+            }
         }
         catch { /* ignore */ }
         callback({ requestHeaders: details.requestHeaders });
@@ -118,6 +138,7 @@ function installPermissions() {
     const trustedHosts = new Set([
         'chat.openai.com', 'auth.openai.com', 'chatgpt.com', 'ab.chatgpt.com',
         'gemini.google.com', 'accounts.google.com',
+        'aistudio.google.com', 'alkalimakersuite-pa.clients6.google.com', 'makersuite.google.com',
         'chat.deepseek.com', 'kimi.moonshot.cn',
         'grok.com', 'accounts.x.ai',
         'lmarena.ai'
