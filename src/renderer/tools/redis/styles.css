@@ -1,0 +1,1034 @@
+/**
+ * Redis 工具样式
+ */
+
+.redis-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+}
+
+.redis-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 左侧边栏 */
+.redis-sidebar {
+  width: 300px;
+  min-width: 220px;
+  max-width: 450px;
+  background: rgba(15, 23, 42, 0.8);
+  border-right: 1px solid rgba(100, 116, 139, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.redis-sidebar .connection-panel {
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  max-height: 200px;
+}
+
+.redis-sidebar .keys-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 状态栏 */
+.redis-sidebar .sidebar-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-top: 1px solid rgba(100, 116, 139, 0.2);
+  font-size: 12px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.redis-sidebar .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+  flex-shrink: 0;
+}
+
+.redis-sidebar .status-dot.connected {
+  background: #22c55e;
+}
+
+.redis-sidebar .status-dot.loading {
+  background: #f59e0b;
+  animation: redisPulse 1s infinite;
+}
+
+@keyframes redisPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.redis-sidebar .status-dot.error {
+  background: #ef4444;
+}
+
+.redis-sidebar .status-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.redis-sidebar .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.redis-sidebar .panel-header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.redis-sidebar .panel-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.redis-sidebar .add-conn-btn,
+.redis-sidebar .action-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.redis-sidebar .add-conn-btn:hover,
+.redis-sidebar .action-btn:hover {
+  background: rgba(100, 116, 139, 0.4);
+  color: #e2e8f0;
+}
+
+/* 搜索框 */
+.redis-sidebar .search-box {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.4);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.redis-sidebar .search-box input {
+  flex: 1;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 12px;
+  outline: none;
+}
+
+.redis-sidebar .search-box input:focus {
+  border-color: #ef4444;
+}
+
+.redis-sidebar .search-btn {
+  padding: 6px 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: none;
+  border-radius: 4px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.redis-sidebar .search-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* 数据库选择器 */
+.redis-sidebar .db-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(30, 41, 59, 0.3);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.redis-sidebar .db-selector select {
+  padding: 4px 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.redis-sidebar .db-selector select:focus {
+  border-color: #ef4444;
+}
+
+.redis-sidebar .key-count {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* 连接列表 */
+.redis-sidebar .connection-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.redis-sidebar .empty-hint {
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+}
+
+.redis-sidebar .connection-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.redis-sidebar .connection-item:hover {
+  background: rgba(100, 116, 139, 0.2);
+}
+
+.redis-sidebar .connection-item.active {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.redis-sidebar .connection-item.connected {
+  border-left: 3px solid #22c55e;
+}
+
+.redis-sidebar .conn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  color: #ef4444;
+}
+
+.redis-sidebar .conn-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.redis-sidebar .conn-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.redis-sidebar .conn-detail {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.redis-sidebar .conn-actions {
+  display: none;
+  gap: 4px;
+}
+
+.redis-sidebar .connection-item:hover .conn-actions {
+  display: flex;
+}
+
+.redis-sidebar .conn-action-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.redis-sidebar .conn-action-btn:hover {
+  background: rgba(100, 116, 139, 0.3);
+  color: #e2e8f0;
+}
+
+.redis-sidebar .conn-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* 键列表 */
+.redis-sidebar .keys-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.redis-sidebar .key-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 2px;
+}
+
+.redis-sidebar .key-item:hover {
+  background: rgba(100, 116, 139, 0.15);
+}
+
+.redis-sidebar .key-item.active {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.redis-sidebar .key-type {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-right: 8px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.redis-sidebar .key-type.string { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.redis-sidebar .key-type.hash { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.redis-sidebar .key-type.list { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.redis-sidebar .key-type.set { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+.redis-sidebar .key-type.zset { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+.redis-sidebar .key-type.stream { background: rgba(20, 184, 166, 0.2); color: #14b8a6; }
+.redis-sidebar .key-type.unknown { background: rgba(100, 116, 139, 0.2); color: #64748b; }
+
+.redis-sidebar .key-name {
+  flex: 1;
+  font-size: 12px;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.redis-sidebar .key-ttl {
+  font-size: 10px;
+  color: #64748b;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.redis-sidebar .key-ttl.expiring {
+  color: #f59e0b;
+}
+
+.redis-sidebar .key-ttl.expired {
+  color: #ef4444;
+}
+
+/* 加载更多 */
+.redis-sidebar .load-more-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px dashed rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redis-sidebar .load-more-btn:hover {
+  background: rgba(100, 116, 139, 0.2);
+  border-color: rgba(100, 116, 139, 0.5);
+  color: #e2e8f0;
+}
+
+/* 主内容区 */
+.redis-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* 标签栏 */
+.redis-wrap .tab-bar {
+  display: flex;
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+  padding: 0 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.redis-wrap .tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #94a3b8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.redis-wrap .tab:hover {
+  color: #e2e8f0;
+  background: rgba(100, 116, 139, 0.1);
+}
+
+.redis-wrap .tab.active {
+  color: #e2e8f0;
+  border-bottom-color: #ef4444;
+}
+
+.redis-wrap .tab-close {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
+.redis-wrap .tab-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* 内容面板 */
+.redis-wrap .content-panels {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.redis-wrap .content-panel {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+.redis-wrap .content-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 欢迎页 */
+.redis-wrap .welcome-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.redis-wrap .welcome-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.redis-wrap .welcome-content h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.redis-wrap .welcome-content p {
+  margin: 0 0 30px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.redis-wrap .feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.redis-wrap .feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.redis-wrap .feature-icon {
+  font-size: 18px;
+}
+
+.redis-wrap .start-btn {
+  padding: 12px 24px;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.redis-wrap .start-btn:hover {
+  background: #dc2626;
+}
+
+/* 键值面板 */
+.redis-wrap .key-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.redis-wrap .key-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.redis-wrap .key-header .key-info {
+  flex: 1;
+}
+
+.redis-wrap .key-header .key-full-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  word-break: break-all;
+}
+
+.redis-wrap .key-header .key-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.redis-wrap .key-header .key-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.redis-wrap .key-header .key-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.redis-wrap .key-header .key-action-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redis-wrap .key-header .key-action-btn.primary {
+  background: #22c55e;
+  color: white;
+}
+
+.redis-wrap .key-header .key-action-btn.primary:hover {
+  background: #16a34a;
+}
+
+.redis-wrap .key-header .key-action-btn.danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.redis-wrap .key-header .key-action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.redis-wrap .key-header .key-action-btn.secondary {
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+}
+
+.redis-wrap .key-header .key-action-btn.secondary:hover {
+  background: rgba(100, 116, 139, 0.3);
+}
+
+/* 键值内容区 */
+.redis-wrap .key-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+/* String 类型 */
+.redis-wrap .string-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.redis-wrap .string-editor textarea {
+  flex: 1;
+  min-height: 200px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
+}
+
+.redis-wrap .string-editor textarea:focus {
+  border-color: #ef4444;
+}
+
+/* Hash/List/Set/ZSet 表格 */
+.redis-wrap .data-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 6px;
+}
+
+.redis-wrap .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.redis-wrap .data-table th,
+.redis-wrap .data-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.redis-wrap .data-table th {
+  background: rgba(30, 41, 59, 0.6);
+  color: #94a3b8;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.redis-wrap .data-table td {
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.redis-wrap .data-table tr:hover td {
+  background: rgba(100, 116, 139, 0.1);
+}
+
+.redis-wrap .data-table .row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.redis-wrap .data-table .row-action-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redis-wrap .data-table .row-action-btn:hover {
+  background: rgba(100, 116, 139, 0.3);
+  color: #e2e8f0;
+}
+
+.redis-wrap .data-table .row-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* 添加行按钮 */
+.redis-wrap .add-row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px dashed rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redis-wrap .add-row-btn:hover {
+  background: rgba(100, 116, 139, 0.2);
+  border-color: rgba(100, 116, 139, 0.5);
+  color: #e2e8f0;
+}
+
+/* CLI 面板 */
+.redis-wrap .cli-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.redis-wrap .cli-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.8);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.redis-wrap .cli-line {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.redis-wrap .cli-line.command {
+  color: #22c55e;
+}
+
+.redis-wrap .cli-line.command::before {
+  content: '> ';
+  color: #64748b;
+}
+
+.redis-wrap .cli-line.result {
+  color: #e2e8f0;
+  padding-left: 16px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.redis-wrap .cli-line.error {
+  color: #ef4444;
+  padding-left: 16px;
+}
+
+.redis-wrap .cli-line.info {
+  color: #64748b;
+  font-style: italic;
+}
+
+.redis-wrap .cli-input-wrap {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-top: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.redis-wrap .cli-input-wrap input {
+  flex: 1;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  outline: none;
+}
+
+.redis-wrap .cli-input-wrap input:focus {
+  border-color: #ef4444;
+}
+
+.redis-wrap .cli-input-wrap button {
+  padding: 10px 20px;
+  background: #ef4444;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.redis-wrap .cli-input-wrap button:hover {
+  background: #dc2626;
+}
+
+/* 弹窗 */
+.redis-wrap .modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.redis-wrap .modal-content {
+  width: 420px;
+  max-width: 90%;
+  background: #1e293b;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.redis-wrap .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.redis-wrap .modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.redis-wrap .modal-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.redis-wrap .modal-close:hover {
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+}
+
+.redis-wrap .modal-body {
+  padding: 20px;
+}
+
+.redis-wrap .form-group {
+  margin-bottom: 16px;
+}
+
+.redis-wrap .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.redis-wrap .form-group input[type="text"],
+.redis-wrap .form-group input[type="number"],
+.redis-wrap .form-group input[type="password"],
+.redis-wrap .form-group select,
+.redis-wrap .form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.redis-wrap .form-group input:focus,
+.redis-wrap .form-group select:focus,
+.redis-wrap .form-group textarea:focus {
+  border-color: #ef4444;
+}
+
+.redis-wrap .form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.redis-wrap .form-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+.redis-wrap .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.redis-wrap .btn-primary,
+.redis-wrap .btn-secondary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.redis-wrap .btn-primary {
+  background: #ef4444;
+  color: white;
+}
+
+.redis-wrap .btn-primary:hover {
+  background: #dc2626;
+}
+
+.redis-wrap .btn-secondary {
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+}
+
+.redis-wrap .btn-secondary:hover {
+  background: rgba(100, 116, 139, 0.3);
+}
+
+/* 分页 */
+.redis-wrap .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(30, 41, 59, 0.3);
+  border-top: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+.redis-wrap .pagination-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.2);
+  color: #e2e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.redis-wrap .pagination-btn:hover:not(:disabled) {
+  background: rgba(100, 116, 139, 0.3);
+}
+
+.redis-wrap .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.redis-wrap .pagination-info {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 8px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .redis-sidebar {
+    width: 240px;
+    min-width: 200px;
+  }
+  
+  .redis-wrap .modal-content {
+    width: 95%;
+  }
+}
