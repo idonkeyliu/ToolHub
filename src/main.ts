@@ -367,6 +367,441 @@ async function executeQuery(connectionId: string, database: string, sql: string)
     }
 }
 
+// ==================== Redis 连接管理 ====================
+
+interface RedisConnectionConfig {
+    id?: string;
+    name: string;
+    host: string;
+    port: number;
+    password?: string;
+    database: number;
+    tls?: boolean;
+}
+
+interface RedisConnection {
+    id: string;
+    config: RedisConnectionConfig;
+    client: any;
+}
+
+const redisConnections: Map<string, RedisConnection> = new Map();
+
+let ioredis: any = null;
+
+async function loadRedisDriver() {
+    try {
+        ioredis = (await import('ioredis')).default;
+        console.log('[Redis] ioredis driver loaded');
+    } catch (e) {
+        console.log('[Redis] ioredis driver not available:', e);
+    }
+}
+
+async function testRedisConnection(config: RedisConnectionConfig): Promise<{ success: boolean; error?: string }> {
+    if (!ioredis) return { success: false, error: 'Redis 驱动未安装，请运行: npm install ioredis' };
+    
+    return new Promise((resolve) => {
+        const client = new ioredis({
+            host: config.host,
+            port: config.port,
+            password: config.password || undefined,
+            db: config.database,
+            tls: config.tls ? {} : undefined,
+            connectTimeout: 10000,
+            maxRetriesPerRequest: 1,
+            retryStrategy: () => null, // 不重试
+        });
+        
+        const timeout = setTimeout(() => {
+            client.disconnect();
+            resolve({ success: false, error: '连接超时' });
+        }, 12000);
+        
+        client.on('error', (err: Error) => {
+            clearTimeout(timeout);
+            client.disconnect();
+            resolve({ success: false, error: err.message });
+        });
+        
+        client.ping().then(() => {
+            clearTimeout(timeout);
+            client.quit();
+            resolve({ success: true });
+        }).catch((err: Error) => {
+            clearTimeout(timeout);
+            client.disconnect();
+            resolve({ success: false, error: err.message });
+        });
+    });
+}
+
+async function connectRedis(config: RedisConnectionConfig): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+    if (!ioredis) return { success: false, error: 'Redis 驱动未安装' };
+    
+    return new Promise((resolve) => {
+        const connectionId = `redis_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+        const client = new ioredis({
+            host: config.host,
+            port: config.port,
+            password: config.password || undefined,
+            db: config.database,
+            tls: config.tls ? {} : undefined,
+            connectTimeout: 10000,
+            maxRetriesPerRequest: 3,
+            retryStrategy: (times: number) => {
+                if (times > 3) return null;
+                return Math.min(times * 200, 2000);
+            },
+        });
+        
+        const timeout = setTimeout(() => {
+            client.disconnect();
+            resolve({ success: false, error: '连接超时' });
+        }, 15000);
+        
+        client.on('error', (err: Error) => {
+            console.error('[Redis] Connection error:', err.message);
+        });
+        
+        client.on('ready', () => {
+            clearTimeout(timeout);
+            redisConnections.set(connectionId, { id: connectionId, config, client });
+            resolve({ success: true, connectionId });
+        });
+        
+        // 首次连接失败
+        client.once('error', (err: Error) => {
+            if (!redisConnections.has(connectionId)) {
+                clearTimeout(timeout);
+                client.disconnect();
+                resolve({ success: false, error: err.message });
+            }
+        });
+    });
+}
+
+async function disconnectRedis(connectionId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.quit();
+        redisConnections.delete(connectionId);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisSelectDB(connectionId: string, db: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.select(db);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisScan(connectionId: string, cursor: string, pattern: string, count: number): Promise<{ success: boolean; cursor?: string; keys?: string[]; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const [newCursor, keys] = await conn.client.scan(cursor, 'MATCH', pattern, 'COUNT', count);
+        return { success: true, cursor: newCursor, keys };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetType(connectionId: string, key: string): Promise<{ success: boolean; type?: string; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const type = await conn.client.type(key);
+        return { success: true, type };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetTTL(connectionId: string, key: string): Promise<{ success: boolean; ttl?: number; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const ttl = await conn.client.ttl(key);
+        return { success: true, ttl };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisSetTTL(connectionId: string, key: string, ttl: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        if (ttl === -1) await conn.client.persist(key);
+        else await conn.client.expire(key, ttl);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisDeleteKey(connectionId: string, key: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.del(key);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisRenameKey(connectionId: string, oldKey: string, newKey: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.rename(oldKey, newKey);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetString(connectionId: string, key: string): Promise<{ success: boolean; value?: string; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const value = await conn.client.get(key);
+        return { success: true, value: value || '' };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisSetString(connectionId: string, key: string, value: string, ttl?: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        if (ttl && ttl > 0) await conn.client.setex(key, ttl, value);
+        else await conn.client.set(key, value);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetHash(connectionId: string, key: string): Promise<{ success: boolean; value?: Record<string, string>; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const value = await conn.client.hgetall(key);
+        return { success: true, value: value || {} };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisSetHashField(connectionId: string, key: string, field: string, value: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.hset(key, field, value);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisDeleteHashField(connectionId: string, key: string, field: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.hdel(key, field);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetList(connectionId: string, key: string, start: number, stop: number): Promise<{ success: boolean; value?: string[]; total?: number; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const [value, total] = await Promise.all([
+            conn.client.lrange(key, start, stop),
+            conn.client.llen(key),
+        ]);
+        return { success: true, value, total };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisPushList(connectionId: string, key: string, value: string, position: 'left' | 'right'): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        if (position === 'left') await conn.client.lpush(key, value);
+        else await conn.client.rpush(key, value);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisDeleteListItem(connectionId: string, key: string, index: number, count: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        // Redis 没有直接删除索引的命令，使用 LSET + LREM 模式
+        const placeholder = `__DELETED_${Date.now()}__`;
+        await conn.client.lset(key, index, placeholder);
+        await conn.client.lrem(key, count, placeholder);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetSet(connectionId: string, key: string): Promise<{ success: boolean; value?: string[]; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const value = await conn.client.smembers(key);
+        return { success: true, value };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisAddSetMember(connectionId: string, key: string, member: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.sadd(key, member);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisRemoveSetMember(connectionId: string, key: string, member: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.srem(key, member);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisGetZSet(connectionId: string, key: string, withScores: boolean): Promise<{ success: boolean; value?: Array<{ member: string; score: number }>; total?: number; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const total = await conn.client.zcard(key);
+        if (withScores) {
+            const raw = await conn.client.zrange(key, 0, 99, 'WITHSCORES');
+            const value: Array<{ member: string; score: number }> = [];
+            for (let i = 0; i < raw.length; i += 2) {
+                value.push({ member: raw[i], score: parseFloat(raw[i + 1]) });
+            }
+            return { success: true, value, total };
+        } else {
+            const members = await conn.client.zrange(key, 0, 99);
+            return { success: true, value: members.map((m: string) => ({ member: m, score: 0 })), total };
+        }
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisAddZSetMember(connectionId: string, key: string, member: string, score: number): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.zadd(key, score, member);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisRemoveZSetMember(connectionId: string, key: string, member: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        await conn.client.zrem(key, member);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisExecuteCommand(connectionId: string, command: string): Promise<{ success: boolean; result?: any; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        // 解析命令
+        const parts = command.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+        const cmd = parts[0]?.toUpperCase();
+        const args = parts.slice(1).map(arg => arg.replace(/^"|"$/g, ''));
+        
+        if (!cmd) return { success: false, error: '无效命令' };
+        
+        const result = await conn.client.call(cmd, ...args);
+        return { success: true, result };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+async function redisDBSize(connectionId: string): Promise<{ success: boolean; size?: number; error?: string }> {
+    try {
+        const conn = redisConnections.get(connectionId);
+        if (!conn) return { success: false, error: '连接不存在' };
+        const size = await conn.client.dbsize();
+        return { success: true, size };
+    } catch (e: any) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+
+// 注册 Redis IPC 处理器
+function setupRedisHandlers() {
+    ipcMain.handle('redis:test-connection', async (_e, config: RedisConnectionConfig) => testRedisConnection(config));
+    ipcMain.handle('redis:connect', async (_e, config: RedisConnectionConfig) => connectRedis(config));
+    ipcMain.handle('redis:disconnect', async (_e, connectionId: string) => disconnectRedis(connectionId));
+    ipcMain.handle('redis:select-db', async (_e, connectionId: string, db: number) => redisSelectDB(connectionId, db));
+    ipcMain.handle('redis:scan', async (_e, connectionId: string, cursor: string, pattern: string, count: number) => redisScan(connectionId, cursor, pattern, count));
+    ipcMain.handle('redis:get-type', async (_e, connectionId: string, key: string) => redisGetType(connectionId, key));
+    ipcMain.handle('redis:get-ttl', async (_e, connectionId: string, key: string) => redisGetTTL(connectionId, key));
+    ipcMain.handle('redis:set-ttl', async (_e, connectionId: string, key: string, ttl: number) => redisSetTTL(connectionId, key, ttl));
+    ipcMain.handle('redis:delete-key', async (_e, connectionId: string, key: string) => redisDeleteKey(connectionId, key));
+    ipcMain.handle('redis:rename-key', async (_e, connectionId: string, oldKey: string, newKey: string) => redisRenameKey(connectionId, oldKey, newKey));
+    ipcMain.handle('redis:get-string', async (_e, connectionId: string, key: string) => redisGetString(connectionId, key));
+    ipcMain.handle('redis:set-string', async (_e, connectionId: string, key: string, value: string, ttl?: number) => redisSetString(connectionId, key, value, ttl));
+    ipcMain.handle('redis:get-hash', async (_e, connectionId: string, key: string) => redisGetHash(connectionId, key));
+    ipcMain.handle('redis:set-hash-field', async (_e, connectionId: string, key: string, field: string, value: string) => redisSetHashField(connectionId, key, field, value));
+    ipcMain.handle('redis:delete-hash-field', async (_e, connectionId: string, key: string, field: string) => redisDeleteHashField(connectionId, key, field));
+    ipcMain.handle('redis:get-list', async (_e, connectionId: string, key: string, start: number, stop: number) => redisGetList(connectionId, key, start, stop));
+    ipcMain.handle('redis:push-list', async (_e, connectionId: string, key: string, value: string, position: 'left' | 'right') => redisPushList(connectionId, key, value, position));
+    ipcMain.handle('redis:delete-list-item', async (_e, connectionId: string, key: string, index: number, count: number) => redisDeleteListItem(connectionId, key, index, count));
+    ipcMain.handle('redis:get-set', async (_e, connectionId: string, key: string) => redisGetSet(connectionId, key));
+    ipcMain.handle('redis:add-set-member', async (_e, connectionId: string, key: string, member: string) => redisAddSetMember(connectionId, key, member));
+    ipcMain.handle('redis:remove-set-member', async (_e, connectionId: string, key: string, member: string) => redisRemoveSetMember(connectionId, key, member));
+    ipcMain.handle('redis:get-zset', async (_e, connectionId: string, key: string, withScores: boolean) => redisGetZSet(connectionId, key, withScores));
+    ipcMain.handle('redis:add-zset-member', async (_e, connectionId: string, key: string, member: string, score: number) => redisAddZSetMember(connectionId, key, member, score));
+    ipcMain.handle('redis:remove-zset-member', async (_e, connectionId: string, key: string, member: string) => redisRemoveZSetMember(connectionId, key, member));
+    ipcMain.handle('redis:execute-command', async (_e, connectionId: string, command: string) => redisExecuteCommand(connectionId, command));
+    ipcMain.handle('redis:db-size', async (_e, connectionId: string) => redisDBSize(connectionId));
+}
+
 // 注册数据库 IPC 处理器
 function setupDBHandlers() {
     ipcMain.handle('db:test-connection', async (_e, config: DBConnectionConfig) => {
@@ -731,6 +1166,10 @@ app.whenReady().then(async () => {
     // 加载数据库驱动
     await loadDBDrivers();
     setupDBHandlers();
+    
+    // 加载 Redis 驱动
+    await loadRedisDriver();
+    setupRedisHandlers();
     
     installFrameBypass();
     installPermissions();
