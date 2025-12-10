@@ -53,7 +53,7 @@ export class TimestampTool extends Tool {
   // ==================== 私有方法 ====================
 
   private bindCopyButtons(): void {
-    const buttons = this.querySelectorAll<HTMLButtonElement>('.stamp-copy, .convert-copy');
+    const buttons = this.querySelectorAll<HTMLButtonElement>('.stamp-card-copy, .convert-card-copy');
     buttons.forEach((btn) => {
       this.addEventListener(btn, 'click', () => {
         const targetId = btn.dataset.target;
@@ -153,8 +153,7 @@ export class TimestampTool extends Tool {
       }
 
       const sec = Math.floor(date.getTime() / 1000);
-      const ms = date.getTime();
-      output.textContent = `秒: ${sec}  |  毫秒: ${ms}`;
+      output.textContent = String(sec);
       output.style.color = '#10b981';
     };
 

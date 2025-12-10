@@ -1,72 +1,89 @@
 /**
- * 时间戳工具样式 - 旧版风格
+ * 时间戳工具样式 - 美化版
  */
 
 .time-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  gap: 24px;
+  padding: 32px 24px;
+  gap: 28px;
   min-height: 100%;
-  height: 100%;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .time-view .time-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 28px;
   width: 100%;
-  max-width: 800px;
+  max-width: 860px;
 }
 
-/* 大时钟 */
-.time-view .time-big {
-  font-size: 52px;
-  font-weight: 400;
-  letter-spacing: 2px;
-  text-align: center;
+/* ==================== 顶部装饰时钟框 ==================== */
+.time-view .time-clock-frame {
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.time-view .clock-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 时钟行 */
+.time-view .time-clock-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-view .clock-block {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 38px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  user-select: none;
+  min-width: 50px;
+  text-align: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.time-view .time-big .year {
-  color: #f472b6;
+.time-view .clock-block.year { color: #f472b6; min-width: 90px; }
+.time-view .clock-block.month { color: #fb923c; }
+.time-view .clock-block.day { color: #facc15; }
+.time-view .clock-block.hour { color: #4ade80; }
+.time-view .clock-block.minute { color: #22d3ee; }
+.time-view .clock-block.second { color: #a78bfa; }
+
+.time-view .clock-sep {
+  font-size: 32px;
+  color: #64748b;
+  font-weight: 300;
 }
 
-.time-view .time-big .month {
-  color: #fb923c;
+.time-view .clock-space {
+  width: 20px;
 }
 
-.time-view .time-big .day {
-  color: #facc15;
+.time-view .clock-colon {
+  font-size: 32px;
+  color: #64748b;
+  font-weight: 300;
 }
 
-.time-view .time-big .divider {
-  color: #6b7280;
-}
-
-.time-view .time-big .space {
-  display: inline-block;
-  width: 24px;
-}
-
-.time-view .time-big .hour {
-  color: #4ade80;
-}
-
-.time-view .time-big .minute {
-  color: #22d3ee;
-}
-
-.time-view .time-big .second {
-  color: #a78bfa;
-}
-
-.time-view .time-big .time-colon {
+.time-view .time-colon {
   animation: blink 1s step-end infinite;
 }
 
@@ -75,158 +92,255 @@
   50% { opacity: 0.3; }
 }
 
-/* 时间戳行 */
-.time-view .time-row {
-  display: flex;
+/* ==================== 时间戳卡片组 ==================== */
+.time-view .stamp-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
 }
 
-.time-view .stamp-inline {
+.time-view .stamp-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 8px;
-  padding: 10px 16px;
-}
-
-.time-view .stamp-label {
-  font-size: 13px;
-  color: #94a3b8;
-  white-space: nowrap;
-}
-
-.time-view .stamp-value {
-  font-size: 15px;
-  font-weight: 500;
-  color: #e2e8f0;
-  font-variant-numeric: tabular-nums;
-  min-width: 120px;
-}
-
-.time-view .stamp-copy {
-  padding: 6px 16px;
-  background: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
   transition: all 0.2s;
 }
 
-.time-view .stamp-copy:hover {
-  background: #60a5fa;
+.time-view .stamp-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
 }
 
-/* 转换行 */
-.time-view .convert-row {
+.time-view .stamp-card-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 8px;
-  padding: 10px 16px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.time-view .convert-label {
+.time-view .stamp-card-icon {
+  font-size: 18px;
+}
+
+.time-view .stamp-card-title {
   font-size: 13px;
   color: #94a3b8;
-  white-space: nowrap;
-  min-width: 120px;
+  font-weight: 500;
 }
 
-.time-view .convert-row input {
-  padding: 8px 12px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  border-radius: 6px;
-  color: #e2e8f0;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  transition: all 0.2s;
-}
-
-.time-view .convert-row input:focus {
-  outline: none;
-  border-color: #1e293b;
-  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
-}
-
-.time-view .convert-row input::placeholder {
-  color: #64748b;
-}
-
-.time-view .convert-row input#tsInput {
-  width: 200px;
-}
-
-.time-view .dt-input.dt-year {
-  width: 60px;
-}
-
-.time-view .dt-input.dt-small {
-  width: 50px;
+.time-view .stamp-card-body {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  padding: 12px;
   text-align: center;
 }
 
-.time-view .convert-output {
-  font-size: 14px;
+.time-view .stamp-card-value {
+  font-size: 18px;
+  font-weight: 600;
   color: #e2e8f0;
-  min-width: 60px;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
 }
 
-.time-view .convert-copy {
-  padding: 8px 24px;
-  background: #3b82f6;
+.time-view .stamp-card-copy {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s;
-  margin-left: auto;
 }
 
-.time-view .convert-copy:hover {
-  background: #60a5fa;
+.time-view .stamp-card-copy:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  transform: translateY(-1px);
 }
 
-/* 响应式 */
-@media (max-width: 768px) {
-  .time-view .time-big {
-    font-size: 36px;
+/* ==================== 转换工具卡片组 ==================== */
+.time-view .convert-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.time-view .convert-card {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s;
+}
+
+.time-view .convert-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+}
+
+.time-view .convert-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.time-view .convert-card-icon {
+  font-size: 20px;
+}
+
+.time-view .convert-card-title {
+  font-size: 14px;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.time-view .convert-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.time-view .convert-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.time-view .convert-input-group label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.time-view .convert-input-group input {
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s;
+}
+
+.time-view .convert-input-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.time-view .convert-input-group input::placeholder {
+  color: #64748b;
+}
+
+.time-view .convert-output-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.time-view .convert-output-group label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.time-view .convert-output {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  min-height: 20px;
+}
+
+/* 日期时间输入组 */
+.time-view .dt-fields {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.time-view .dt-input {
+  text-align: center;
+}
+
+.time-view .dt-input.dt-year {
+  width: 56px;
+}
+
+.time-view .dt-input.dt-small {
+  width: 40px;
+}
+
+.time-view .dt-sep {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.time-view .dt-sep.dt-space {
+  width: 12px;
+}
+
+.time-view .convert-card-copy {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-top: auto;
+}
+
+.time-view .convert-card-copy:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  transform: translateY(-1px);
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 680px) {
+  .time-view .stamp-cards,
+  .time-view .convert-cards {
+    grid-template-columns: 1fr;
   }
   
-  .time-view .time-row {
-    flex-direction: column;
-    width: 100%;
+  .time-view .clock-block {
+    font-size: 32px;
+    min-width: 54px;
+    padding: 6px 12px;
   }
   
-  .time-view .stamp-inline {
-    width: 100%;
-    justify-content: space-between;
+  .time-view .time-clock-frame {
+    padding: 20px 24px;
   }
   
-  .time-view .convert-row {
-    flex-direction: column;
-    align-items: stretch;
+  .time-view .dt-fields {
+    gap: 2px;
   }
   
-  .time-view .convert-label {
-    margin-bottom: 8px;
+  .time-view .dt-input.dt-year {
+    width: 48px;
   }
   
-  .time-view .convert-copy {
-    margin-left: 0;
-    margin-top: 8px;
+  .time-view .dt-input.dt-small {
+    width: 34px;
   }
 }
