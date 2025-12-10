@@ -20,6 +20,7 @@ import { RedisTool } from './redis/RedisTool';
 import { MongoTool } from './mongo/MongoTool';
 import { DiffTool } from './diff/DiffTool';
 import { JwtTool } from './jwt/JwtTool';
+import { RegexTool } from './regex/RegexTool';
 
 export const tools = [
   TimestampTool,
@@ -40,4 +41,5 @@ export const tools = [
   MongoTool,
   DiffTool,
   JwtTool,
+  RegexTool,
 ];
