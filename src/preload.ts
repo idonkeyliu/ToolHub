@@ -4,6 +4,19 @@ import { contextBridge, ipcRenderer } from 'electron';
 let _sites: any[] = [];
 let _lastSite = '';
 
+// 数据库连接配置接口
+interface DBConnectionConfig {
+    id?: string;
+    name: string;
+    type: 'mysql' | 'postgresql' | 'sqlite';
+    host?: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    database?: string;
+    sqlitePath?: string;
+}
+
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {
     version: '0.1.0',
@@ -15,6 +28,23 @@ contextBridge.exposeInMainWorld('llmHub', {
     openSiteWindow: (key: string) => ipcRenderer.send('open-site-window', key),
     saveFile: (options: { defaultName: string; filters: { name: string; extensions: string[] }[]; data: string }) => 
         ipcRenderer.invoke('save-file', options),
+    
+    // 数据库操作 API
+    db: {
+        testConnection: (config: DBConnectionConfig) => ipcRenderer.invoke('db:test-connection', config),
+        connect: (config: DBConnectionConfig) => ipcRenderer.invoke('db:connect', config),
+        disconnect: (connectionId: string) => ipcRenderer.invoke('db:disconnect', connectionId),
+        getDatabases: (connectionId: string) => ipcRenderer.invoke('db:get-databases', connectionId),
+        getTables: (connectionId: string, database: string) => ipcRenderer.invoke('db:get-tables', connectionId, database),
+        getTableStructure: (connectionId: string, database: string, table: string) => 
+            ipcRenderer.invoke('db:get-table-structure', connectionId, database, table),
+        getTableData: (connectionId: string, database: string, table: string, page: number, pageSize: number) => 
+            ipcRenderer.invoke('db:get-table-data', connectionId, database, table, page, pageSize),
+        executeQuery: (connectionId: string, database: string, sql: string) => 
+            ipcRenderer.invoke('db:execute-query', connectionId, database, sql),
+        updateRecord: (connectionId: string, database: string, table: string, primaryKey: string, primaryValue: any, column: string, value: any) =>
+            ipcRenderer.invoke('db:update-record', connectionId, database, table, primaryKey, primaryValue, column, value),
+    },
 });
 
 // 接收主进程数据

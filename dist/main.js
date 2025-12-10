@@ -6,6 +6,387 @@ import Store from 'electron-store';
 // Recreate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const dbConnections = new Map();
+// 动态导入数据库驱动
+let mysql2 = null;
+let pg = null;
+let betterSqlite3 = null;
+async function loadDBDrivers() {
+    try {
+        mysql2 = await import('mysql2/promise');
+        console.log('[DB] MySQL driver loaded');
+    }
+    catch (e) {
+        console.log('[DB] MySQL driver not available:', e);
+    }
+    try {
+        pg = await import('pg');
+        console.log('[DB] PostgreSQL driver loaded');
+    }
+    catch (e) {
+        console.log('[DB] PostgreSQL driver not available:', e);
+    }
+    try {
+        betterSqlite3 = (await import('better-sqlite3')).default;
+        console.log('[DB] SQLite driver loaded');
+    }
+    catch (e) {
+        console.log('[DB] SQLite driver not available:', e);
+    }
+}
+// 数据库操作函数
+async function testDBConnection(config) {
+    try {
+        if (config.type === 'mysql') {
+            if (!mysql2)
+                return { success: false, error: 'MySQL 驱动未安装，请运行: npm install mysql2' };
+            const connection = await mysql2.createConnection({
+                host: config.host,
+                port: config.port,
+                user: config.user,
+                password: config.password,
+                database: config.database,
+            });
+            await connection.ping();
+            await connection.end();
+            return { success: true };
+        }
+        else if (config.type === 'postgresql') {
+            if (!pg)
+                return { success: false, error: 'PostgreSQL 驱动未安装，请运行: npm install pg' };
+            const client = new pg.Client({
+                host: config.host,
+                port: config.port,
+                user: config.user,
+                password: config.password,
+                database: config.database || 'postgres',
+            });
+            await client.connect();
+            await client.end();
+            return { success: true };
+        }
+        else if (config.type === 'sqlite') {
+            if (!betterSqlite3)
+                return { success: false, error: 'SQLite 驱动未安装，请运行: npm install better-sqlite3' };
+            if (!config.sqlitePath || !fs.existsSync(config.sqlitePath)) {
+                return { success: false, error: '数据库文件不存在' };
+            }
+            const db = new betterSqlite3(config.sqlitePath, { readonly: true });
+            db.close();
+            return { success: true };
+        }
+        return { success: false, error: '不支持的数据库类型' };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function connectDB(config) {
+    try {
+        const connectionId = `conn_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+        if (config.type === 'mysql') {
+            if (!mysql2)
+                return { success: false, error: 'MySQL 驱动未安装' };
+            const pool = mysql2.createPool({
+                host: config.host,
+                port: config.port,
+                user: config.user,
+                password: config.password,
+                database: config.database,
+                waitForConnections: true,
+                connectionLimit: 10,
+            });
+            dbConnections.set(connectionId, { id: connectionId, config, client: pool });
+            return { success: true, connectionId };
+        }
+        else if (config.type === 'postgresql') {
+            if (!pg)
+                return { success: false, error: 'PostgreSQL 驱动未安装' };
+            const pool = new pg.Pool({
+                host: config.host,
+                port: config.port,
+                user: config.user,
+                password: config.password,
+                database: config.database || 'postgres',
+            });
+            dbConnections.set(connectionId, { id: connectionId, config, client: pool });
+            return { success: true, connectionId };
+        }
+        else if (config.type === 'sqlite') {
+            if (!betterSqlite3)
+                return { success: false, error: 'SQLite 驱动未安装' };
+            const db = new betterSqlite3(config.sqlitePath);
+            dbConnections.set(connectionId, { id: connectionId, config, client: db });
+            return { success: true, connectionId };
+        }
+        return { success: false, error: '不支持的数据库类型' };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function disconnectDB(connectionId) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        if (conn.config.type === 'mysql' || conn.config.type === 'postgresql') {
+            await conn.client.end();
+        }
+        else if (conn.config.type === 'sqlite') {
+            conn.client.close();
+        }
+        dbConnections.delete(connectionId);
+        return { success: true };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function getDatabases(connectionId) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        let databases = [];
+        if (conn.config.type === 'mysql') {
+            const [rows] = await conn.client.query('SHOW DATABASES');
+            databases = rows.map((r) => r.Database);
+        }
+        else if (conn.config.type === 'postgresql') {
+            const result = await conn.client.query("SELECT datname FROM pg_database WHERE datistemplate = false ORDER BY datname");
+            databases = result.rows.map((r) => r.datname);
+        }
+        else if (conn.config.type === 'sqlite') {
+            // SQLite 只有一个数据库
+            databases = ['main'];
+        }
+        return { success: true, databases };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function getTables(connectionId, database) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        let tables = [];
+        if (conn.config.type === 'mysql') {
+            const [rows] = await conn.client.query(`SHOW TABLES FROM \`${database}\``);
+            tables = rows.map((r) => Object.values(r)[0]);
+        }
+        else if (conn.config.type === 'postgresql') {
+            // 切换数据库需要新连接
+            const client = new pg.Client({
+                host: conn.config.host,
+                port: conn.config.port,
+                user: conn.config.user,
+                password: conn.config.password,
+                database: database,
+            });
+            await client.connect();
+            const result = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
+            tables = result.rows.map((r) => r.tablename);
+            await client.end();
+        }
+        else if (conn.config.type === 'sqlite') {
+            const rows = conn.client.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all();
+            tables = rows.map((r) => r.name);
+        }
+        return { success: true, tables };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function getTableStructure(connectionId, database, table) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        let columns = [];
+        if (conn.config.type === 'mysql') {
+            const [rows] = await conn.client.query(`DESCRIBE \`${database}\`.\`${table}\``);
+            columns = rows.map((r) => ({
+                name: r.Field,
+                type: r.Type,
+                nullable: r.Null === 'YES',
+                key: r.Key,
+                default: r.Default,
+                extra: r.Extra,
+            }));
+        }
+        else if (conn.config.type === 'postgresql') {
+            const client = new pg.Client({
+                host: conn.config.host,
+                port: conn.config.port,
+                user: conn.config.user,
+                password: conn.config.password,
+                database: database,
+            });
+            await client.connect();
+            const result = await client.query(`
+                SELECT column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns
+                WHERE table_name = $1
+                ORDER BY ordinal_position
+            `, [table]);
+            columns = result.rows.map((r) => ({
+                name: r.column_name,
+                type: r.data_type,
+                nullable: r.is_nullable === 'YES',
+                key: '',
+                default: r.column_default,
+                extra: '',
+            }));
+            await client.end();
+        }
+        else if (conn.config.type === 'sqlite') {
+            const rows = conn.client.prepare(`PRAGMA table_info("${table}")`).all();
+            columns = rows.map((r) => ({
+                name: r.name,
+                type: r.type,
+                nullable: r.notnull === 0,
+                key: r.pk ? 'PRI' : '',
+                default: r.dflt_value,
+                extra: '',
+            }));
+        }
+        return { success: true, columns };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function getTableData(connectionId, database, table, page, pageSize) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        const offset = (page - 1) * pageSize;
+        let data = [];
+        let total = 0;
+        if (conn.config.type === 'mysql') {
+            const [countRows] = await conn.client.query(`SELECT COUNT(*) as count FROM \`${database}\`.\`${table}\``);
+            total = countRows[0].count;
+            const [rows] = await conn.client.query(`SELECT * FROM \`${database}\`.\`${table}\` LIMIT ${pageSize} OFFSET ${offset}`);
+            data = rows;
+        }
+        else if (conn.config.type === 'postgresql') {
+            const client = new pg.Client({
+                host: conn.config.host,
+                port: conn.config.port,
+                user: conn.config.user,
+                password: conn.config.password,
+                database: database,
+            });
+            await client.connect();
+            const countResult = await client.query(`SELECT COUNT(*) as count FROM "${table}"`);
+            total = parseInt(countResult.rows[0].count);
+            const result = await client.query(`SELECT * FROM "${table}" LIMIT $1 OFFSET $2`, [pageSize, offset]);
+            data = result.rows;
+            await client.end();
+        }
+        else if (conn.config.type === 'sqlite') {
+            const countRow = conn.client.prepare(`SELECT COUNT(*) as count FROM "${table}"`).get();
+            total = countRow.count;
+            data = conn.client.prepare(`SELECT * FROM "${table}" LIMIT ? OFFSET ?`).all(pageSize, offset);
+        }
+        return { success: true, data, total };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+async function executeQuery(connectionId, database, sql) {
+    try {
+        const conn = dbConnections.get(connectionId);
+        if (!conn)
+            return { success: false, error: '连接不存在' };
+        // 简单的 SQL 注入防护：禁止某些危险操作
+        const upperSql = sql.toUpperCase().trim();
+        if (upperSql.includes('DROP DATABASE') || upperSql.includes('DROP SCHEMA')) {
+            return { success: false, error: '不允许执行 DROP DATABASE 操作' };
+        }
+        if (conn.config.type === 'mysql') {
+            // 先切换数据库
+            await conn.client.query(`USE \`${database}\``);
+            const [rows, fields] = await conn.client.query(sql);
+            if (Array.isArray(rows)) {
+                return { success: true, data: rows };
+            }
+            else {
+                return { success: true, affectedRows: rows.affectedRows };
+            }
+        }
+        else if (conn.config.type === 'postgresql') {
+            const client = new pg.Client({
+                host: conn.config.host,
+                port: conn.config.port,
+                user: conn.config.user,
+                password: conn.config.password,
+                database: database,
+            });
+            await client.connect();
+            const result = await client.query(sql);
+            await client.end();
+            if (result.rows) {
+                return { success: true, data: result.rows };
+            }
+            else {
+                return { success: true, affectedRows: result.rowCount || 0 };
+            }
+        }
+        else if (conn.config.type === 'sqlite') {
+            if (upperSql.startsWith('SELECT')) {
+                const rows = conn.client.prepare(sql).all();
+                return { success: true, data: rows };
+            }
+            else {
+                const info = conn.client.prepare(sql).run();
+                return { success: true, affectedRows: info.changes };
+            }
+        }
+        return { success: false, error: '不支持的数据库类型' };
+    }
+    catch (e) {
+        return { success: false, error: e.message || String(e) };
+    }
+}
+// 注册数据库 IPC 处理器
+function setupDBHandlers() {
+    ipcMain.handle('db:test-connection', async (_e, config) => {
+        return testDBConnection(config);
+    });
+    ipcMain.handle('db:connect', async (_e, config) => {
+        return connectDB(config);
+    });
+    ipcMain.handle('db:disconnect', async (_e, connectionId) => {
+        return disconnectDB(connectionId);
+    });
+    ipcMain.handle('db:get-databases', async (_e, connectionId) => {
+        return getDatabases(connectionId);
+    });
+    ipcMain.handle('db:get-tables', async (_e, connectionId, database) => {
+        return getTables(connectionId, database);
+    });
+    ipcMain.handle('db:get-table-structure', async (_e, connectionId, database, table) => {
+        return getTableStructure(connectionId, database, table);
+    });
+    ipcMain.handle('db:get-table-data', async (_e, connectionId, database, table, page, pageSize) => {
+        return getTableData(connectionId, database, table, page, pageSize);
+    });
+    ipcMain.handle('db:execute-query', async (_e, connectionId, database, sql) => {
+        return executeQuery(connectionId, database, sql);
+    });
+    ipcMain.handle('db:update-record', async (_e, connectionId, database, table, primaryKey, primaryValue, column, value) => {
+        // 简化实现
+        const sql = `UPDATE "${table}" SET "${column}" = '${value}' WHERE "${primaryKey}" = '${primaryValue}'`;
+        return executeQuery(connectionId, database, sql);
+    });
+}
 const store = new Store();
 const sites = [
     { key: 'openai', title: 'OpenAI ChatGPT', url: 'https://chat.openai.com', partition: 'persist:openai' },
@@ -320,7 +701,10 @@ function installContextMenu() {
         });
     });
 }
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+    // 加载数据库驱动
+    await loadDBDrivers();
+    setupDBHandlers();
     installFrameBypass();
     installPermissions();
     installContextMenu();
