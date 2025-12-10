@@ -14,6 +14,18 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
     clearActivePartition: (partition) => electron_1.ipcRenderer.send('clear-active-partition', partition),
     openSiteWindow: (key) => electron_1.ipcRenderer.send('open-site-window', key),
     saveFile: (options) => electron_1.ipcRenderer.invoke('save-file', options),
+    // 数据库操作 API
+    db: {
+        testConnection: (config) => electron_1.ipcRenderer.invoke('db:test-connection', config),
+        connect: (config) => electron_1.ipcRenderer.invoke('db:connect', config),
+        disconnect: (connectionId) => electron_1.ipcRenderer.invoke('db:disconnect', connectionId),
+        getDatabases: (connectionId) => electron_1.ipcRenderer.invoke('db:get-databases', connectionId),
+        getTables: (connectionId, database) => electron_1.ipcRenderer.invoke('db:get-tables', connectionId, database),
+        getTableStructure: (connectionId, database, table) => electron_1.ipcRenderer.invoke('db:get-table-structure', connectionId, database, table),
+        getTableData: (connectionId, database, table, page, pageSize) => electron_1.ipcRenderer.invoke('db:get-table-data', connectionId, database, table, page, pageSize),
+        executeQuery: (connectionId, database, sql) => electron_1.ipcRenderer.invoke('db:execute-query', connectionId, database, sql),
+        updateRecord: (connectionId, database, table, primaryKey, primaryValue, column, value) => electron_1.ipcRenderer.invoke('db:update-record', connectionId, database, table, primaryKey, primaryValue, column, value),
+    },
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

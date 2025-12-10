@@ -49,6 +49,8 @@ const TOOL_COLORS: Record<string, string> = {
   color: '#a855f7',
   calendar: '#6366f1',
   currency: '#10b981',
+  image: '#0ea5e9',
+  database: '#f472b6',
 };
 
 /** 工具快捷键映射 */

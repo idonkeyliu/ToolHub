@@ -15,6 +15,7 @@ import { CurrencyTool } from './currency/CurrencyTool';
 import { ColorTool } from './color/ColorTool';
 import { CalendarTool } from './calendar/CalendarTool';
 import { ImageTool } from './image/ImageTool';
+import { DatabaseTool } from './database/DatabaseTool';
 
 export const tools = [
   TimestampTool,
@@ -30,4 +31,5 @@ export const tools = [
   ColorTool,
   CalendarTool,
   ImageTool,
+  DatabaseTool,
 ];
