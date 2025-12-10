@@ -17,6 +17,17 @@ interface DBConnectionConfig {
     sqlitePath?: string;
 }
 
+// Redis 连接配置接口
+interface RedisConnectionConfig {
+    id?: string;
+    name: string;
+    host: string;
+    port: number;
+    password?: string;
+    database: number;
+    tls?: boolean;
+}
+
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {
     version: '0.1.0',
@@ -44,6 +55,50 @@ contextBridge.exposeInMainWorld('llmHub', {
             ipcRenderer.invoke('db:execute-query', connectionId, database, sql),
         updateRecord: (connectionId: string, database: string, table: string, primaryKey: string, primaryValue: any, column: string, value: any) =>
             ipcRenderer.invoke('db:update-record', connectionId, database, table, primaryKey, primaryValue, column, value),
+    },
+    
+    // Redis 操作 API
+    redis: {
+        testConnection: (config: RedisConnectionConfig) => ipcRenderer.invoke('redis:test-connection', config),
+        connect: (config: RedisConnectionConfig) => ipcRenderer.invoke('redis:connect', config),
+        disconnect: (connectionId: string) => ipcRenderer.invoke('redis:disconnect', connectionId),
+        selectDB: (connectionId: string, db: number) => ipcRenderer.invoke('redis:select-db', connectionId, db),
+        scan: (connectionId: string, cursor: string, pattern: string, count: number) => 
+            ipcRenderer.invoke('redis:scan', connectionId, cursor, pattern, count),
+        getType: (connectionId: string, key: string) => ipcRenderer.invoke('redis:get-type', connectionId, key),
+        getTTL: (connectionId: string, key: string) => ipcRenderer.invoke('redis:get-ttl', connectionId, key),
+        setTTL: (connectionId: string, key: string, ttl: number) => ipcRenderer.invoke('redis:set-ttl', connectionId, key, ttl),
+        deleteKey: (connectionId: string, key: string) => ipcRenderer.invoke('redis:delete-key', connectionId, key),
+        renameKey: (connectionId: string, oldKey: string, newKey: string) => 
+            ipcRenderer.invoke('redis:rename-key', connectionId, oldKey, newKey),
+        getString: (connectionId: string, key: string) => ipcRenderer.invoke('redis:get-string', connectionId, key),
+        setString: (connectionId: string, key: string, value: string, ttl?: number) => 
+            ipcRenderer.invoke('redis:set-string', connectionId, key, value, ttl),
+        getHash: (connectionId: string, key: string) => ipcRenderer.invoke('redis:get-hash', connectionId, key),
+        setHashField: (connectionId: string, key: string, field: string, value: string) => 
+            ipcRenderer.invoke('redis:set-hash-field', connectionId, key, field, value),
+        deleteHashField: (connectionId: string, key: string, field: string) => 
+            ipcRenderer.invoke('redis:delete-hash-field', connectionId, key, field),
+        getList: (connectionId: string, key: string, start: number, stop: number) => 
+            ipcRenderer.invoke('redis:get-list', connectionId, key, start, stop),
+        pushList: (connectionId: string, key: string, value: string, position: 'left' | 'right') => 
+            ipcRenderer.invoke('redis:push-list', connectionId, key, value, position),
+        deleteListItem: (connectionId: string, key: string, index: number, count: number) => 
+            ipcRenderer.invoke('redis:delete-list-item', connectionId, key, index, count),
+        getSet: (connectionId: string, key: string) => ipcRenderer.invoke('redis:get-set', connectionId, key),
+        addSetMember: (connectionId: string, key: string, member: string) => 
+            ipcRenderer.invoke('redis:add-set-member', connectionId, key, member),
+        removeSetMember: (connectionId: string, key: string, member: string) => 
+            ipcRenderer.invoke('redis:remove-set-member', connectionId, key, member),
+        getZSet: (connectionId: string, key: string, withScores: boolean) => 
+            ipcRenderer.invoke('redis:get-zset', connectionId, key, withScores),
+        addZSetMember: (connectionId: string, key: string, member: string, score: number) => 
+            ipcRenderer.invoke('redis:add-zset-member', connectionId, key, member, score),
+        removeZSetMember: (connectionId: string, key: string, member: string) => 
+            ipcRenderer.invoke('redis:remove-zset-member', connectionId, key, member),
+        executeCommand: (connectionId: string, command: string) => 
+            ipcRenderer.invoke('redis:execute-command', connectionId, command),
+        dbSize: (connectionId: string) => ipcRenderer.invoke('redis:db-size', connectionId),
     },
 });
 
