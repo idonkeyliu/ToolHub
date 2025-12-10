@@ -28,6 +28,20 @@ interface RedisConnectionConfig {
     tls?: boolean;
 }
 
+// MongoDB 连接配置接口
+interface MongoConnectionConfig {
+    id?: string;
+    name: string;
+    mode: 'standard' | 'uri';
+    host?: string;
+    port?: number;
+    user?: string;
+    password?: string;
+    authDB?: string;
+    uri?: string;
+    tls?: boolean;
+}
+
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {
     version: '0.1.0',
@@ -99,6 +113,34 @@ contextBridge.exposeInMainWorld('llmHub', {
         executeCommand: (connectionId: string, command: string) => 
             ipcRenderer.invoke('redis:execute-command', connectionId, command),
         dbSize: (connectionId: string) => ipcRenderer.invoke('redis:db-size', connectionId),
+    },
+    
+    // MongoDB 操作 API
+    mongo: {
+        testConnection: (config: MongoConnectionConfig) => ipcRenderer.invoke('mongo:test-connection', config),
+        connect: (config: MongoConnectionConfig) => ipcRenderer.invoke('mongo:connect', config),
+        disconnect: (connectionId: string) => ipcRenderer.invoke('mongo:disconnect', connectionId),
+        listDatabases: (connectionId: string) => ipcRenderer.invoke('mongo:list-databases', connectionId),
+        listCollections: (connectionId: string, database: string) => 
+            ipcRenderer.invoke('mongo:list-collections', connectionId, database),
+        getCollectionStats: (connectionId: string, database: string, collection: string) => 
+            ipcRenderer.invoke('mongo:get-collection-stats', connectionId, database, collection),
+        findDocuments: (connectionId: string, database: string, collection: string, filter: string, sort: string, skip: number, limit: number) => 
+            ipcRenderer.invoke('mongo:find-documents', connectionId, database, collection, filter, sort, skip, limit),
+        insertDocument: (connectionId: string, database: string, collection: string, document: string) => 
+            ipcRenderer.invoke('mongo:insert-document', connectionId, database, collection, document),
+        updateDocument: (connectionId: string, database: string, collection: string, id: string, document: string) => 
+            ipcRenderer.invoke('mongo:update-document', connectionId, database, collection, id, document),
+        deleteDocument: (connectionId: string, database: string, collection: string, id: string) => 
+            ipcRenderer.invoke('mongo:delete-document', connectionId, database, collection, id),
+        getIndexes: (connectionId: string, database: string, collection: string) => 
+            ipcRenderer.invoke('mongo:get-indexes', connectionId, database, collection),
+        runCommand: (connectionId: string, database: string, command: string) => 
+            ipcRenderer.invoke('mongo:run-command', connectionId, database, command),
+        dropCollection: (connectionId: string, database: string, collection: string) => 
+            ipcRenderer.invoke('mongo:drop-collection', connectionId, database, collection),
+        createCollection: (connectionId: string, database: string, collection: string) => 
+            ipcRenderer.invoke('mongo:create-collection', connectionId, database, collection),
     },
 });
 

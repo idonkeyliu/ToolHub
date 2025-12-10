@@ -17,6 +17,7 @@ import { CalendarTool } from './calendar/CalendarTool';
 import { ImageTool } from './image/ImageTool';
 import { DatabaseTool } from './database/DatabaseTool';
 import { RedisTool } from './redis/RedisTool';
+import { MongoTool } from './mongo/MongoTool';
 
 export const tools = [
   TimestampTool,
@@ -34,4 +35,5 @@ export const tools = [
   ImageTool,
   DatabaseTool,
   RedisTool,
+  MongoTool,
 ];
