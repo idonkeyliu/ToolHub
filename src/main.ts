@@ -208,7 +208,7 @@ function setupRedisHandlers() {
 function setupMongoHandlers() {
     const mongoManager = mongoManagerInstance;
     
-    ipcMain.handle('mongo:test', async (_e, config) => {
+    ipcMain.handle('mongo:test-connection', async (_e, config) => {
         return mongoManager.testConnection(config);
     });
     
@@ -228,27 +228,27 @@ function setupMongoHandlers() {
         return mongoManager.listCollections(connectionId, database);
     });
     
-    ipcMain.handle('mongo:collection-stats', async (_e, connectionId: string, database: string, collection: string) => {
+    ipcMain.handle('mongo:get-collection-stats', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.getCollectionStats(connectionId, database, collection);
     });
     
-    ipcMain.handle('mongo:find', async (_e, connectionId: string, database: string, collection: string, filterStr: string, sortStr: string, skip: number, limit: number) => {
+    ipcMain.handle('mongo:find-documents', async (_e, connectionId: string, database: string, collection: string, filterStr: string, sortStr: string, skip: number, limit: number) => {
         return mongoManager.findDocuments(connectionId, database, collection, filterStr, sortStr, skip, limit);
     });
     
-    ipcMain.handle('mongo:insert', async (_e, connectionId: string, database: string, collection: string, documentStr: string) => {
+    ipcMain.handle('mongo:insert-document', async (_e, connectionId: string, database: string, collection: string, documentStr: string) => {
         return mongoManager.insertDocument(connectionId, database, collection, documentStr);
     });
     
-    ipcMain.handle('mongo:update', async (_e, connectionId: string, database: string, collection: string, id: string, documentStr: string) => {
+    ipcMain.handle('mongo:update-document', async (_e, connectionId: string, database: string, collection: string, id: string, documentStr: string) => {
         return mongoManager.updateDocument(connectionId, database, collection, id, documentStr);
     });
     
-    ipcMain.handle('mongo:delete', async (_e, connectionId: string, database: string, collection: string, id: string) => {
+    ipcMain.handle('mongo:delete-document', async (_e, connectionId: string, database: string, collection: string, id: string) => {
         return mongoManager.deleteDocument(connectionId, database, collection, id);
     });
     
-    ipcMain.handle('mongo:indexes', async (_e, connectionId: string, database: string, collection: string) => {
+    ipcMain.handle('mongo:get-indexes', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.getIndexes(connectionId, database, collection);
     });
     

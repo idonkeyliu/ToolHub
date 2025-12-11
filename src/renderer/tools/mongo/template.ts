@@ -139,6 +139,7 @@ export const template = `
           </div>
         </div>
         <div class="modal-footer">
+          <span class="conn-test-status" id="connTestStatus"></span>
           <button class="btn-secondary" id="testConnBtn">测试连接</button>
           <button class="btn-primary" id="saveConnBtn">保存</button>
         </div>
