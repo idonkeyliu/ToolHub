@@ -65,45 +65,63 @@ export class RedisManager {
         await this.loadDriver();
         
         if (!this.ioredis) {
+            stopTimer({ error: 'no driver' });
             return { success: false, error: 'Redis 驱动未安装，请运行: npm install ioredis' };
         }
         
+        console.log('[Redis] testConnection start:', config.host, config.port);
+        
         return new Promise((resolve) => {
-            const client = new this.ioredis({
-                host: config.host,
-                port: config.port,
-                password: config.password || undefined,
-                db: config.database,
-                tls: config.tls ? {} : undefined,
-                connectTimeout: 10000,
-                maxRetriesPerRequest: 1,
-                retryStrategy: () => null,
-            });
+            let resolved = false;
+            let client: any = null;
+            
+            const done = (result: { success: boolean; error?: string }) => {
+                if (resolved) return;
+                resolved = true;
+                clearTimeout(timeout);
+                if (client) {
+                    try { client.disconnect(); } catch {}
+                }
+                stopTimer(result.success ? undefined : { error: true });
+                console.log('[Redis] testConnection done:', result);
+                resolve(result);
+            };
             
             const timeout = setTimeout(() => {
-                client.disconnect();
-                stopTimer({ error: 'timeout' });
-                resolve({ success: false, error: '连接超时' });
-            }, 12000);
+                console.log('[Redis] testConnection timeout');
+                done({ success: false, error: '连接超时 (5s)' });
+            }, 6000);
             
-            client.on('error', (err: Error) => {
-                clearTimeout(timeout);
-                client.disconnect();
-                stopTimer({ error: true });
-                resolve({ success: false, error: err.message });
-            });
-            
-            client.ping().then(() => {
-                clearTimeout(timeout);
-                client.quit();
-                stopTimer();
-                resolve({ success: true });
-            }).catch((err: Error) => {
-                clearTimeout(timeout);
-                client.disconnect();
-                stopTimer({ error: true });
-                resolve({ success: false, error: err.message });
-            });
+            try {
+                client = new this.ioredis({
+                    host: config.host,
+                    port: config.port,
+                    password: config.password || undefined,
+                    db: config.database,
+                    tls: config.tls ? {} : undefined,
+                    connectTimeout: 5000,
+                    maxRetriesPerRequest: 1,
+                    retryStrategy: () => null,
+                    enableReadyCheck: true,
+                });
+                
+                client.on('error', (err: Error) => {
+                    console.log('[Redis] testConnection error event:', err.message);
+                    done({ success: false, error: err.message });
+                });
+                
+                client.on('ready', () => {
+                    console.log('[Redis] testConnection ready');
+                    client.ping().then(() => {
+                        done({ success: true });
+                    }).catch((err: Error) => {
+                        done({ success: false, error: err.message });
+                    });
+                });
+            } catch (err: any) {
+                console.log('[Redis] testConnection create error:', err.message);
+                done({ success: false, error: err.message });
+            }
         });
     }
 
