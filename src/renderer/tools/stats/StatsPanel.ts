@@ -40,6 +40,18 @@ export class StatsPanel {
 
   private initToolsMap(): void {
     const toolsList: ToolInfo[] = [
+      // LLM 站点
+      { id: 'openai', name: 'OpenAI', icon: '🤖', color: '#10a37f' },
+      { id: 'gemini', name: 'Gemini', icon: '✨', color: '#4285f4' },
+      { id: 'claude', name: 'Claude', icon: '🧠', color: '#d97706' },
+      { id: 'deepseek', name: 'DeepSeek', icon: '🔍', color: '#6366f1' },
+      { id: 'kimi', name: 'Kimi', icon: '🌙', color: '#8b5cf6' },
+      { id: 'doubao', name: '豆包', icon: '🫘', color: '#ff6b35' },
+      { id: 'qwen', name: '通义千问', icon: '💬', color: '#6d28d9' },
+      { id: 'yuanbao', name: '元宝', icon: '🪙', color: '#f59e0b' },
+      { id: 'zhipu', name: '智谱', icon: '🎯', color: '#0ea5e9' },
+      { id: 'baichuan', name: '百川', icon: '🌊', color: '#14b8a6' },
+      // 工具
       { id: 'time', name: '时间戳', icon: '⏰', color: '#f59e0b' },
       { id: 'pwd', name: '密码生成', icon: '🔑', color: '#ef4444' },
       { id: 'text', name: '文本统计', icon: '📝', color: '#8b5cf6' },
