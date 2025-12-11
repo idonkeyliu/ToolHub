@@ -5,8 +5,7 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
 import { template } from './template';
-
-declare function toast(msg: string): void;
+import { toast } from '../../components/Toast';
 
 declare const llmHub: {
   mongo: {
@@ -250,12 +249,39 @@ export class MongoTool extends Tool {
     const config = this.getFormConfig();
     if (!config.name) { toast('请输入连接名称'); return; }
 
-    this.setStatus('正在测试连接...', 'loading');
+    const statusEl = this.querySelector('#connTestStatus');
+    const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
+    
+    if (statusEl) {
+      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.style.color = '#f59e0b';
+    }
+    if (testBtn) testBtn.disabled = true;
+    
     try {
       const result = await llmHub.mongo.testConnection(config);
-      if (result.success) { toast('连接成功！'); this.setStatus('连接测试成功'); }
-      else { toast(`连接失败: ${result.error}`); this.setStatus('连接测试失败', 'error'); }
-    } catch (e) { toast(`连接失败: ${e}`); this.setStatus('连接测试失败', 'error'); }
+      if (result.success) { 
+        if (statusEl) {
+          statusEl.textContent = '✅ 连接成功！';
+          statusEl.style.color = '#22c55e';
+        }
+        toast('连接成功！'); 
+      } else { 
+        if (statusEl) {
+          statusEl.textContent = `❌ ${result.error}`;
+          statusEl.style.color = '#ef4444';
+        }
+        toast(`连接失败: ${result.error}`); 
+      }
+    } catch (e) { 
+      if (statusEl) {
+        statusEl.textContent = `❌ ${e}`;
+        statusEl.style.color = '#ef4444';
+      }
+      toast(`连接失败: ${e}`); 
+    } finally {
+      if (testBtn) testBtn.disabled = false;
+    }
   }
 
   private saveConnection(): void {
@@ -297,6 +323,7 @@ export class MongoTool extends Tool {
       this.currentConfigId = null;
       const collectionsPanel = this.querySelector('#collectionsPanel');
       if (collectionsPanel) collectionsPanel.style.display = 'none';
+      this.setStatus('未连接');
     }
 
     toast('连接配置已删除');
