@@ -1,6 +1,11 @@
 /**
  * 数据库管理模块
  * 负责 MySQL、PostgreSQL、SQLite 的连接管理和操作
+ * 
+ * 性能优化特性：
+ * - 驱动懒加载：只在需要时加载数据库驱动
+ * - 查询缓存：缓存表结构和元数据
+ * - 性能监控：记录查询耗时
  */
 
 import fs from 'node:fs';
@@ -23,6 +28,9 @@ import type {
     MySQLQueryResult
 } from './types.js';
 import { getErrorMessage } from '../utils/error-handler.js';
+import { schemaCache, metadataCache } from '../utils/cache-manager.js';
+import { driverLoader } from '../utils/lazy-loader.js';
+import { perfMonitor } from '../utils/performance-monitor.js';
 
 // ==================== 类型定义 ====================
 
@@ -53,31 +61,62 @@ export class DatabaseManager {
         pg: null,
         betterSqlite3: null,
     };
+    private driversLoaded = false;
 
     /**
-     * 加载数据库驱动
+     * 加载数据库驱动（懒加载优化）
+     * 驱动只在首次需要时加载，而不是启动时全部加载
      */
     async loadDrivers(): Promise<void> {
-        try {
-            this.drivers.mysql2 = await import('mysql2/promise') as MySQLDriver;
+        if (this.driversLoaded) return;
+        
+        const stopTimer = perfMonitor.startTimer('db.loadDrivers');
+        
+        // 并行加载所有驱动
+        const [mysql, pg, sqlite] = await Promise.allSettled([
+            driverLoader.get<MySQLDriver>('mysql2'),
+            driverLoader.get<PostgreSQLDriver>('pg'),
+            driverLoader.get<SQLiteDriver>('better-sqlite3'),
+        ]);
+        
+        if (mysql.status === 'fulfilled' && mysql.value) {
+            this.drivers.mysql2 = mysql.value;
             console.log('[DB] MySQL driver loaded');
-        } catch (e) {
-            console.log('[DB] MySQL driver not available:', e);
         }
         
-        try {
-            this.drivers.pg = await import('pg') as PostgreSQLDriver;
+        if (pg.status === 'fulfilled' && pg.value) {
+            this.drivers.pg = pg.value;
             console.log('[DB] PostgreSQL driver loaded');
-        } catch (e) {
-            console.log('[DB] PostgreSQL driver not available:', e);
         }
         
-        try {
-            const sqlite = await import('better-sqlite3');
-            this.drivers.betterSqlite3 = sqlite.default as SQLiteDriver;
+        if (sqlite.status === 'fulfilled' && sqlite.value) {
+            this.drivers.betterSqlite3 = sqlite.value;
             console.log('[DB] SQLite driver loaded');
+        }
+        
+        this.driversLoaded = true;
+        stopTimer();
+    }
+
+    /**
+     * 按需加载单个驱动
+     */
+    private async loadDriver(type: 'mysql' | 'postgresql' | 'sqlite'): Promise<boolean> {
+        const stopTimer = perfMonitor.startTimer(`db.loadDriver.${type}`);
+        
+        try {
+            if (type === 'mysql' && !this.drivers.mysql2) {
+                this.drivers.mysql2 = await driverLoader.get<MySQLDriver>('mysql2');
+            } else if (type === 'postgresql' && !this.drivers.pg) {
+                this.drivers.pg = await driverLoader.get<PostgreSQLDriver>('pg');
+            } else if (type === 'sqlite' && !this.drivers.betterSqlite3) {
+                this.drivers.betterSqlite3 = await driverLoader.get<SQLiteDriver>('better-sqlite3');
+            }
+            stopTimer();
+            return true;
         } catch (e) {
-            console.log('[DB] SQLite driver not available:', e);
+            stopTimer({ error: true });
+            return false;
         }
     }
 
@@ -85,7 +124,12 @@ export class DatabaseManager {
      * 测试数据库连接
      */
     async testConnection(config: DBConnectionConfig): Promise<{ success: boolean; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('db.testConnection');
+        
         try {
+            // 按需加载驱动
+            await this.loadDriver(config.type);
+            
             if (config.type === 'mysql') {
                 if (!this.drivers.mysql2) {
                     return { success: false, error: 'MySQL 驱动未安装，请运行: npm install mysql2' };
@@ -99,6 +143,7 @@ export class DatabaseManager {
                 });
                 await connection.ping();
                 await connection.end();
+                stopTimer({ type: 'mysql' });
                 return { success: true };
             } else if (config.type === 'postgresql') {
                 if (!this.drivers.pg) {
@@ -113,6 +158,7 @@ export class DatabaseManager {
                 });
                 await client.connect();
                 await client.end();
+                stopTimer({ type: 'postgresql' });
                 return { success: true };
             } else if (config.type === 'sqlite') {
                 if (!this.drivers.betterSqlite3) {
@@ -123,10 +169,12 @@ export class DatabaseManager {
                 }
                 const db = new this.drivers.betterSqlite3(config.sqlitePath, { readonly: true });
                 db.close();
+                stopTimer({ type: 'sqlite' });
                 return { success: true };
             }
             return { success: false, error: '不支持的数据库类型' };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -135,7 +183,12 @@ export class DatabaseManager {
      * 连接数据库
      */
     async connect(config: DBConnectionConfig): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('db.connect');
+        
         try {
+            // 按需加载驱动
+            await this.loadDriver(config.type);
+            
             const connectionId = `conn_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
             
             if (config.type === 'mysql') {
@@ -207,6 +260,16 @@ export class DatabaseManager {
      * 获取数据库列表
      */
     async getDatabases(connectionId: string): Promise<{ success: boolean; databases?: string[]; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('db.getDatabases');
+        const cacheKey = `databases:${connectionId}`;
+        
+        // 检查缓存
+        const cached = metadataCache.get(cacheKey);
+        if (cached) {
+            stopTimer({ cached: true });
+            return cached;
+        }
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -227,8 +290,12 @@ export class DatabaseManager {
                 databases = ['main'];
             }
             
-            return { success: true, databases };
+            const result = { success: true, databases };
+            metadataCache.set(cacheKey, result);
+            stopTimer();
+            return result;
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -237,6 +304,16 @@ export class DatabaseManager {
      * 获取表列表
      */
     async getTables(connectionId: string, database: string): Promise<{ success: boolean; tables?: string[]; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('db.getTables');
+        const cacheKey = `tables:${connectionId}:${database}`;
+        
+        // 检查缓存
+        const cached = metadataCache.get(cacheKey);
+        if (cached) {
+            stopTimer({ cached: true });
+            return cached;
+        }
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -269,16 +346,30 @@ export class DatabaseManager {
                 tables = rows.map(r => r.name as string);
             }
             
-            return { success: true, tables };
+            const result = { success: true, tables };
+            metadataCache.set(cacheKey, result);
+            stopTimer();
+            return result;
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
 
     /**
-     * 获取表结构
+     * 获取表结构（带缓存）
      */
     async getTableStructure(connectionId: string, database: string, table: string): Promise<TableStructureResult> {
+        const stopTimer = perfMonitor.startTimer('db.getTableStructure');
+        const cacheKey = `structure:${connectionId}:${database}:${table}`;
+        
+        // 检查缓存
+        const cached = schemaCache.get(cacheKey);
+        if (cached) {
+            stopTimer({ cached: true });
+            return cached;
+        }
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -333,10 +424,40 @@ export class DatabaseManager {
                 }));
             }
             
-            return { success: true, columns };
+            const result = { success: true, columns };
+            schemaCache.set(cacheKey, result);
+            stopTimer();
+            return result;
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
+    }
+
+    /**
+     * 清除连接相关的缓存
+     */
+    clearConnectionCache(connectionId: string): void {
+        metadataCache.deleteByPrefix(`databases:${connectionId}`);
+        metadataCache.deleteByPrefix(`tables:${connectionId}`);
+        schemaCache.deleteByPrefix(`structure:${connectionId}`);
+    }
+
+    /**
+     * 获取缓存统计
+     */
+    getCacheStats() {
+        return {
+            schema: schemaCache.getStats(),
+            metadata: metadataCache.getStats(),
+        };
+    }
+
+    /**
+     * 获取性能统计
+     */
+    getPerformanceStats() {
+        return perfMonitor.getAllStats();
     }
 
     /**
@@ -349,6 +470,8 @@ export class DatabaseManager {
         page: number, 
         pageSize: number
     ): Promise<DBQueryResult<DatabaseRow>> {
+        const stopTimer = perfMonitor.startTimer('db.getTableData');
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -391,8 +514,10 @@ export class DatabaseManager {
                 data = conn.client.prepare(`SELECT * FROM "${table}" LIMIT ? OFFSET ?`).all(pageSize, offset);
             }
             
+            stopTimer({ rows: data?.length || 0 });
             return { success: true, data, total };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -405,6 +530,8 @@ export class DatabaseManager {
         database: string, 
         sql: string
     ): Promise<DBQueryResult<DatabaseRow>> {
+        const stopTimer = perfMonitor.startTimer('db.executeQuery');
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -443,23 +570,28 @@ export class DatabaseManager {
                 const result = await client.query(sql);
                 await client.end();
                 if (result.rows) {
+                    stopTimer({ rows: result.rows.length });
                     return { success: true, data: result.rows };
                 } else {
+                    stopTimer({ affected: result.rowCount || 0 });
                     return { success: true, affectedRows: result.rowCount || 0 };
                 }
             } else if (conn.config.type === 'sqlite') {
                 const upperSql = sql.toUpperCase().trim();
                 if (upperSql.startsWith('SELECT')) {
                     const rows = conn.client.prepare(sql).all();
+                    stopTimer({ rows: rows.length });
                     return { success: true, data: rows };
                 } else {
                     const info = conn.client.prepare(sql).run();
+                    stopTimer({ affected: info.changes });
                     return { success: true, affectedRows: info.changes };
                 }
             }
             
             return { success: false, error: '不支持的数据库类型' };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -475,6 +607,8 @@ export class DatabaseManager {
         primaryKey: string,
         primaryValue: unknown
     ): Promise<{ success: boolean; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('db.updateField');
+        
         try {
             const conn = this.connections.get(connectionId);
             if (!conn) {
@@ -496,8 +630,10 @@ export class DatabaseManager {
                 conn.client.prepare(updateStatement.sql).run(value, primaryValue);
             }
 
+            stopTimer();
             return { success: true };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -522,6 +658,9 @@ export class DatabaseManager {
     async closeAll(): Promise<void> {
         const closePromises = Array.from(this.connections.keys()).map(id => this.disconnect(id));
         await Promise.allSettled(closePromises);
+        // 清除所有缓存
+        metadataCache.clear();
+        schemaCache.clear();
     }
 }
 
