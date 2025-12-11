@@ -10,6 +10,8 @@ import { EventType } from './types/index';
 import { tools, UsageTracker } from './tools/index';
 import { StatsPanel } from './tools/stats/StatsPanel';
 import { Toast, toast } from './components/Toast';
+import { Sidebar, SidebarCategory } from './components/Sidebar';
+import { CommandPalette, CommandItem } from './components/CommandPalette';
 import type { ToolConfig } from './types/index';
 
 /** LLM 站点定义 */
@@ -35,6 +37,41 @@ const LLM_SITES: LLMSite[] = [
   { key: 'doubao', title: '豆包', shortTitle: '豆包', icon: '豆', color: '#00d4aa' },
   { key: 'yuanbao', title: '腾讯元宝', shortTitle: '元宝', icon: '元', color: '#0052d9' },
 ];
+
+/** 海外大模型 */
+const OVERSEAS_LLM_KEYS = ['openai', 'claude', 'gemini', 'aistudio', 'grok', 'lmarena'];
+
+/** 国内大模型 */
+const DOMESTIC_LLM_KEYS = ['deepseek', 'kimi', 'qianwen', 'doubao', 'yuanbao'];
+
+/** 工具分类映射 */
+const TOOL_CATEGORIES: Record<string, { title: string; icon: string; keys: string[] }> = {
+  utility: {
+    title: '实用工具',
+    icon: '🧰',
+    keys: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'],
+  },
+  encoding: {
+    title: '编解码工具',
+    icon: '🔐',
+    keys: ['codec', 'crypto', 'jwt'],
+  },
+  format: {
+    title: '格式化工具',
+    icon: '📝',
+    keys: ['json', 'text', 'diff', 'regex'],
+  },
+  storage: {
+    title: '存储工具',
+    icon: '💾',
+    keys: ['database', 'redis', 'mongo'],
+  },
+  network: {
+    title: '网络工具',
+    icon: '🌐',
+    keys: ['dns', 'curl'],
+  },
+};
 
 /** 工具图标颜色映射 */
 const TOOL_COLORS: Record<string, string> = {
@@ -86,12 +123,13 @@ class App {
   private currentKey: string | null = null;
   private currentLLM: string | null = null;
   private container: HTMLElement | null = null;
-  private navList: HTMLElement | null = null;
-  private llmNavList: HTMLElement | null = null;
   private llmContainer: HTMLElement | null = null;
   private webviews: Map<string, HTMLElement> = new Map();
   private navVisibility: NavVisibility = { llm: {}, tools: {} };
   private statsPanel: StatsPanel | null = null;
+  private sidebar: Sidebar | null = null;
+  private commandPalette: CommandPalette | null = null;
+  private currentTitle: HTMLElement | null = null;
 
   constructor() {
     // 等待 DOM 加载完成
@@ -107,11 +145,11 @@ class App {
 
     // 1. 获取 DOM 元素
     this.container = document.getElementById('mainContainer');
-    this.navList = document.getElementById('navList');
-    this.llmNavList = document.getElementById('llmNavList');
     this.llmContainer = document.getElementById('llmContainer');
+    this.currentTitle = document.getElementById('currentTitle');
+    const sidebarEl = document.getElementById('sidebar');
 
-    if (!this.container || !this.navList) {
+    if (!this.container || !sidebarEl) {
       console.error('[App] Required DOM elements not found');
       return;
     }
@@ -129,30 +167,35 @@ class App {
     // 5. 初始化主题
     console.log(`[App] Theme: ${themeManager.getResolvedTheme()}`);
 
-    // 6. 渲染导航栏
-    this.renderNav();
-    this.renderLLMNav();
+    // 6. 初始化左侧边栏
+    this.initSidebar(sidebarEl);
 
-    // 7. 监听事件
+    // 7. 初始化 Command Palette
+    this.initCommandPalette();
+
+    // 8. 监听事件
     this.setupEventListeners();
 
-    // 8. 设置快捷键
+    // 9. 设置快捷键
     this.setupKeyboardShortcuts();
 
-    // 9. 设置设置面板
+    // 10. 设置设置面板
     this.setupSettings();
 
-    // 10. 设置统计面板
+    // 11. 设置统计面板
     this.setupStats();
 
-    // 11. 设置页面卸载时保存使用数据
+    // 12. 设置搜索按钮
+    this.setupSearchButton();
+
+    // 13. 设置页面卸载时保存使用数据
     this.setupUnloadHandler();
 
-    // 12. 隐藏加载状态
+    // 14. 隐藏加载状态
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 13. 默认切换到 OpenAI
+    // 15. 默认切换到 OpenAI
     const firstLLM = LLM_SITES.find(site => this.isLLMVisible(site.key));
     if (firstLLM) {
       this.switchLLM(firstLLM.key);
@@ -165,6 +208,207 @@ class App {
     }
 
     console.log('[App] Initialization complete');
+  }
+
+  private initSidebar(container: HTMLElement): void {
+    const categories = this.buildSidebarCategories();
+    
+    this.sidebar = new Sidebar(container, {
+      categories,
+      onItemClick: (key, category) => {
+        // 判断是 LLM 还是工具
+        if (category === 'overseas-llm' || category === 'domestic-llm') {
+          this.switchLLM(key);
+        } else {
+          this.switchTool(key);
+        }
+      },
+    });
+  }
+
+  private buildSidebarCategories(): SidebarCategory[] {
+    const categories: SidebarCategory[] = [];
+
+    // 海外大模型
+    const overseasLLMs = LLM_SITES
+      .filter(site => OVERSEAS_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
+      .map(site => ({
+        key: site.key,
+        title: site.title,
+        shortTitle: site.shortTitle,
+        icon: site.icon,
+        color: site.color,
+      }));
+
+    if (overseasLLMs.length > 0) {
+      categories.push({
+        key: 'overseas-llm',
+        title: '海外大模型',
+        icon: '🌍',
+        items: overseasLLMs,
+      });
+    }
+
+    // 国内大模型
+    const domesticLLMs = LLM_SITES
+      .filter(site => DOMESTIC_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
+      .map(site => ({
+        key: site.key,
+        title: site.title,
+        shortTitle: site.shortTitle,
+        icon: site.icon,
+        color: site.color,
+      }));
+
+    if (domesticLLMs.length > 0) {
+      categories.push({
+        key: 'domestic-llm',
+        title: '国内大模型',
+        icon: '🇨🇳',
+        items: domesticLLMs,
+      });
+    }
+
+    // 工具分类
+    const allToolConfigs = toolRegistry.getAllConfigs();
+    
+    Object.entries(TOOL_CATEGORIES).forEach(([catKey, catConfig]) => {
+      const toolItems = catConfig.keys
+        .map(key => allToolConfigs.find(c => c.key === key))
+        .filter((config): config is ToolConfig => config !== undefined && this.isToolVisible(config.key))
+        .map(config => ({
+          key: config.key,
+          title: config.title,
+          icon: config.icon || '🔧',
+          color: TOOL_COLORS[config.key] || '#6b7280',
+        }));
+
+      if (toolItems.length > 0) {
+        categories.push({
+          key: catKey,
+          title: catConfig.title,
+          icon: catConfig.icon,
+          items: toolItems,
+        });
+      }
+    });
+
+    // 未分类的工具
+    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
+    const uncategorizedTools = allToolConfigs
+      .filter(config => !categorizedKeys.includes(config.key) && this.isToolVisible(config.key))
+      .map(config => ({
+        key: config.key,
+        title: config.title,
+        icon: config.icon || '🔧',
+        color: TOOL_COLORS[config.key] || '#6b7280',
+      }));
+
+    if (uncategorizedTools.length > 0) {
+      categories.push({
+        key: 'other-tools',
+        title: '其他工具',
+        icon: '📦',
+        items: uncategorizedTools,
+      });
+    }
+
+    return categories;
+  }
+
+  private initCommandPalette(): void {
+    const items = this.buildCommandItems();
+    
+    this.commandPalette = new CommandPalette({
+      items,
+      placeholder: '搜索工具或 AI 助手...',
+      onSelect: (key) => {
+        // 判断是 LLM 还是工具
+        const isLLM = LLM_SITES.some(site => site.key === key);
+        if (isLLM) {
+          this.switchLLM(key);
+        } else {
+          this.switchTool(key);
+        }
+      },
+    });
+  }
+
+  private buildCommandItems(): CommandItem[] {
+    const items: CommandItem[] = [];
+
+    // 海外大模型
+    LLM_SITES
+      .filter(site => OVERSEAS_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
+      .forEach(site => {
+        items.push({
+          key: site.key,
+          title: site.title,
+          icon: site.icon,
+          color: site.color,
+          category: '海外大模型',
+          keywords: ['llm', 'ai', 'chat', 'overseas', site.shortTitle.toLowerCase()],
+        });
+      });
+
+    // 国内大模型
+    LLM_SITES
+      .filter(site => DOMESTIC_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
+      .forEach(site => {
+        items.push({
+          key: site.key,
+          title: site.title,
+          icon: site.icon,
+          color: site.color,
+          category: '国内大模型',
+          keywords: ['llm', 'ai', 'chat', 'domestic', '国内', site.shortTitle.toLowerCase()],
+        });
+      });
+
+    // 工具项目（按分类）
+    const allToolConfigs = toolRegistry.getAllConfigs();
+    
+    Object.entries(TOOL_CATEGORIES).forEach(([, catConfig]) => {
+      catConfig.keys.forEach(key => {
+        const config = allToolConfigs.find(c => c.key === key);
+        if (config && this.isToolVisible(config.key)) {
+          items.push({
+            key: config.key,
+            title: config.title,
+            icon: config.icon || '🔧',
+            color: TOOL_COLORS[config.key] || '#6b7280',
+            category: catConfig.title,
+            keywords: config.keywords || [],
+          });
+        }
+      });
+    });
+
+    // 未分类的工具
+    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
+    allToolConfigs
+      .filter(config => !categorizedKeys.includes(config.key) && this.isToolVisible(config.key))
+      .forEach(config => {
+        items.push({
+          key: config.key,
+          title: config.title,
+          icon: config.icon || '🔧',
+          color: TOOL_COLORS[config.key] || '#6b7280',
+          category: '其他工具',
+          keywords: config.keywords || [],
+        });
+      });
+
+    return items;
+  }
+
+  private setupSearchButton(): void {
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        this.commandPalette?.open();
+      });
+    }
   }
 
   private setupUnloadHandler(): void {
@@ -220,36 +464,33 @@ class App {
   private toggleLLMVisibility(key: string): void {
     this.navVisibility.llm[key] = !this.isLLMVisible(key);
     this.saveNavVisibility();
-    this.renderLLMNav();
-    this.renderSettingsLLMList();
+    this.refreshNavigation();
+    this.renderSettingsList();
   }
 
   private toggleToolVisibility(key: string): void {
     this.navVisibility.tools[key] = !this.isToolVisible(key);
     this.saveNavVisibility();
-    this.renderNav();
-    this.renderSettingsToolList();
+    this.refreshNavigation();
+    this.renderSettingsList();
   }
 
-  private renderLLMNav(): void {
-    if (!this.llmNavList) return;
+  private refreshNavigation(): void {
+    // 更新边栏
+    if (this.sidebar) {
+      this.sidebar.updateCategories(this.buildSidebarCategories());
+      this.sidebar.setActive(this.currentKey);
+    }
+    // 更新 Command Palette
+    if (this.commandPalette) {
+      this.commandPalette.updateItems(this.buildCommandItems());
+    }
+  }
 
-    this.llmNavList.innerHTML = '';
-
-    LLM_SITES.forEach((site) => {
-      if (!this.isLLMVisible(site.key)) return;
-
-      const item = document.createElement('div');
-      item.className = 'nav-item llm-nav-item';
-      item.dataset.key = site.key;
-      item.innerHTML = `<span class="nav-icon" style="background:${site.color}">${site.icon}</span>${site.shortTitle}`;
-      
-      item.addEventListener('click', () => {
-        this.switchLLM(site.key);
-      });
-
-      this.llmNavList!.appendChild(item);
-    });
+  private updateCurrentTitle(title: string): void {
+    if (this.currentTitle) {
+      this.currentTitle.textContent = title;
+    }
   }
 
   private switchLLM(key: string): void {
@@ -261,11 +502,9 @@ class App {
     }
 
     // 失活当前工具
-    if (this.currentKey) {
+    if (this.currentKey && !LLM_SITES.some(s => s.key === this.currentKey)) {
       const currentTool = toolRegistry.getInstance(this.currentKey);
       currentTool?.deactivate();
-      this.currentKey = null;
-      this.updateNavActive('');
     }
 
     // 隐藏工具容器，显示 LLM 容器
@@ -290,8 +529,14 @@ class App {
     }
 
     this.currentLLM = key;
-    this.currentKey = key;  // 记录当前使用的是 LLM
-    this.updateLLMNavActive(key);
+    this.currentKey = key;
+    
+    // 更新边栏高亮并滚动到选中项
+    this.sidebar?.setActive(key, true);
+    
+    // 更新标题
+    const site = LLM_SITES.find(s => s.key === key);
+    this.updateCurrentTitle(site?.title || 'ToolHub');
     
     // 开始 LLM 使用追踪
     UsageTracker.start(key);
@@ -323,60 +568,6 @@ class App {
 
     this.llmContainer.appendChild(webview);
     this.webviews.set(key, webview);
-  }
-
-  private updateLLMNavActive(key: string): void {
-    if (!this.llmNavList) return;
-
-    this.llmNavList.querySelectorAll('.nav-item').forEach((item) => {
-      const el = item as HTMLElement;
-      if (el.dataset.key === key) {
-        el.classList.add('active');
-      } else {
-        el.classList.remove('active');
-      }
-    });
-  }
-
-  private renderNav(): void {
-    if (!this.navList) return;
-
-    const configs = toolRegistry.getAllConfigs();
-    this.navList.innerHTML = '';
-
-    configs.forEach((config) => {
-      // 初始化工具可见性默认值
-      if (this.navVisibility.tools[config.key] === undefined) {
-        this.navVisibility.tools[config.key] = true;
-      }
-
-      if (!this.isToolVisible(config.key)) return;
-
-      const item = document.createElement('div');
-      item.className = 'nav-item tool-nav-item';
-      item.dataset.key = config.key;
-      const color = TOOL_COLORS[config.key] || '#6b7280';
-      item.innerHTML = `<span class="nav-icon" style="background:${color}">${config.icon || ''}</span>${config.title}`;
-      
-      item.addEventListener('click', () => {
-        this.switchTool(config.key);
-      });
-
-      this.navList!.appendChild(item);
-    });
-  }
-
-  private updateNavActive(key: string): void {
-    if (!this.navList) return;
-
-    this.navList.querySelectorAll('.nav-item').forEach((item) => {
-      const el = item as HTMLElement;
-      if (el.dataset.key === key) {
-        el.classList.add('active');
-      } else {
-        el.classList.remove('active');
-      }
-    });
   }
 
   private setupEventListeners(): void {
@@ -441,8 +632,7 @@ class App {
 
     // 打开设置
     settingsBtn.addEventListener('click', () => {
-      this.renderSettingsLLMList();
-      this.renderSettingsToolList();
+      this.renderSettingsList();
       settingsModal.classList.add('show');
     });
 
@@ -490,62 +680,123 @@ class App {
     });
   }
 
-  private renderSettingsLLMList(): void {
-    const container = document.getElementById('llmSettingsList');
+  private renderSettingsList(): void {
+    const container = document.getElementById('settingsBody');
     if (!container) return;
 
     container.innerHTML = '';
 
-    LLM_SITES.forEach((site) => {
-      const isVisible = this.isLLMVisible(site.key);
-      const item = document.createElement('div');
-      item.className = 'settings-item';
-      item.innerHTML = `
-        <div class="settings-checkbox ${isVisible ? 'checked' : ''}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="settings-item-icon" style="background:${site.color}">${site.icon}</div>
-        <div class="settings-item-label">${site.title}</div>
-      `;
+    // 海外大模型
+    const overseasLLMs = LLM_SITES.filter(site => OVERSEAS_LLM_KEYS.includes(site.key));
+    if (overseasLLMs.length > 0) {
+      this.renderSettingsSection(container, '🌍 海外大模型', overseasLLMs.map(site => ({
+        key: site.key,
+        title: site.title,
+        icon: site.icon,
+        color: site.color,
+        visible: this.isLLMVisible(site.key),
+        type: 'llm' as const,
+      })));
+    }
 
-      item.addEventListener('click', () => {
-        this.toggleLLMVisibility(site.key);
-      });
+    // 国内大模型
+    const domesticLLMs = LLM_SITES.filter(site => DOMESTIC_LLM_KEYS.includes(site.key));
+    if (domesticLLMs.length > 0) {
+      this.renderSettingsSection(container, '🇨🇳 国内大模型', domesticLLMs.map(site => ({
+        key: site.key,
+        title: site.title,
+        icon: site.icon,
+        color: site.color,
+        visible: this.isLLMVisible(site.key),
+        type: 'llm' as const,
+      })));
+    }
 
-      container.appendChild(item);
+    // 工具分类
+    const allToolConfigs = toolRegistry.getAllConfigs();
+    
+    Object.entries(TOOL_CATEGORIES).forEach(([, catConfig]) => {
+      const tools = catConfig.keys
+        .map(key => allToolConfigs.find(c => c.key === key))
+        .filter((config): config is ToolConfig => config !== undefined);
+      
+      if (tools.length > 0) {
+        this.renderSettingsSection(container, `${catConfig.icon} ${catConfig.title}`, tools.map(config => ({
+          key: config.key,
+          title: config.title,
+          icon: config.icon || '🔧',
+          color: TOOL_COLORS[config.key] || '#6b7280',
+          visible: this.isToolVisible(config.key),
+          type: 'tool' as const,
+        })));
+      }
     });
+
+    // 未分类的工具
+    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
+    const uncategorizedTools = allToolConfigs.filter(config => !categorizedKeys.includes(config.key));
+    
+    if (uncategorizedTools.length > 0) {
+      this.renderSettingsSection(container, '📦 其他工具', uncategorizedTools.map(config => ({
+        key: config.key,
+        title: config.title,
+        icon: config.icon || '🔧',
+        color: TOOL_COLORS[config.key] || '#6b7280',
+        visible: this.isToolVisible(config.key),
+        type: 'tool' as const,
+      })));
+    }
   }
 
-  private renderSettingsToolList(): void {
-    const container = document.getElementById('toolSettingsList');
-    if (!container) return;
+  private renderSettingsSection(
+    container: HTMLElement,
+    title: string,
+    items: Array<{
+      key: string;
+      title: string;
+      icon: string;
+      color: string;
+      visible: boolean;
+      type: 'llm' | 'tool';
+    }>
+  ): void {
+    const section = document.createElement('div');
+    section.className = 'settings-section';
 
-    container.innerHTML = '';
+    const sectionTitle = document.createElement('div');
+    sectionTitle.className = 'settings-section-title';
+    sectionTitle.textContent = title;
+    section.appendChild(sectionTitle);
 
-    const configs = toolRegistry.getAllConfigs();
-    configs.forEach((config) => {
-      const isVisible = this.isToolVisible(config.key);
-      const color = TOOL_COLORS[config.key] || '#6b7280';
-      const item = document.createElement('div');
-      item.className = 'settings-item';
-      item.innerHTML = `
-        <div class="settings-checkbox ${isVisible ? 'checked' : ''}">
+    const list = document.createElement('div');
+    list.className = 'settings-list';
+
+    items.forEach(item => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'settings-item';
+      itemEl.innerHTML = `
+        <div class="settings-checkbox ${item.visible ? 'checked' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
-        <div class="settings-item-icon" style="background:${color}">${config.icon || ''}</div>
-        <div class="settings-item-label">${config.title}</div>
+        <div class="settings-item-icon" style="background:${item.color}">${item.icon}</div>
+        <div class="settings-item-label">${item.title}</div>
       `;
 
-      item.addEventListener('click', () => {
-        this.toggleToolVisibility(config.key);
+      itemEl.addEventListener('click', () => {
+        if (item.type === 'llm') {
+          this.toggleLLMVisibility(item.key);
+        } else {
+          this.toggleToolVisibility(item.key);
+        }
       });
 
-      container.appendChild(item);
+      list.appendChild(itemEl);
     });
+
+    section.appendChild(list);
+    container.appendChild(section);
   }
 
   switchTool(key: string): void {
@@ -571,7 +822,6 @@ class App {
     }
     this.container.style.display = 'block';
     this.currentLLM = null;
-    this.updateLLMNavActive('');
 
     // 结束上一个工具的使用追踪
     if (this.currentKey) {
@@ -604,8 +854,11 @@ class App {
     // 开始新工具的使用追踪
     UsageTracker.start(key);
 
-    // 更新导航栏高亮
-    this.updateNavActive(key);
+    // 更新边栏高亮并滚动到选中项
+    this.sidebar?.setActive(key, true);
+
+    // 更新标题
+    this.updateCurrentTitle(tool.config.title);
 
     console.log(`[App] Tool "${key}" activated`);
   }
