@@ -3,9 +3,9 @@ export const template = `
   <div class="calendar-main">
     <div class="calendar-left">
       <div class="calendar-header">
-        <button class="nav-btn" id="prevMonth">‹ 上月</button>
+        <button class="nav-btn" id="prevMonth">‹</button>
         <span class="month-year" id="monthYear"></span>
-        <button class="nav-btn" id="nextMonth">下月 ›</button>
+        <button class="nav-btn" id="nextMonth">›</button>
       </div>
       
       <div class="calendar-grid" id="calendarGrid">
