@@ -1,9 +1,15 @@
 /**
  * Redis 管理模块
  * 负责 Redis 的连接管理和所有操作
+ * 
+ * 性能优化特性：
+ * - 驱动懒加载：只在需要时加载 ioredis
+ * - 性能监控：记录操作耗时
  */
 
 import { getErrorMessage } from '../utils/error-handler.js';
+import { driverLoader } from '../utils/lazy-loader.js';
+import { perfMonitor } from '../utils/performance-monitor.js';
 
 // ==================== 类型定义 ====================
 
@@ -28,23 +34,36 @@ export interface RedisConnection {
 export class RedisManager {
     private connections: Map<string, RedisConnection> = new Map();
     private ioredis: any = null;
+    private driverLoaded = false;
 
     /**
-     * 加载 Redis 驱动
+     * 加载 Redis 驱动（懒加载）
      */
     async loadDriver(): Promise<void> {
+        if (this.driverLoaded) return;
+        
+        const stopTimer = perfMonitor.startTimer('redis.loadDriver');
         try {
-            this.ioredis = (await import('ioredis')).default;
-            console.log('[Redis] ioredis driver loaded');
+            this.ioredis = await driverLoader.get('ioredis');
+            if (this.ioredis) {
+                console.log('[Redis] ioredis driver loaded');
+                this.driverLoaded = true;
+            }
         } catch (e) {
             console.log('[Redis] ioredis driver not available:', e);
         }
+        stopTimer();
     }
 
     /**
      * 测试 Redis 连接
      */
     async testConnection(config: RedisConnectionConfig): Promise<{ success: boolean; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('redis.testConnection');
+        
+        // 按需加载驱动
+        await this.loadDriver();
+        
         if (!this.ioredis) {
             return { success: false, error: 'Redis 驱动未安装，请运行: npm install ioredis' };
         }
@@ -63,22 +82,26 @@ export class RedisManager {
             
             const timeout = setTimeout(() => {
                 client.disconnect();
+                stopTimer({ error: 'timeout' });
                 resolve({ success: false, error: '连接超时' });
             }, 12000);
             
             client.on('error', (err: Error) => {
                 clearTimeout(timeout);
                 client.disconnect();
+                stopTimer({ error: true });
                 resolve({ success: false, error: err.message });
             });
             
             client.ping().then(() => {
                 clearTimeout(timeout);
                 client.quit();
+                stopTimer();
                 resolve({ success: true });
             }).catch((err: Error) => {
                 clearTimeout(timeout);
                 client.disconnect();
+                stopTimer({ error: true });
                 resolve({ success: false, error: err.message });
             });
         });
@@ -88,6 +111,11 @@ export class RedisManager {
      * 连接 Redis
      */
     async connect(config: RedisConnectionConfig): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('redis.connect');
+        
+        // 按需加载驱动
+        await this.loadDriver();
+        
         if (!this.ioredis) {
             return { success: false, error: 'Redis 驱动未安装' };
         }
@@ -110,6 +138,7 @@ export class RedisManager {
             
             const timeout = setTimeout(() => {
                 client.disconnect();
+                stopTimer({ error: 'timeout' });
                 resolve({ success: false, error: '连接超时' });
             }, 15000);
             
@@ -120,6 +149,7 @@ export class RedisManager {
             client.on('ready', () => {
                 clearTimeout(timeout);
                 this.connections.set(connectionId, { id: connectionId, config, client });
+                stopTimer();
                 resolve({ success: true, connectionId });
             });
             
@@ -127,6 +157,7 @@ export class RedisManager {
                 if (!this.connections.has(connectionId)) {
                     clearTimeout(timeout);
                     client.disconnect();
+                    stopTimer({ error: true });
                     resolve({ success: false, error: err.message });
                 }
             });
@@ -148,6 +179,13 @@ export class RedisManager {
         } catch (e: unknown) {
             return { success: false, error: getErrorMessage(e) };
         }
+    }
+
+    /**
+     * 获取性能统计
+     */
+    getPerformanceStats() {
+        return perfMonitor.getAllStats();
     }
 
     /**
