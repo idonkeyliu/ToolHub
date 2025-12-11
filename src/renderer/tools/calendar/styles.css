@@ -11,16 +11,17 @@
 
 .calendar-main {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 40px;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
   width: 100%;
 }
 
 .calendar-left {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 16px;
-  padding: 30px;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-right {
@@ -29,93 +30,128 @@
   gap: 20px;
 }
 
+/* 头部导航 */
 .calendar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 24px;
   margin-bottom: 24px;
-  padding: 0 8px;
 }
 
 .nav-btn {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  color: #e2e8f0;
-  padding: 12px 20px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.15));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .nav-btn:hover {
-  background: rgba(51, 65, 85, 0.8);
-  border-color: rgba(100, 116, 139, 0.6);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(99, 102, 241, 0.25));
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #bfdbfe;
+  transform: scale(1.05);
+}
+
+.nav-btn:active {
+  transform: scale(0.98);
 }
 
 .month-year {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #f1f5f9;
+  min-width: 180px;
+  text-align: center;
+  letter-spacing: 1px;
 }
 
+/* 日历网格 */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 12px;
-  border: 1px solid rgba(100, 116, 139, 0.2);
-  padding: 12px;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 16px;
+  border: 1px solid rgba(100, 116, 139, 0.15);
+  padding: 14px;
 }
 
 .day-header {
-  background: rgba(51, 65, 85, 0.6);
-  padding: 12px 8px;
+  background: linear-gradient(135deg, rgba(71, 85, 105, 0.5), rgba(51, 65, 85, 0.4));
+  padding: 10px 8px;
   text-align: center;
   font-weight: 600;
   color: #94a3b8;
   font-size: 13px;
-  border-radius: 6px;
-}
-
-.day-cell {
-  background: rgba(30, 41, 59, 0.5);
-  padding: 12px 10px;
-  min-height: 90px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
   border-radius: 8px;
 }
 
-.day-cell:hover {
-  background: rgba(51, 65, 85, 0.6);
-  border-color: rgba(100, 116, 139, 0.4);
+.day-header:first-child {
+  color: #f87171;
 }
 
+.day-header:last-child {
+  color: #60a5fa;
+}
+
+.day-cell {
+  background: rgba(30, 41, 59, 0.4);
+  padding: 10px 8px;
+  min-height: 85px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  border-radius: 10px;
+}
+
+.day-cell:hover {
+  background: rgba(51, 65, 85, 0.5);
+  border-color: rgba(100, 116, 139, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 今天 - 醒目的蓝色高亮 */
 .day-cell.today {
-  background: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(37, 99, 235, 0.35));
   border-color: #3b82f6;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .day-cell.today:hover {
-  background: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(37, 99, 235, 0.45));
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* 选中日期 - 淡紫色边框 */
 .day-cell.selected {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.6);
 }
 
 .day-cell.selected:hover {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(139, 92, 246, 0.18);
+}
+
+/* 今天+选中 - 保持今天的样式但加强 */
+.day-cell.today.selected {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(37, 99, 235, 0.45));
+  border-color: #60a5fa;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .day-cell.other-month {
   opacity: 0.3;
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(15, 23, 42, 0.3);
 }
 
 .day-cell.empty {
@@ -128,20 +164,21 @@
 }
 
 .solar-date {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #e2e8f0;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .day-cell.today .solar-date {
   color: #ffffff;
+  font-weight: 700;
 }
 
 .lunar-date {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .day-cell.today .lunar-date {
@@ -149,50 +186,55 @@
 }
 
 .festival {
-  font-size: 11px;
+  font-size: 10px;
   color: #fbbf24;
   margin-bottom: 2px;
   font-weight: 500;
 }
 
 .solar-term {
-  font-size: 11px;
+  font-size: 10px;
   color: #34d399;
   font-weight: 500;
 }
 
 /* 右侧详情卡片 */
 .date-detail-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 20px;
   padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .date-number-display {
   text-align: center;
   margin-bottom: 20px;
-  padding: 16px;
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 12px;
+  padding: 20px 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
 }
 
 .date-main-number {
-  font-size: 72px;
+  font-size: 64px;
   font-weight: 800;
-  color: #e2e8f0;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1;
 }
 
 .date-year-month {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #cbd5e1;
   margin-bottom: 6px;
 }
 
 .date-weekday {
-  font-size: 16px;
+  font-size: 15px;
   color: #94a3b8;
   font-weight: 500;
 }
@@ -200,13 +242,13 @@
 .lunar-info-section {
   background: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .lunar-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #94a3b8;
   margin-bottom: 10px;
@@ -214,7 +256,7 @@
 }
 
 .lunar-date-large {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   color: #e2e8f0;
   text-align: center;
@@ -222,23 +264,23 @@
 }
 
 .lunar-year-info {
-  font-size: 13px;
+  font-size: 12px;
   color: #94a3b8;
   text-align: center;
 }
 
 .festival-section {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.05));
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 14px;
   padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .festival-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #fbbf24;
   margin-bottom: 10px;
   text-align: center;
 }
@@ -248,31 +290,31 @@
 }
 
 .festival-item {
-  font-size: 16px;
-  font-weight: 500;
-  color: #fbbf24;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fcd34d;
   margin-bottom: 4px;
 }
 
 .solar-term-section {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 14px;
   padding: 16px;
 }
 
 .solar-term-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #34d399;
   margin-bottom: 10px;
   text-align: center;
 }
 
 .solar-term-large {
-  font-size: 18px;
-  font-weight: 500;
-  color: #34d399;
+  font-size: 17px;
+  font-weight: 600;
+  color: #6ee7b7;
   text-align: center;
 }
 
@@ -298,7 +340,7 @@
     order: -1;
   }
   .date-main-number {
-    font-size: 56px;
+    font-size: 52px;
   }
 }
 
@@ -310,20 +352,21 @@
     padding: 16px;
   }
   .month-year {
-    font-size: 24px;
+    font-size: 22px;
   }
   .nav-btn {
-    padding: 10px 14px;
-    font-size: 12px;
-  }
-  .day-cell {
-    min-height: 70px;
-    padding: 8px;
-  }
-  .solar-date {
+    width: 36px;
+    height: 36px;
     font-size: 16px;
   }
+  .day-cell {
+    min-height: 65px;
+    padding: 6px;
+  }
+  .solar-date {
+    font-size: 15px;
+  }
   .lunar-date {
-    font-size: 10px;
+    font-size: 9px;
   }
 }

@@ -14,16 +14,20 @@ export class CurrencyTool extends Tool {
 
   readonly config = CurrencyTool.config;
 
-  // 模拟汇率数据
-  private exchangeRates: Record<string, Record<string, number>> = {
-    "CNY": { "USD": 0.1382, "EUR": 0.1276, "JPY": 20.50, "GBP": 0.1087, "KRW": 185.25, "HKD": 1.0815, "AUD": 0.2083 },
-    "USD": { "CNY": 7.2352, "EUR": 0.9234, "JPY": 148.33, "GBP": 0.7866, "KRW": 1340.5, "HKD": 7.8265, "AUD": 1.5075 },
-    "EUR": { "CNY": 7.8352, "USD": 1.0830, "JPY": 160.65, "GBP": 0.8518, "KRW": 1451.80, "HKD": 8.4732, "AUD": 1.6328 },
-    "JPY": { "CNY": 0.0488, "USD": 0.00674, "EUR": 0.00622, "GBP": 0.00530, "KRW": 9.0356, "HKD": 0.05275, "AUD": 0.01016 },
-    "GBP": { "CNY": 9.1997, "USD": 1.2712, "EUR": 1.1740, "JPY": 188.60, "KRW": 1703.28, "HKD": 9.9486, "AUD": 1.9164 },
-    "KRW": { "CNY": 0.00540, "USD": 0.000746, "EUR": 0.000689, "JPY": 0.1107, "GBP": 0.000587, "HKD": 0.00584, "AUD": 0.00112 },
-    "HKD": { "CNY": 0.9247, "USD": 0.1278, "EUR": 0.1180, "JPY": 18.953, "GBP": 0.1005, "KRW": 171.24, "AUD": 0.1926 },
-    "AUD": { "CNY": 4.8002, "USD": 0.6633, "EUR": 0.6125, "JPY": 98.392, "GBP": 0.5218, "KRW": 889.21, "HKD": 5.1918 }
+  // 汇率数据（基于 CNY）
+  private exchangeRates: Record<string, number> = {
+    CNY: 1,
+    USD: 0.1382,
+    EUR: 0.1276,
+    JPY: 20.50,
+    GBP: 0.1087,
+    KRW: 185.25,
+    HKD: 1.0815,
+    AUD: 0.2083,
+    CAD: 0.1912,
+    SGD: 0.1856,
+    CHF: 0.1225,
+    THB: 4.8520,
   };
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -40,6 +44,8 @@ export class CurrencyTool extends Tool {
     this.setupConversion();
     this.setupSwapButton();
     this.setupCopyButton();
+    this.setupQuickAmounts();
+    this.setupRateCards();
     this.updateRateDisplay();
   }
 
@@ -48,39 +54,76 @@ export class CurrencyTool extends Tool {
     
     this.addEventListener(amountInput, 'input', () => {
       // 只允许输入数字和小数点
-      amountInput.value = amountInput.value.replace(/[^\d.]/g, '');
-      if (amountInput.value.split('.').length > 2) {
-        amountInput.value = amountInput.value.replace(/\.+$/, '');
+      let value = amountInput.value.replace(/[^\d.]/g, '');
+      // 防止多个小数点
+      const parts = value.split('.');
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
       }
+      amountInput.value = value;
       
       // 防抖自动转换
       if (this.debounceTimer) {
         clearTimeout(this.debounceTimer);
       }
-      this.debounceTimer = setTimeout(() => this.convertCurrency(), 500);
+      this.debounceTimer = setTimeout(() => this.convertCurrency(), 150);
     });
   }
 
   private setupConversion(): void {
-    const convertBtn = this.querySelector('#convertBtn');
     const fromCurrency = this.querySelector('#fromCurrency') as HTMLSelectElement;
     const toCurrency = this.querySelector('#toCurrency') as HTMLSelectElement;
 
-    this.addEventListener(convertBtn, 'click', () => this.convertCurrency());
     this.addEventListener(fromCurrency, 'change', () => this.convertCurrency());
     this.addEventListener(toCurrency, 'change', () => this.convertCurrency());
   }
 
   private setupSwapButton(): void {
     const swapBtn = this.querySelector('#swapBtn');
-    
     this.addEventListener(swapBtn, 'click', () => this.swapCurrencies());
   }
 
   private setupCopyButton(): void {
     const copyResultBtn = this.querySelector('#copyResultBtn');
-    
     this.addEventListener(copyResultBtn, 'click', () => this.copyResult());
+  }
+
+  private setupQuickAmounts(): void {
+    const quickBtns = this.container?.querySelectorAll('.quick-amount-btn');
+    quickBtns?.forEach(btn => {
+      this.addEventListener(btn as HTMLElement, 'click', () => {
+        const amount = (btn as HTMLElement).dataset.amount;
+        const amountInput = this.querySelector('#amountInput') as HTMLInputElement;
+        if (amount && amountInput) {
+          amountInput.value = amount;
+          this.convertCurrency();
+        }
+      });
+    });
+  }
+
+  private setupRateCards(): void {
+    const rateCards = this.container?.querySelectorAll('.rate-card');
+    rateCards?.forEach(card => {
+      this.addEventListener(card as HTMLElement, 'click', () => {
+        const rateValue = card.querySelector('.rate-value');
+        if (rateValue) {
+          navigator.clipboard.writeText(rateValue.textContent || '');
+          // 视觉反馈
+          card.classList.add('highlight');
+          setTimeout(() => card.classList.remove('highlight'), 500);
+        }
+      });
+    });
+  }
+
+  private getRate(from: string, to: string): number {
+    if (from === to) return 1;
+    
+    // 通过 CNY 作为中间货币计算
+    const fromToCny = 1 / this.exchangeRates[from];
+    const cnyToTo = this.exchangeRates[to];
+    return fromToCny * cnyToTo;
   }
 
   private convertCurrency(): void {
@@ -98,34 +141,44 @@ export class CurrencyTool extends Tool {
     // 清除错误信息
     errorMsg.style.display = 'none';
 
+    if (!amountInput.value.trim()) {
+      resultInput.value = '';
+      if (exchangeRateInfo) {
+        exchangeRateInfo.innerHTML = '输入金额开始转换';
+      }
+      return;
+    }
+
     if (isNaN(amount)) {
       errorMsg.textContent = '请输入有效的金额';
       errorMsg.style.display = 'block';
       return;
     }
 
-    if (from === to) {
-      resultInput.value = amount.toFixed(2);
-      if (exchangeRateInfo) exchangeRateInfo.textContent = `1 ${from} = 1 ${to}`;
-      return;
-    }
-
-    const rate = this.exchangeRates[from]?.[to];
-    if (!rate) {
-      errorMsg.textContent = '无法获取汇率信息';
-      errorMsg.style.display = 'block';
-      return;
-    }
-
+    const rate = this.getRate(from, to);
     const result = amount * rate;
-    resultInput.value = result.toFixed(2);
-    if (exchangeRateInfo) exchangeRateInfo.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+
+    // 格式化结果
+    resultInput.value = this.formatNumber(result);
+    
+    if (exchangeRateInfo) {
+      exchangeRateInfo.innerHTML = `<strong>1 ${from} = ${rate.toFixed(4)} ${to}</strong>`;
+    }
 
     // 添加转换成功的视觉反馈
     resultInput.classList.add('highlight');
-    setTimeout(() => {
-      resultInput.classList.remove('highlight');
-    }, 700);
+    setTimeout(() => resultInput.classList.remove('highlight'), 500);
+  }
+
+  private formatNumber(num: number): string {
+    // 根据数值大小决定小数位数
+    if (num >= 1000) {
+      return num.toFixed(2);
+    } else if (num >= 1) {
+      return num.toFixed(4);
+    } else {
+      return num.toFixed(6);
+    }
   }
 
   private swapCurrencies(): void {
@@ -138,26 +191,23 @@ export class CurrencyTool extends Tool {
     fromCurrency.value = toCurrency.value;
     toCurrency.value = tempCurrency;
 
-    if (amountInput.value && resultInput.value) {
-      amountInput.value = resultInput.value;
+    // 如果有结果，把结果作为新的输入
+    if (resultInput.value) {
+      amountInput.value = resultInput.value.replace(/,/g, '');
       resultInput.value = '';
-      this.convertCurrency();
     }
+    
+    this.convertCurrency();
   }
 
   private copyResult(): void {
     const resultInput = this.querySelector('#resultInput') as HTMLInputElement;
+    const copyBtn = this.querySelector('#copyResultBtn') as HTMLElement;
     
     if (resultInput.value) {
       navigator.clipboard.writeText(resultInput.value).then(() => {
-        const copyBtn = this.querySelector('#copyResultBtn');
-        if (copyBtn) {
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = '已复制';
-          setTimeout(() => {
-            copyBtn.textContent = originalText;
-          }, 1500);
-        }
+        copyBtn.classList.add('copied');
+        setTimeout(() => copyBtn.classList.remove('copied'), 1500);
       });
     }
   }
@@ -173,20 +223,29 @@ export class CurrencyTool extends Tool {
 
     // 设置更新时间
     const now = new Date();
-    if (rateUpdateTime) rateUpdateTime.textContent = now.toLocaleString('zh-CN');
+    if (rateUpdateTime) {
+      rateUpdateTime.textContent = now.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
     // 更新汇率显示
-    if (usdCny) usdCny.textContent = this.exchangeRates['USD']['CNY'].toFixed(4);
-    if (eurCny) eurCny.textContent = this.exchangeRates['EUR']['CNY'].toFixed(4);
-    if (gbpCny) gbpCny.textContent = this.exchangeRates['GBP']['CNY'].toFixed(4);
-    if (cnyJpy) cnyJpy.textContent = this.exchangeRates['CNY']['JPY'].toFixed(4);
-    if (cnyKrw) cnyKrw.textContent = this.exchangeRates['CNY']['KRW'].toFixed(4);
-    if (cnyHkd) cnyHkd.textContent = this.exchangeRates['CNY']['HKD'].toFixed(4);
+    if (usdCny) usdCny.textContent = this.getRate('USD', 'CNY').toFixed(4);
+    if (eurCny) eurCny.textContent = this.getRate('EUR', 'CNY').toFixed(4);
+    if (gbpCny) gbpCny.textContent = this.getRate('GBP', 'CNY').toFixed(4);
+    if (cnyJpy) cnyJpy.textContent = this.getRate('CNY', 'JPY').toFixed(2);
+    if (cnyKrw) cnyKrw.textContent = this.getRate('CNY', 'KRW').toFixed(2);
+    if (cnyHkd) cnyHkd.textContent = this.getRate('CNY', 'HKD').toFixed(4);
   }
 
   onActivated(): void {
     const amountInput = this.querySelector('#amountInput') as HTMLInputElement;
     amountInput?.focus();
+    // 初始化时自动计算默认值
+    this.convertCurrency();
   }
 
   destroy(): void {

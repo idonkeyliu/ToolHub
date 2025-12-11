@@ -1,243 +1,299 @@
 /**
- * 货币转换工具样式 - 简洁版
+ * 货币转换工具样式
  */
 
 .currency-container {
-  padding: 20px;
-  max-width: 800px;
+  padding: 32px;
+  padding-top: 120px;
+  max-width: 720px;
   margin: 0 auto;
   color: #e2e8f0;
-  height: calc(100% - 46px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-  overflow-y: auto;
   box-sizing: border-box;
 }
 
-.currency-content {
+/* 转换器主体 */
+.currency-converter {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 30px 0;
-  height: auto;
-  flex: none;
+  align-items: stretch;
+  gap: 0;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.currency-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 12px;
-  padding: 24px;
+/* 货币面板 */
+.currency-panel {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  transition: all 0.2s;
 }
 
-.currency-card:hover {
-  border-color: rgba(100, 116, 139, 0.5);
+.from-panel {
+  padding-right: 24px;
 }
 
-.form-group {
-  width: 100%;
+.to-panel {
+  padding-left: 24px;
+  border-left: 1px solid rgba(100, 116, 139, 0.2);
 }
 
-.input-group {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.currency-input {
-  flex: 1;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  color: #e2e8f0;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.2s;
-}
-
-.currency-input:focus {
-  border-color: #1e293b;
-  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.3);
-  outline: none;
-}
-
-.currency-select {
-  width: 140px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.4);
-  color: #e2e8f0;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.currency-select:focus {
-  border-color: #1e293b;
-  outline: none;
-}
-
-.swap-btn-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px 0;
-}
-
-.swap-btn {
+.panel-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.swap-btn:hover {
-  background: #60a5fa;
-  transform: rotate(180deg);
-}
-
-.swap-btn svg {
-  transform: rotate(90deg);
-}
-
-.currency-actions {
-  display: flex;
   gap: 12px;
 }
 
-.convert-btn, .copy-btn {
-  flex: 1;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
+.panel-label {
+  font-size: 13px;
   font-weight: 500;
+  color: #64748b;
+  min-width: 24px;
+}
+
+.currency-select {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: #e2e8f0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.convert-btn:hover, .copy-btn:hover {
-  background: #60a5fa;
+.currency-select:hover {
+  border-color: rgba(100, 116, 139, 0.5);
 }
 
-.exchange-rate-display {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 6px;
-  padding: 10px;
+.currency-select:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* 金额输入 */
+.amount-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f1f5f9;
+  font-size: 42px;
+  font-weight: 600;
+  padding: 8px 0;
+  outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  letter-spacing: -1px;
+}
+
+.amount-input::placeholder {
+  color: #475569;
+}
+
+.result-input {
+  color: #60a5fa;
+}
+
+.result-input.highlight {
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0%, 100% { color: #60a5fa; }
+  50% { color: #93c5fd; }
+}
+
+/* 交换按钮 */
+.swap-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s;
+  flex-shrink: 0;
+  align-self: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.swap-btn:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.swap-btn:active {
+  transform: scale(0.95);
+}
+
+/* 汇率信息栏 */
+.rate-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 14px 20px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 12px;
+}
+
+.rate-text {
   font-size: 14px;
   color: #94a3b8;
-  text-align: center;
 }
 
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* 错误信息 */
 .error-message {
   color: #f87171;
-  font-size: 14px;
-  min-height: 20px;
-  display: none;
+  font-size: 13px;
+  margin-top: 12px;
+  padding: 10px 14px;
   background: rgba(239, 68, 68, 0.1);
-  padding: 6px 10px;
-  border-radius: 6px;
-  border-left: 3px solid #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  display: none;
 }
 
-.currency-info {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 5px;
-  transition: all 0.2s;
+/* 汇率展示区 */
+.rates-section {
+  margin-top: 28px;
 }
 
-.currency-info:hover {
-  border-color: rgba(100, 116, 139, 0.5);
-}
-
-.currency-info h3 {
-  font-size: 15px;
+.rates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
-  color: #e2e8f0;
-  font-weight: 500;
-  text-align: center;
+  padding: 0 4px;
 }
 
-.rate-grid {
+.rates-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.rates-time {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.rates-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  max-width: 700px;
-  margin: 0 auto;
+  gap: 12px;
 }
 
-.rate-item {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
+.rate-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 12px;
   transition: all 0.2s;
 }
 
-.rate-item:hover {
-  border-color: rgba(100, 116, 139, 0.5);
+.rate-card:hover {
+  border-color: rgba(100, 116, 139, 0.4);
+  background: rgba(30, 41, 59, 0.8);
 }
 
-.rate-pair {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #94a3b8;
+.rate-flag {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.rate-info {
+  flex: 1;
+}
+
+.rate-name {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 2px;
 }
 
 .rate-value {
-  color: #4ade80;
+  font-size: 16px;
   font-weight: 600;
-}
-
-.highlight {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-  border-color: #10b981 !important;
+  color: #4ade80;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', monospace;
 }
 
 @media (max-width: 768px) {
-  .currency-card {
+  .currency-container {
     padding: 20px;
   }
-  
-  .currency-select {
-    width: 120px;
+
+  .currency-converter {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
   }
-  
-  .rate-grid {
+
+  .from-panel {
+    padding-right: 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+  }
+
+  .to-panel {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .swap-btn {
+    align-self: center;
+    transform: rotate(90deg);
+  }
+
+  .swap-btn:hover {
+    transform: rotate(90deg) scale(1.08);
+  }
+
+  .amount-input {
+    font-size: 32px;
+  }
+
+  .rates-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
-  .input-group {
-    flex-direction: column;
-  }
-  
-  .currency-select {
-    width: 100%;
-  }
-  
-  .rate-grid {
+  .rates-grid {
     grid-template-columns: 1fr;
   }
 }
