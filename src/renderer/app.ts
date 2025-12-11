@@ -290,7 +290,11 @@ class App {
     }
 
     this.currentLLM = key;
+    this.currentKey = key;  // 记录当前使用的是 LLM
     this.updateLLMNavActive(key);
+    
+    // 开始 LLM 使用追踪
+    UsageTracker.start(key);
   }
 
   private createWebview(key: string): void {
