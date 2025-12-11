@@ -5,8 +5,7 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
 import { template } from './template';
-
-declare function toast(msg: string): void;
+import { toast } from '../../components/Toast';
 
 // 数据库 IPC 接口
 declare const llmHub: {
@@ -268,20 +267,38 @@ export class DatabaseTool extends Tool {
       return;
     }
 
-    this.setStatus('正在测试连接...', 'loading');
+    const statusEl = this.querySelector('#connTestStatus');
+    const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
+    
+    if (statusEl) {
+      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.style.color = '#f59e0b';
+    }
+    if (testBtn) testBtn.disabled = true;
 
     try {
       const result = await llmHub.db.testConnection(config);
       if (result.success) {
+        if (statusEl) {
+          statusEl.textContent = '✅ 连接成功！';
+          statusEl.style.color = '#22c55e';
+        }
         toast('连接成功！');
-        this.setStatus('连接测试成功');
       } else {
+        if (statusEl) {
+          statusEl.textContent = `❌ ${result.error}`;
+          statusEl.style.color = '#ef4444';
+        }
         toast(`连接失败: ${result.error}`);
-        this.setStatus('连接测试失败', 'error');
       }
     } catch (e) {
+      if (statusEl) {
+        statusEl.textContent = `❌ ${e}`;
+        statusEl.style.color = '#ef4444';
+      }
       toast(`连接失败: ${e}`);
-      this.setStatus('连接测试失败', 'error');
+    } finally {
+      if (testBtn) testBtn.disabled = false;
     }
   }
 
@@ -343,11 +360,12 @@ export class DatabaseTool extends Tool {
     this.saveConnections();
     this.renderConnectionList();
     
-    // 隐藏树形面板
+    // 隐藏树形面板并清除状态
     const treePanel = this.querySelector('#treePanel');
     if (treePanel) {
       treePanel.style.display = 'none';
     }
+    this.setStatus('未连接');
     
     toast('连接配置已删除');
   }

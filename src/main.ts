@@ -48,7 +48,7 @@ const sites: SiteDef[] = [
 function setupDBHandlers() {
     const dbManager = databaseManager;
     
-    ipcMain.handle('db:test', async (_e, config) => {
+    ipcMain.handle('db:test-connection', async (_e, config) => {
         return dbManager.testConnection(config);
     });
     
@@ -60,23 +60,23 @@ function setupDBHandlers() {
         return dbManager.disconnect(connectionId);
     });
     
-    ipcMain.handle('db:databases', async (_e, connectionId: string) => {
+    ipcMain.handle('db:get-databases', async (_e, connectionId: string) => {
         return dbManager.getDatabases(connectionId);
     });
     
-    ipcMain.handle('db:tables', async (_e, connectionId: string, database: string) => {
+    ipcMain.handle('db:get-tables', async (_e, connectionId: string, database: string) => {
         return dbManager.getTables(connectionId, database);
     });
     
-    ipcMain.handle('db:table-structure', async (_e, connectionId: string, database: string, table: string) => {
+    ipcMain.handle('db:get-table-structure', async (_e, connectionId: string, database: string, table: string) => {
         return dbManager.getTableStructure(connectionId, database, table);
     });
     
-    ipcMain.handle('db:table-data', async (_e, connectionId: string, database: string, table: string, page: number, pageSize: number) => {
+    ipcMain.handle('db:get-table-data', async (_e, connectionId: string, database: string, table: string, page: number, pageSize: number) => {
         return dbManager.getTableData(connectionId, database, table, page, pageSize);
     });
     
-    ipcMain.handle('db:query', async (_e, connectionId: string, database: string, sql: string) => {
+    ipcMain.handle('db:execute-query', async (_e, connectionId: string, database: string, sql: string) => {
         return dbManager.executeQuery(connectionId, database, sql);
     });
     
@@ -91,7 +91,7 @@ function setupDBHandlers() {
 function setupRedisHandlers() {
     const redisManager = redisManagerInstance;
     
-    ipcMain.handle('redis:test', async (_e, config) => {
+    ipcMain.handle('redis:test-connection', async (_e, config) => {
         return redisManager.testConnection(config);
     });
     
@@ -125,6 +125,10 @@ function setupRedisHandlers() {
     
     ipcMain.handle('redis:delete-key', async (_e, connectionId: string, key: string) => {
         return redisManager.deleteKey(connectionId, key);
+    });
+    
+    ipcMain.handle('redis:rename-key', async (_e, connectionId: string, oldKey: string, newKey: string) => {
+        return redisManager.renameKey(connectionId, oldKey, newKey);
     });
     
     // String 操作
@@ -186,6 +190,16 @@ function setupRedisHandlers() {
     
     ipcMain.handle('redis:remove-zset-member', async (_e, connectionId: string, key: string, member: string) => {
         return redisManager.removeZSetMember(connectionId, key, member);
+    });
+    
+    // 执行命令
+    ipcMain.handle('redis:execute-command', async (_e, connectionId: string, command: string) => {
+        return redisManager.executeCommand(connectionId, command);
+    });
+    
+    // DB Size
+    ipcMain.handle('redis:db-size', async (_e, connectionId: string) => {
+        return redisManager.dbSize(connectionId);
     });
 }
 
