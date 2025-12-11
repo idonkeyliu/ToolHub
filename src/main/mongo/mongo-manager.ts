@@ -1,9 +1,15 @@
 /**
  * MongoDB 管理模块
  * 负责 MongoDB 的连接管理和所有操作
+ * 
+ * 性能优化特性：
+ * - 驱动懒加载：只在需要时加载 mongodb
+ * - 性能监控：记录操作耗时
  */
 
 import { getErrorMessage } from '../utils/error-handler.js';
+import { driverLoader } from '../utils/lazy-loader.js';
+import { perfMonitor } from '../utils/performance-monitor.js';
 
 // ==================== 类型定义 ====================
 
@@ -31,17 +37,25 @@ export interface MongoConnection {
 export class MongoManager {
     private connections: Map<string, MongoConnection> = new Map();
     private mongodb: any = null;
+    private driverLoaded = false;
 
     /**
-     * 加载 MongoDB 驱动
+     * 加载 MongoDB 驱动（懒加载）
      */
     async loadDriver(): Promise<void> {
+        if (this.driverLoaded) return;
+        
+        const stopTimer = perfMonitor.startTimer('mongo.loadDriver');
         try {
-            this.mongodb = await import('mongodb');
-            console.log('[MongoDB] mongodb driver loaded');
+            this.mongodb = await driverLoader.get('mongodb');
+            if (this.mongodb) {
+                console.log('[MongoDB] mongodb driver loaded');
+                this.driverLoaded = true;
+            }
         } catch (e) {
             console.log('[MongoDB] mongodb driver not available:', e);
         }
+        stopTimer();
     }
 
     /**
@@ -68,6 +82,11 @@ export class MongoManager {
      * 测试 MongoDB 连接
      */
     async testConnection(config: MongoConnectionConfig): Promise<{ success: boolean; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('mongo.testConnection');
+        
+        // 按需加载驱动
+        await this.loadDriver();
+        
         if (!this.mongodb) {
             return { success: false, error: 'MongoDB 驱动未安装，请运行: npm install mongodb' };
         }
@@ -81,8 +100,10 @@ export class MongoManager {
             await client.connect();
             await client.db('admin').command({ ping: 1 });
             await client.close();
+            stopTimer();
             return { success: true };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -91,6 +112,11 @@ export class MongoManager {
      * 连接 MongoDB
      */
     async connect(config: MongoConnectionConfig): Promise<{ success: boolean; connectionId?: string; error?: string }> {
+        const stopTimer = perfMonitor.startTimer('mongo.connect');
+        
+        // 按需加载驱动
+        await this.loadDriver();
+        
         if (!this.mongodb) {
             return { success: false, error: 'MongoDB 驱动未安装' };
         }
@@ -104,8 +130,10 @@ export class MongoManager {
             });
             await client.connect();
             this.connections.set(connectionId, { id: connectionId, config, client });
+            stopTimer();
             return { success: true, connectionId };
         } catch (e: unknown) {
+            stopTimer({ error: true });
             return { success: false, error: getErrorMessage(e) };
         }
     }
@@ -125,6 +153,13 @@ export class MongoManager {
         } catch (e: unknown) {
             return { success: false, error: getErrorMessage(e) };
         }
+    }
+
+    /**
+     * 获取性能统计
+     */
+    getPerformanceStats() {
+        return perfMonitor.getAllStats();
     }
 
     /**
