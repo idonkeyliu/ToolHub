@@ -22,6 +22,7 @@ import { DiffTool } from './diff/DiffTool';
 import { JwtTool } from './jwt/JwtTool';
 import { RegexTool } from './regex/RegexTool';
 import { TerminalTool } from './terminal/TerminalTool';
+import { SyncTool } from './sync/SyncTool';
 import { UsageTracker } from './stats/StatsTool';
 
 export const tools = [
@@ -45,6 +46,7 @@ export const tools = [
   JwtTool,
   RegexTool,
   TerminalTool,
+  SyncTool,
 ];
 
 // 导出使用追踪器

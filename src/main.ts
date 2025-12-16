@@ -15,6 +15,7 @@ import { databaseManager } from './main/database/database-manager.js';
 import { redisManager as redisManagerInstance } from './main/redis/redis-manager.js';
 import { mongoManager as mongoManagerInstance } from './main/mongo/mongo-manager.js';
 import { terminalManager as terminalManagerInstance } from './main/terminal/terminal-manager.js';
+import { syncManager as syncManagerInstance } from './main/sync/sync-manager.js';
 import { windowManager } from './main/window/window-manager.js';
 
 // Recreate __dirname in ESM
@@ -288,6 +289,24 @@ function setupTerminalHandlers() {
     });
 }
 
+// ==================== Sync 处理器注册 ====================
+
+function setupSyncHandlers() {
+    const syncManager = syncManagerInstance;
+    
+    ipcMain.handle('sync:test-connection', async (_e, config) => {
+        return syncManager.testConnection(config);
+    });
+    
+    ipcMain.handle('sync:check-sync', async (_e, project, servers) => {
+        return syncManager.checkSync(project, servers);
+    });
+    
+    ipcMain.handle('sync:get-file-content', async (_e, server, filePath: string) => {
+        return syncManager.getFileContent(server, filePath);
+    });
+}
+
 // ==================== 窗口和应用管理 ====================
 
 function createWindow(initialSite?: string) {
@@ -397,6 +416,7 @@ app.whenReady().then(async () => {
     setupRedisHandlers();
     setupMongoHandlers();
     setupTerminalHandlers();
+    setupSyncHandlers();
     
     // 配置窗口环境
     windowManager.installFrameBypass();
