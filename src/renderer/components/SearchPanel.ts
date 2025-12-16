@@ -12,6 +12,16 @@ const CATEGORY_ICONS: Record<ToolCategory, string> = {
   [ToolCategory.DEVELOPER]: '💻',
   [ToolCategory.CONVERTER]: '🔄',
   [ToolCategory.NETWORK]: '🌐',
+  [ToolCategory.TERMINAL]: '🖥️',
+};
+
+/** 分类显示名称 */
+const CATEGORY_LABELS: Record<ToolCategory, string> = {
+  [ToolCategory.UTILITY]: '实用工具',
+  [ToolCategory.DEVELOPER]: '开发工具',
+  [ToolCategory.CONVERTER]: '转换工具',
+  [ToolCategory.NETWORK]: '网络工具',
+  [ToolCategory.TERMINAL]: '终端工具',
 };
 
 class SearchPanel {
@@ -309,7 +319,7 @@ class SearchPanel {
             <div class="search-item-title">${config.title}</div>
             <div class="search-item-desc">${config.description || ''}</div>
           </div>
-          <span class="search-item-category">${CATEGORY_ICONS[config.category]} ${config.category}</span>
+          <span class="search-item-category">${CATEGORY_ICONS[config.category]} ${CATEGORY_LABELS[config.category]}</span>
         </div>
       `
       )

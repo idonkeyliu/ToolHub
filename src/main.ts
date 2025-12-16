@@ -14,6 +14,7 @@ import Store from 'electron-store';
 import { databaseManager } from './main/database/database-manager.js';
 import { redisManager as redisManagerInstance } from './main/redis/redis-manager.js';
 import { mongoManager as mongoManagerInstance } from './main/mongo/mongo-manager.js';
+import { terminalManager as terminalManagerInstance } from './main/terminal/terminal-manager.js';
 import { windowManager } from './main/window/window-manager.js';
 
 // Recreate __dirname in ESM
@@ -265,6 +266,28 @@ function setupMongoHandlers() {
     });
 }
 
+// ==================== Terminal 处理器注册 ====================
+
+function setupTerminalHandlers() {
+    const terminalManager = terminalManagerInstance;
+    
+    ipcMain.handle('terminal:test-connection', async (_e, config) => {
+        return terminalManager.testConnection(config);
+    });
+    
+    ipcMain.handle('terminal:connect', async (_e, config) => {
+        return terminalManager.connect(config);
+    });
+    
+    ipcMain.handle('terminal:disconnect', async (_e, sessionId: string) => {
+        return terminalManager.disconnect(sessionId);
+    });
+    
+    ipcMain.handle('terminal:execute', async (_e, sessionId: string, command: string) => {
+        return terminalManager.execute(sessionId, command);
+    });
+}
+
 // ==================== 窗口和应用管理 ====================
 
 function createWindow(initialSite?: string) {
@@ -373,6 +396,7 @@ app.whenReady().then(async () => {
     setupDBHandlers();
     setupRedisHandlers();
     setupMongoHandlers();
+    setupTerminalHandlers();
     
     // 配置窗口环境
     windowManager.installFrameBypass();

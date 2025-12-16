@@ -14,6 +14,7 @@ const CATEGORY_LABELS: Record<ToolCategory, string> = {
   [ToolCategory.DEVELOPER]: '开发工具',
   [ToolCategory.CONVERTER]: '转换工具',
   [ToolCategory.NETWORK]: '网络工具',
+  [ToolCategory.TERMINAL]: '终端工具',
 };
 
 /** 分类图标 */
@@ -22,6 +23,7 @@ const CATEGORY_ICONS: Record<ToolCategory, string> = {
   [ToolCategory.DEVELOPER]: '💻',
   [ToolCategory.CONVERTER]: '🔄',
   [ToolCategory.NETWORK]: '🌐',
+  [ToolCategory.TERMINAL]: '🖥️',
 };
 
 class ToolNav {

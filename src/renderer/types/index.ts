@@ -8,6 +8,7 @@ export enum ToolCategory {
   DEVELOPER = 'developer',
   CONVERTER = 'converter',
   NETWORK = 'network',
+  TERMINAL = 'terminal',
 }
 
 /** 工具配置 */
