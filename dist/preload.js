@@ -72,6 +72,13 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
         dropCollection: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:drop-collection', connectionId, database, collection),
         createCollection: (connectionId, database, collection) => electron_1.ipcRenderer.invoke('mongo:create-collection', connectionId, database, collection),
     },
+    // SSH 终端操作 API
+    terminal: {
+        testConnection: (config) => electron_1.ipcRenderer.invoke('terminal:test-connection', config),
+        connect: (config) => electron_1.ipcRenderer.invoke('terminal:connect', config),
+        disconnect: (sessionId) => electron_1.ipcRenderer.invoke('terminal:disconnect', sessionId),
+        execute: (sessionId, command) => electron_1.ipcRenderer.invoke('terminal:execute', sessionId, command),
+    },
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

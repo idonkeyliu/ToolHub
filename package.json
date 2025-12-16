@@ -30,12 +30,14 @@
         "wait-on": "^7.0.1"
     },
     "dependencies": {
+        "@types/ssh2": "^1.15.5",
         "better-sqlite3": "^11.5.0",
         "electron-store": "^9.0.0",
         "ioredis": "^5.4.1",
         "mongodb": "^6.11.0",
         "mysql2": "^3.15.3",
-        "pg": "^8.16.3"
+        "pg": "^8.16.3",
+        "ssh2": "^1.17.0"
     },
     "optionalDependencies": {
         "@types/better-sqlite3": "^7.6.11",
