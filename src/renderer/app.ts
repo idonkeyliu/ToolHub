@@ -74,7 +74,7 @@ const TOOL_CATEGORIES: Record<string, { title: string; icon: string; keys: strin
   terminal: {
     title: '终端工具',
     icon: '🖥️',
-    keys: ['terminal'],
+    keys: ['terminal', 'sync'],
   },
 };
 

@@ -79,6 +79,12 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
         disconnect: (sessionId) => electron_1.ipcRenderer.invoke('terminal:disconnect', sessionId),
         execute: (sessionId, command) => electron_1.ipcRenderer.invoke('terminal:execute', sessionId, command),
     },
+    // 文件同步检测 API
+    sync: {
+        testConnection: (config) => electron_1.ipcRenderer.invoke('sync:test-connection', config),
+        checkSync: (project, servers) => electron_1.ipcRenderer.invoke('sync:check-sync', project, servers),
+        getFileContent: (server, filePath) => electron_1.ipcRenderer.invoke('sync:get-file-content', server, filePath),
+    },
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

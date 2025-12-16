@@ -163,6 +163,13 @@ contextBridge.exposeInMainWorld('llmHub', {
         disconnect: (sessionId: string) => ipcRenderer.invoke('terminal:disconnect', sessionId),
         execute: (sessionId: string, command: string) => ipcRenderer.invoke('terminal:execute', sessionId, command),
     },
+    
+    // 文件同步检测 API
+    sync: {
+        testConnection: (config: ServerConfig) => ipcRenderer.invoke('sync:test-connection', config),
+        checkSync: (project: any, servers: ServerConfig[]) => ipcRenderer.invoke('sync:check-sync', project, servers),
+        getFileContent: (server: ServerConfig, filePath: string) => ipcRenderer.invoke('sync:get-file-content', server, filePath),
+    },
 });
 
 // 接收主进程数据
