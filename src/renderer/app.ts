@@ -71,6 +71,11 @@ const TOOL_CATEGORIES: Record<string, { title: string; icon: string; keys: strin
     icon: '🌐',
     keys: ['dns', 'curl'],
   },
+  terminal: {
+    title: '终端工具',
+    icon: '🖥️',
+    keys: ['terminal'],
+  },
 };
 
 /** 工具图标颜色映射 */

@@ -42,6 +42,19 @@ interface MongoConnectionConfig {
     tls?: boolean;
 }
 
+// SSH 服务器配置接口
+interface ServerConfig {
+    id?: string;
+    name: string;
+    host: string;
+    port: number;
+    username: string;
+    authType: 'password' | 'key';
+    password?: string;
+    privateKey?: string;
+    tags?: string[];
+}
+
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {
     version: '0.1.0',
@@ -141,6 +154,14 @@ contextBridge.exposeInMainWorld('llmHub', {
             ipcRenderer.invoke('mongo:drop-collection', connectionId, database, collection),
         createCollection: (connectionId: string, database: string, collection: string) => 
             ipcRenderer.invoke('mongo:create-collection', connectionId, database, collection),
+    },
+    
+    // SSH 终端操作 API
+    terminal: {
+        testConnection: (config: ServerConfig) => ipcRenderer.invoke('terminal:test-connection', config),
+        connect: (config: ServerConfig) => ipcRenderer.invoke('terminal:connect', config),
+        disconnect: (sessionId: string) => ipcRenderer.invoke('terminal:disconnect', sessionId),
+        execute: (sessionId: string, command: string) => ipcRenderer.invoke('terminal:execute', sessionId, command),
     },
 });
 
