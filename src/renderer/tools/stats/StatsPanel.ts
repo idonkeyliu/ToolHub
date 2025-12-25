@@ -9,6 +9,7 @@ interface DailySummary {
   date: string;
   totalDuration: number;
   tools: { [toolId: string]: { duration: number; count: number } };
+  hours?: number[]; // 每日的24小时使用时长分布
 }
 
 // 工具信息
@@ -29,6 +30,7 @@ export class StatsPanel {
   private rankingType: 'time' | 'count' = 'time';
   private tooltip: HTMLElement | null = null;
   private eventListeners: Array<{ el: HTMLElement; type: string; handler: EventListener }> = [];
+  private selectedDate: string | null = null; // 新增：当前选中的日期
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -107,6 +109,14 @@ export class StatsPanel {
     const exportBtn = this.container.querySelector('#exportStats');
     if (exportBtn) {
       this.addListener(exportBtn as HTMLElement, 'click', () => this.exportData());
+    }
+
+    // 导入数据
+    const importBtn = this.container.querySelector('#importStats');
+    const importFile = this.container.querySelector('#importStatsFile') as HTMLInputElement;
+    if (importBtn && importFile) {
+      this.addListener(importBtn as HTMLElement, 'click', () => importFile.click());
+      this.addListener(importFile, 'change', () => this.importData(importFile));
     }
 
     // 清除数据
@@ -307,6 +317,8 @@ export class StatsPanel {
     grid.querySelectorAll('.heatmap-day').forEach(day => {
       this.addListener(day as HTMLElement, 'mouseenter', (e) => this.showHeatmapTooltip(e as MouseEvent));
       this.addListener(day as HTMLElement, 'mouseleave', () => this.hideTooltip());
+      // 新增：点击选择日期
+      this.addListener(day as HTMLElement, 'click', (e) => this.selectDate(e as MouseEvent));
     });
   }
 
@@ -426,19 +438,53 @@ export class StatsPanel {
 
   private renderHoursChart(data: DailySummary[]): void {
     const chart = this.container.querySelector('#hoursChart');
+    const hoursTitle = this.container.querySelector('#hoursChartTitle');
     if (!chart) return;
 
-    const hours: number[] = new Array(24).fill(0);
+    let hours: number[] = new Array(24).fill(0);
+    let titleText = '使用时段分布';
     
-    try {
-      const hoursData = localStorage.getItem('toolhub_hours_stats');
-      if (hoursData) {
-        const parsed = JSON.parse(hoursData);
-        parsed.forEach((v: number, i: number) => {
-          hours[i] = v;
-        });
+    if (this.selectedDate) {
+      // 显示选中日期的时段分布
+      const dayData = this.getStatsData().find(d => d.date === this.selectedDate);
+      if (dayData?.hours) {
+        hours = dayData.hours;
       }
-    } catch {}
+      const dateObj = new Date(this.selectedDate);
+      titleText = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 使用时段`;
+    } else {
+      // 显示当前周期内的累计时段分布
+      data.forEach(d => {
+        if (d.hours) {
+          d.hours.forEach((v, i) => {
+            hours[i] += v;
+          });
+        }
+      });
+      
+      // 如果没有按日期存储的数据，回退到全局数据
+      const hasHoursData = hours.some(h => h > 0);
+      if (!hasHoursData) {
+        try {
+          const hoursData = localStorage.getItem('toolhub_hours_stats');
+          if (hoursData) {
+            const parsed = JSON.parse(hoursData);
+            parsed.forEach((v: number, i: number) => {
+              hours[i] = v;
+            });
+          }
+        } catch {}
+      }
+      
+      const periodText = this.currentPeriod === 'week' ? '本周' : 
+                         this.currentPeriod === 'month' ? '本月' : '本年';
+      titleText = `${periodText}使用时段分布`;
+    }
+
+    // 更新标题
+    if (hoursTitle) {
+      hoursTitle.textContent = titleText;
+    }
 
     const maxHour = Math.max(...hours, 1);
 
@@ -446,6 +492,31 @@ export class StatsPanel {
       const height = Math.max((h / maxHour) * 50, 4);
       return `<div class="hour-bar" style="height: ${height}px" title="${i}:00 - ${i + 1}:00: ${Math.round(h / 1000 / 60)}分钟"></div>`;
     }).join('');
+  }
+
+  private selectDate(e: MouseEvent): void {
+    const target = e.target as HTMLElement;
+    const date = target.getAttribute('data-date');
+    
+    if (!date) return;
+    
+    // 切换选中状态
+    if (this.selectedDate === date) {
+      // 取消选中
+      this.selectedDate = null;
+      target.classList.remove('selected');
+    } else {
+      // 选中新日期
+      this.container.querySelectorAll('.heatmap-day.selected').forEach(el => {
+        el.classList.remove('selected');
+      });
+      this.selectedDate = date;
+      target.classList.add('selected');
+    }
+    
+    // 重新渲染时段图表
+    const periodData = this.filterByPeriod(this.getStatsData());
+    this.renderHoursChart(periodData);
   }
 
   private formatDuration(ms: number): string {
@@ -504,6 +575,64 @@ export class StatsPanel {
     a.click();
     URL.revokeObjectURL(url);
     this.showToast('数据已导出');
+  }
+
+  private importData(input: HTMLInputElement): void {
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importedData = JSON.parse(content) as DailySummary[];
+
+        // 验证数据格式
+        if (!Array.isArray(importedData)) {
+          throw new Error('数据格式错误：应为数组');
+        }
+
+        // 验证每条记录的格式
+        for (const item of importedData) {
+          if (!item.date || typeof item.totalDuration !== 'number' || !item.tools) {
+            throw new Error('数据格式错误：缺少必要字段');
+          }
+        }
+
+        // 获取现有数据
+        const existingData = this.getStatsData();
+        const existingMap = new Map(existingData.map(d => [d.date, d]));
+
+        // 合并数据（导入的数据会覆盖同日期的现有数据）
+        for (const item of importedData) {
+          existingMap.set(item.date, item);
+        }
+
+        // 转换回数组并按日期排序
+        const mergedData = Array.from(existingMap.values()).sort((a, b) => 
+          a.date.localeCompare(b.date)
+        );
+
+        // 保存合并后的数据
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedData));
+
+        // 刷新显示
+        this.refreshStats();
+        this.showToast(`导入成功，共 ${importedData.length} 条记录`);
+      } catch (err) {
+        this.showToast(`导入失败：${err instanceof Error ? err.message : '未知错误'}`);
+      }
+
+      // 重置 input 以便可以再次选择同一文件
+      input.value = '';
+    };
+
+    reader.onerror = () => {
+      this.showToast('读取文件失败');
+      input.value = '';
+    };
+
+    reader.readAsText(file);
   }
 
   private showToast(msg: string): void {

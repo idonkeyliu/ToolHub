@@ -270,6 +270,13 @@
   z-index: 10;
 }
 
+.heatmap-day.selected {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  transform: scale(1.2);
+  z-index: 10;
+}
+
 .heatmap-day.level-0 { background: #1c2128; border: 1px solid rgba(48, 54, 61, 0.3); }
 .heatmap-day.level-1 { background: #0e4429; }
 .heatmap-day.level-2 { background: #006d32; }
@@ -517,6 +524,12 @@
 /* 时段分布 */
 .hours-section {
   flex-shrink: 0;
+}
+
+.hours-hint {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: normal;
 }
 
 .hours-chart {

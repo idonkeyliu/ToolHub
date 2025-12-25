@@ -140,7 +140,8 @@ export const statsTemplate = `
       <!-- 使用时段分布 -->
       <div class="section-card hours-section">
         <div class="section-header">
-          <h3>使用时段分布</h3>
+          <h3 id="hoursChartTitle">使用时段分布</h3>
+          <span class="hours-hint">点击热力图查看某天详情</span>
         </div>
         <div class="hours-chart" id="hoursChart"></div>
         <div class="hours-labels">
@@ -164,6 +165,15 @@ export const statsTemplate = `
       </svg>
       导出数据
     </button>
+    <button class="toolbar-btn" id="importStats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17,8 12,3 7,8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      导入数据
+    </button>
+    <input type="file" id="importStatsFile" accept=".json" style="display: none;">
     <button class="toolbar-btn danger" id="clearStats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3,6 5,6 21,6"/>
