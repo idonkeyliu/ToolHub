@@ -7,6 +7,7 @@ interface DailySummary {
   date: string;
   totalDuration: number;
   tools: { [toolId: string]: { duration: number; count: number } };
+  hours?: number[]; // 新增：每日的24小时使用时长分布
 }
 
 // 存储键
@@ -48,8 +49,13 @@ export const UsageTracker = {
 
       let daySummary = data.find(d => d.date === today);
       if (!daySummary) {
-        daySummary = { date: today, totalDuration: 0, tools: {} };
+        daySummary = { date: today, totalDuration: 0, tools: {}, hours: new Array(24).fill(0) };
         data.push(daySummary);
+      }
+
+      // 确保 hours 数组存在（兼容旧数据）
+      if (!daySummary.hours) {
+        daySummary.hours = new Array(24).fill(0);
       }
 
       daySummary.totalDuration += duration;
@@ -60,9 +66,12 @@ export const UsageTracker = {
       daySummary.tools[session.toolId].duration += duration;
       daySummary.tools[session.toolId].count += 1;
 
+      // 记录当天的小时使用数据
+      daySummary.hours[session.hour] = (daySummary.hours[session.hour] || 0) + duration;
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-      // 记录时段数据
+      // 同时更新全局时段数据（保持向后兼容）
       UsageTracker.recordHourUsage(session.hour, duration);
 
       localStorage.removeItem(CURRENT_SESSION_KEY);
