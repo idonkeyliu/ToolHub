@@ -58,6 +58,9 @@ const zhCN: Translations = {
   'settings.themeSystem': '跟随系统',
   'settings.themeLight': '浅色',
   'settings.themeDark': '深色',
+  'settings.fun': '趣味',
+  'settings.funCar': '小车动画',
+  'settings.funCarDesc': '在底部显示一辆来回移动的小车',
 
   // 语言
   'lang.zh': '简体中文',
@@ -160,6 +163,9 @@ const enUS: Translations = {
   'settings.themeSystem': 'System',
   'settings.themeLight': 'Light',
   'settings.themeDark': 'Dark',
+  'settings.fun': 'Fun',
+  'settings.funCar': 'Car Animation',
+  'settings.funCarDesc': 'Show a moving car at the bottom',
 
   // Language
   'lang.zh': 'Simplified Chinese',
