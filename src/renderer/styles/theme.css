@@ -29,30 +29,30 @@
   --error-color: #ef4444;
 }
 
-/* 浅色主题 */
+/* 浅色主题 - 柔和灰蓝调 */
 [data-theme="light"] {
-  --bg-primary: #f5f5f5;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e5e7eb;
-  --bg-hover: rgba(0, 0, 0, 0.05);
-  --bg-active: rgba(59, 130, 246, 0.15);
+  --bg-primary: #e8ecf0;
+  --bg-secondary: #f0f3f6;
+  --bg-tertiary: #dde3e9;
+  --bg-hover: rgba(100, 120, 140, 0.12);
+  --bg-active: rgba(59, 130, 246, 0.18);
   
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --text-primary: #2c3e50;
+  --text-secondary: #546e7a;
+  --text-muted: #90a4ae;
   
-  --border-color: rgba(0, 0, 0, 0.1);
-  --border-light: #e5e7eb;
+  --border-color: rgba(100, 120, 140, 0.15);
+  --border-light: #cfd8dc;
   
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 3px rgba(50, 70, 90, 0.08);
+  --shadow-md: 0 5px 15px rgba(50, 70, 90, 0.1);
+  --shadow-lg: 0 20px 60px rgba(50, 70, 90, 0.15);
   
-  --accent-color: #2563eb;
-  --accent-hover: #1d4ed8;
-  --success-color: #059669;
-  --warning-color: #d97706;
-  --error-color: #dc2626;
+  --accent-color: #5c7cfa;
+  --accent-hover: #4263eb;
+  --success-color: #20c997;
+  --warning-color: #fab005;
+  --error-color: #fa5252;
 }
 
 /* 浅色主题下的全局样式覆盖 */
@@ -66,17 +66,17 @@
 }
 
 .theme-light header.topbar {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(224, 230, 236, 0.95) !important;
   border-bottom-color: var(--border-color) !important;
 }
 
 .theme-light .item {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
   color: var(--text-secondary) !important;
 }
 
 .theme-light .item:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: rgba(100, 120, 140, 0.15) !important;
   color: var(--text-primary) !important;
 }
 
@@ -86,7 +86,7 @@
 }
 
 .theme-light main {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e5e7eb 50%, #f0f0f0 100%) !important;
+  background: linear-gradient(135deg, #e8ecf0 0%, #dde3e9 50%, #e4e9ed 100%) !important;
 }
 
 .theme-light .content-container {
@@ -95,12 +95,12 @@
 }
 
 .theme-light .settings-btn {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
   color: var(--text-secondary) !important;
 }
 
 .theme-light .settings-btn:hover {
-  background: rgba(0, 0, 0, 0.08) !important;
+  background: rgba(100, 120, 140, 0.15) !important;
   color: var(--text-primary) !important;
 }
 
@@ -162,7 +162,7 @@
 
 /* 侧边栏浅色主题 */
 .theme-light .sidebar {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(224, 230, 236, 0.95) !important;
   border-right-color: var(--border-color) !important;
 }
 
@@ -172,7 +172,7 @@
 
 .theme-light .sidebar-category-header:hover {
   color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.03) !important;
+  background: rgba(100, 120, 140, 0.08) !important;
 }
 
 .theme-light .sidebar-item {
@@ -181,16 +181,16 @@
 
 .theme-light .sidebar-item:hover {
   color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
 }
 
 .theme-light .sidebar-item.active {
   color: #fff !important;
-  background: rgba(59, 130, 246, 0.85) !important;
+  background: rgba(92, 124, 250, 0.85) !important;
 }
 
 .theme-light .sidebar-titlebar {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(224, 230, 236, 0.95) !important;
   border-bottom-color: var(--border-color) !important;
 }
 
@@ -200,12 +200,12 @@
 
 .theme-light .titlebar-btn:hover {
   color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
 }
 
 /* 底部栏浅色主题 */
 .theme-light .bottom-bar {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(224, 230, 236, 0.95) !important;
   border-top-color: var(--border-color) !important;
 }
 
@@ -215,7 +215,7 @@
 
 .theme-light .bottom-bar-btn:hover {
   color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
 }
 
 /* 设置弹窗浅色主题 */
@@ -234,7 +234,7 @@
 }
 
 .theme-light .settings-nav-item:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
   color: var(--text-primary) !important;
 }
 
@@ -256,7 +256,7 @@
 
 .theme-light .settings-close:hover {
   color: var(--text-primary) !important;
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
 }
 
 .theme-light .settings-section-title {
@@ -268,7 +268,7 @@
 }
 
 .theme-light .theme-option:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(100, 120, 140, 0.1) !important;
 }
 
 .theme-light .about-name {
