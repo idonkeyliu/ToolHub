@@ -65,6 +65,14 @@ export class Sidebar {
     this.container.appendChild(categoriesContainer);
   }
 
+  // 渲染目录图标（支持 emoji 和图片）
+  private renderCategoryIcon(category: Category): string {
+    if (category.iconType === 'image') {
+      return `<img src="${category.icon}" alt="" class="category-icon-img" />`;
+    }
+    return category.icon;
+  }
+
   private renderCategory(category: Category): HTMLElement {
     const el = document.createElement('div');
     el.className = 'sidebar-category';
@@ -78,7 +86,7 @@ export class Sidebar {
     if (this.editingCategoryId === category.id) {
       // 编辑模式
       header.innerHTML = `
-        <span class="sidebar-category-icon">${category.icon}</span>
+        <span class="sidebar-category-icon">${this.renderCategoryIcon(category)}</span>
         <input type="text" class="category-edit-input" value="${category.title}" />
         <button class="category-edit-save">✓</button>
         <button class="category-edit-cancel">✕</button>
@@ -117,7 +125,7 @@ export class Sidebar {
       // 正常模式 - 移除 + 和 > 按钮，添加 ... 菜单
       const displayTitle = i18n.getCategoryTitle(category.id, category.title);
       header.innerHTML = `
-        <span class="sidebar-category-icon">${category.icon}</span>
+        <span class="sidebar-category-icon">${this.renderCategoryIcon(category)}</span>
         <span class="sidebar-category-title">${displayTitle}</span>
         ${!this.collapsed ? `
           <button class="category-more-btn" title="${i18n.t('common.edit')}">
@@ -389,123 +397,224 @@ export class Sidebar {
     return el;
   }
 
-  private readonly categoryEmojis = [
-    // 文件夹
-    '📁', '📂', '🗂️', '📋', '📑',
-    // 工具
-    '🔧', '🛠️', '⚙️', '🔨', '🔩',
-    // 技术
-    '💻', '🖥️', '⌨️', '🖱️', '💾',
-    // 代码
-    '📝', '📄', '📃', '🗒️', '📜',
-    // 网络
-    '🌐', '🔗', '📡', '📶', '🛜',
-    // 数据
-    '📊', '📈', '📉', '🗃️', '💽',
-    // 安全
-    '🔒', '🔓', '🔐', '🛡️', '🔑',
-    // 媒体
-    '🎨', '🖼️', '📷', '🎬', '🎵',
-    // 通信
-    '💬', '📧', '✉️', '📨', '📩',
-    // AI
-    '🤖', '🧠', '✨', '🔮', '💡',
-    // 游戏
-    '🎮', '🕹️', '🎲', '🃏', '🎯',
-    // 其他
-    '⭐', '❤️', '🔥', '💎', '🚀',
-    '📦', '🎁', '🏷️', '🔖', '📌',
-    '🌟', '💫', '🌈', '☁️', '⚡',
-  ];
-
   public showAddCategoryDialog(): void {
     const dialog = document.createElement('div');
-    dialog.className = 'category-dialog-overlay';
+    dialog.className = 'add-category-overlay';
     
-    const emojiGrid = this.categoryEmojis.map(emoji => 
-      `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
+    // 获取 emoji 分类
+    const emojiCategories = [
+      { id: 'smileys', name: '笑脸', icon: '😀', dir: '笑脸与情感' },
+      { id: 'people', name: '人物', icon: '👋', dir: '人物与身体' },
+      { id: 'animals', name: '动物', icon: '🐱', dir: '动物与自然' },
+      { id: 'food', name: '食物', icon: '🍎', dir: '食物与饮料' },
+      { id: 'travel', name: '旅行', icon: '🚗', dir: '旅行与地点' },
+      { id: 'activities', name: '活动', icon: '⚽', dir: '活动' },
+      { id: 'objects', name: '物品', icon: '💡', dir: '物品' },
+      { id: 'symbols', name: '符号', icon: '❤️', dir: '符号' },
+      { id: 'flags', name: '旗帜', icon: '🏁', dir: '旗帜' },
+    ];
+
+    const categoryTabs = emojiCategories.map((cat, idx) => 
+      `<div class="add-cat-tab ${idx === 0 ? 'active' : ''}" data-category="${cat.id}" data-dir="${cat.dir}" title="${cat.name}">${cat.icon}</div>`
     ).join('');
-    
+
     dialog.innerHTML = `
-      <div class="category-dialog">
-        <div class="category-dialog-header">${i18n.t('sidebar.addCategory')}</div>
-        <div class="category-dialog-body">
-          <div class="category-dialog-field">
-            <label>${i18n.t('dialog.categoryIcon')}</label>
-            <div class="emoji-picker-wrapper">
-              <div class="emoji-selected" title="点击选择图标">📁</div>
-              <div class="emoji-picker">
-                <div class="emoji-grid">${emojiGrid}</div>
+      <div class="add-category-dialog">
+        <div class="add-cat-header">
+          <div class="add-cat-title">${i18n.t('sidebar.addCategory')}</div>
+          <button class="add-cat-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="add-cat-content">
+          <!-- 左侧：名称输入和已选图标 -->
+          <div class="add-cat-left">
+            <div class="add-cat-preview">
+              <div class="add-cat-preview-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="default-folder-icon">
+                  <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                </svg>
               </div>
             </div>
+            <div class="add-cat-name-field">
+              <input type="text" class="add-cat-name-input" placeholder="输入目录名称" autofocus />
+            </div>
           </div>
-          <div class="category-dialog-field">
-            <label>${i18n.t('dialog.categoryName')}</label>
-            <input type="text" class="category-name-input" placeholder="${i18n.t('dialog.categoryName')}" />
+          
+          <!-- 右侧：Emoji 选择器 -->
+          <div class="add-cat-right">
+            <div class="add-cat-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text" class="add-cat-search-input" placeholder="搜索图标..." />
+            </div>
+            <div class="add-cat-tabs">${categoryTabs}</div>
+            <div class="add-cat-emoji-grid"></div>
           </div>
         </div>
-        <div class="category-dialog-footer">
-          <button class="category-dialog-cancel">${i18n.t('common.cancel')}</button>
-          <button class="category-dialog-confirm">${i18n.t('common.confirm')}</button>
+        
+        <div class="add-cat-footer">
+          <button class="add-cat-cancel">${i18n.t('common.cancel')}</button>
+          <button class="add-cat-confirm">${i18n.t('common.confirm')}</button>
         </div>
       </div>
     `;
 
-    const emojiSelected = dialog.querySelector('.emoji-selected') as HTMLElement;
-    const emojiPicker = dialog.querySelector('.emoji-picker') as HTMLElement;
-    const nameInput = dialog.querySelector('.category-name-input') as HTMLInputElement;
-    const cancelBtn = dialog.querySelector('.category-dialog-cancel');
-    const confirmBtn = dialog.querySelector('.category-dialog-confirm');
+    const previewIcon = dialog.querySelector('.add-cat-preview-icon') as HTMLElement;
+    const nameInput = dialog.querySelector('.add-cat-name-input') as HTMLInputElement;
+    const searchInput = dialog.querySelector('.add-cat-search-input') as HTMLInputElement;
+    const emojiGrid = dialog.querySelector('.add-cat-emoji-grid') as HTMLElement;
+    const cancelBtn = dialog.querySelector('.add-cat-cancel');
+    const confirmBtn = dialog.querySelector('.add-cat-confirm');
+    const closeBtn = dialog.querySelector('.add-cat-close');
     
-    let selectedEmoji = '📁';
+    let selectedIcon = '📁';
+    let selectedIconType: 'emoji' | 'image' = 'emoji';
+    let currentCategory = emojiCategories[0];
+    let emojiCache: Map<string, string[]> = new Map();
 
-    // 点击显示/隐藏 emoji 选择器
-    emojiSelected?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      emojiPicker?.classList.toggle('show');
-    });
+    // 加载并渲染 emoji
+    const loadAndRenderEmojis = async (category: typeof emojiCategories[0], searchQuery?: string) => {
+      if (!emojiCache.has(category.id)) {
+        try {
+          const files = await (window as any).llmHub.listEmojiFiles(category.dir);
+          emojiCache.set(category.id, files);
+        } catch (e) {
+          emojiCache.set(category.id, []);
+        }
+      }
+      
+      let files = emojiCache.get(category.id) || [];
+      
+      // 搜索过滤
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        // 搜索所有分类
+        const allResults: { file: string; dir: string }[] = [];
+        for (const cat of emojiCategories) {
+          if (!emojiCache.has(cat.id)) {
+            try {
+              const catFiles = await (window as any).llmHub.listEmojiFiles(cat.dir);
+              emojiCache.set(cat.id, catFiles);
+            } catch (e) {
+              emojiCache.set(cat.id, []);
+            }
+          }
+          const catFiles = emojiCache.get(cat.id) || [];
+          catFiles.forEach(f => {
+            const name = f.replace('.png', '').replace(/_/g, ' ');
+            if (name.toLowerCase().includes(query)) {
+              allResults.push({ file: f, dir: cat.dir });
+            }
+          });
+        }
+        
+        emojiGrid.innerHTML = allResults.slice(0, 100).map(({ file, dir }) => {
+          const path = `assets/emojis/${dir}/${file}`;
+          const name = file.replace('.png', '');
+          return `<div class="add-cat-emoji-item" data-path="${path}" data-name="${name}" title="${name}">
+            <img src="${path}" alt="${name}" loading="lazy" />
+          </div>`;
+        }).join('');
+        return;
+      }
+      
+      // 渲染当前分类
+      emojiGrid.innerHTML = files.map(file => {
+        const path = `assets/emojis/${category.dir}/${file}`;
+        const name = file.replace('.png', '');
+        return `<div class="add-cat-emoji-item" data-path="${path}" data-name="${name}" title="${name}">
+          <img src="${path}" alt="${name}" loading="lazy" />
+        </div>`;
+      }).join('');
+    };
 
-    // 选择 emoji
-    dialog.querySelectorAll('.emoji-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectedEmoji = (item as HTMLElement).dataset.emoji || '📁';
-        emojiSelected.textContent = selectedEmoji;
-        emojiPicker?.classList.remove('show');
-        // 更新选中状态
-        dialog.querySelectorAll('.emoji-item').forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
+    // 初始加载
+    loadAndRenderEmojis(currentCategory);
+
+    // 分类切换
+    dialog.querySelectorAll('.add-cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const catId = (tab as HTMLElement).dataset.category;
+        const cat = emojiCategories.find(c => c.id === catId);
+        if (cat) {
+          currentCategory = cat;
+          dialog.querySelectorAll('.add-cat-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          searchInput.value = '';
+          loadAndRenderEmojis(cat);
+        }
       });
     });
 
-    // 点击其他地方关闭 emoji 选择器
-    dialog.addEventListener('click', (e) => {
-      if (!(e.target as HTMLElement).closest('.emoji-picker-wrapper')) {
-        emojiPicker?.classList.remove('show');
-      }
-      if (e.target === dialog) dialog.remove();
+    // 搜索
+    let searchTimeout: any;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const query = searchInput.value.trim();
+        if (query) {
+          loadAndRenderEmojis(currentCategory, query);
+        } else {
+          loadAndRenderEmojis(currentCategory);
+        }
+      }, 200);
     });
 
-    cancelBtn?.addEventListener('click', () => dialog.remove());
+    // 选择 emoji
+    emojiGrid.addEventListener('click', (e) => {
+      const item = (e.target as HTMLElement).closest('.add-cat-emoji-item') as HTMLElement;
+      if (item) {
+        const path = item.dataset.path || '';
+        const name = item.dataset.name || '';
+        selectedIcon = path;
+        selectedIconType = 'image';
+        previewIcon.innerHTML = `<img src="${path}" alt="${name}" />`;
+        
+        // 更新选中状态
+        emojiGrid.querySelectorAll('.add-cat-emoji-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+      }
+    });
 
+    // 关闭
+    const closeDialog = () => dialog.remove();
+    
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closeDialog();
+    });
+    closeBtn?.addEventListener('click', closeDialog);
+    cancelBtn?.addEventListener('click', closeDialog);
+
+    // 确认
     confirmBtn?.addEventListener('click', () => {
       const name = nameInput.value.trim();
       if (name) {
-        categoryManager.addCategory(name, selectedEmoji);
-        dialog.remove();
+        categoryManager.addCategory(name, selectedIcon, selectedIconType);
+        closeDialog();
+      } else {
+        nameInput.focus();
+        nameInput.classList.add('shake');
+        setTimeout(() => nameInput.classList.remove('shake'), 500);
       }
     });
 
-    nameInput?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+    // 键盘事件
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement === nameInput) {
         (confirmBtn as HTMLButtonElement)?.click();
       } else if (e.key === 'Escape') {
-        dialog.remove();
+        closeDialog();
       }
     });
 
     document.body.appendChild(dialog);
-    setTimeout(() => nameInput?.focus(), 0);
+    setTimeout(() => nameInput?.focus(), 100);
   }
 
   private showCategoryMenu(category: Category, event: MouseEvent): void {
