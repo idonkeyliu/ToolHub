@@ -44,6 +44,39 @@ const DEFAULT_LLM_SITES: CategoryItem[] = [
   { key: 'yuanbao', title: '腾讯元宝', icon: '元', color: '#0052d9', type: 'llm', url: 'https://yuanbao.tencent.com/chat' },
 ];
 
+// 默认开发工具站点
+const DEFAULT_DEV_SITES: CategoryItem[] = [
+  { key: 'vscode', title: 'VS Code', icon: 'VS', color: '#007acc', type: 'llm', url: 'https://vscode.dev' },
+  { key: 'github', title: 'GitHub', icon: 'GH', color: '#24292e', type: 'llm', url: 'https://github.com' },
+  { key: 'replit', title: 'Replit', icon: 'RE', color: '#f26207', type: 'llm', url: 'https://replit.com' },
+  { key: 'huggingface', title: 'Hugging Face', icon: 'HF', color: '#ff9d00', type: 'llm', url: 'https://huggingface.co' },
+  { key: 'projectidx', title: 'Project IDX', icon: 'IX', color: '#669df6', type: 'llm', url: 'https://idx.google.com' },
+];
+
+// 社区站点
+const DEFAULT_COMMUNITY_SITES: CategoryItem[] = [
+  { key: 'twitter', title: 'X', icon: '𝕏', color: '#000000', type: 'llm', url: 'https://x.com' },
+  { key: 'discord', title: 'Discord', icon: 'DC', color: '#5865f2', type: 'llm', url: 'https://discord.com' },
+  { key: 'hackernews', title: 'Hacker News', icon: 'HN', color: '#ff6600', type: 'llm', url: 'https://news.ycombinator.com' },
+];
+
+// 设计站点
+const DEFAULT_DESIGN_SITES: CategoryItem[] = [
+  { key: 'figma', title: 'Figma', icon: 'FG', color: '#f24e1e', type: 'llm', url: 'https://www.figma.com' },
+  { key: 'dribbble', title: 'Dribbble', icon: 'DR', color: '#ea4c89', type: 'llm', url: 'https://dribbble.com' },
+];
+
+// 邮件站点
+const DEFAULT_EMAIL_SITES: CategoryItem[] = [
+  { key: 'gmail', title: 'Gmail', icon: 'GM', color: '#ea4335', type: 'llm', url: 'https://mail.google.com' },
+  { key: 'outlook', title: 'Outlook', icon: 'OL', color: '#0078d4', type: 'llm', url: 'https://outlook.live.com' },
+];
+
+// 视频站点
+const DEFAULT_VIDEO_SITES: CategoryItem[] = [
+  { key: 'youtube', title: 'YouTube', icon: 'YT', color: '#ff0000', type: 'llm', url: 'https://www.youtube.com' },
+];
+
 // 默认工具颜色
 const TOOL_COLORS: Record<string, string> = {
   time: '#f59e0b', pwd: '#ef4444', text: '#8b5cf6', calc: '#06b6d4',
@@ -57,6 +90,11 @@ const TOOL_COLORS: Record<string, string> = {
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'overseas-llm', title: '海外大模型', icon: '🌍', items: ['openai', 'claude', 'gemini', 'aistudio', 'grok', 'lmarena'], isSystem: true },
   { id: 'domestic-llm', title: '国内大模型', icon: '🇨🇳', items: ['deepseek', 'kimi', 'qianwen', 'doubao', 'yuanbao'], isSystem: true },
+  { id: 'dev', title: '编程开发', icon: '💻', items: ['vscode', 'github', 'replit', 'huggingface', 'projectidx'], isSystem: true },
+  { id: 'community', title: 'Community', icon: '👥', items: ['twitter', 'discord', 'hackernews'], isSystem: true },
+  { id: 'design', title: 'Design', icon: '🎨', items: ['figma', 'dribbble'], isSystem: true },
+  { id: 'email', title: 'Email', icon: '📧', items: ['gmail', 'outlook'], isSystem: true },
+  { id: 'video', title: 'Video', icon: '🎬', items: ['youtube'], isSystem: true },
   { id: 'utility', title: '实用工具', icon: '🧰', items: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'], isSystem: true },
   { id: 'encoding', title: '编解码工具', icon: '🔐', items: ['codec', 'crypto', 'jwt'], isSystem: true },
   { id: 'format', title: '格式化工具', icon: '📝', items: ['json', 'text', 'diff', 'regex'], isSystem: true },
@@ -93,6 +131,31 @@ class CategoryManager {
     
     // 添加 LLM 站点
     DEFAULT_LLM_SITES.forEach(site => {
+      itemMap[site.key] = site;
+    });
+
+    // 添加开发工具站点
+    DEFAULT_DEV_SITES.forEach(site => {
+      itemMap[site.key] = site;
+    });
+
+    // 添加社区站点
+    DEFAULT_COMMUNITY_SITES.forEach(site => {
+      itemMap[site.key] = site;
+    });
+
+    // 添加设计站点
+    DEFAULT_DESIGN_SITES.forEach(site => {
+      itemMap[site.key] = site;
+    });
+
+    // 添加邮件站点
+    DEFAULT_EMAIL_SITES.forEach(site => {
+      itemMap[site.key] = site;
+    });
+
+    // 添加视频站点
+    DEFAULT_VIDEO_SITES.forEach(site => {
       itemMap[site.key] = site;
     });
 
