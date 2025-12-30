@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('llmHub', {
     persistLastSite: (key: string) => ipcRenderer.send('persist-last-site', key),
     clearActivePartition: (partition: string) => ipcRenderer.send('clear-active-partition', partition),
     openSiteWindow: (key: string) => ipcRenderer.send('open-site-window', key),
+    setTrafficLightVisibility: (visible: boolean) => ipcRenderer.send('set-traffic-light-visibility', visible),
     saveFile: (options: { defaultName: string; filters: { name: string; extensions: string[] }[]; data: string }) => 
         ipcRenderer.invoke('save-file', options),
     
