@@ -846,11 +846,92 @@ class App {
     }
 
     if (tab === 'general') {
+      // 获取当前语言设置
+      const currentLang = localStorage.getItem('toolhub-language') || 'zh';
+      
       container.innerHTML = `
-        <div class="settings-section-title">数据管理</div>
-        <button class="settings-danger-btn" id="resetCategoryBtn">重置目录和工具分配</button>
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>语言设置</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-select-group">
+              <div class="settings-select-option ${currentLang === 'zh' ? 'active' : ''}" data-lang="zh">
+                <div class="settings-select-icon">🇨🇳</div>
+                <div class="settings-select-info">
+                  <div class="settings-select-title">简体中文</div>
+                  <div class="settings-select-desc">Simplified Chinese</div>
+                </div>
+                <div class="settings-select-check">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="settings-select-option ${currentLang === 'en' ? 'active' : ''}" data-lang="en">
+                <div class="settings-select-icon">🇺🇸</div>
+                <div class="settings-select-info">
+                  <div class="settings-select-title">English</div>
+                  <div class="settings-select-desc">英文</div>
+                </div>
+                <div class="settings-select-check">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section settings-section-danger">
+          <div class="settings-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+            <span>数据管理</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-danger-item">
+              <div class="settings-danger-info">
+                <div class="settings-danger-title">重置目录和工具分配</div>
+                <div class="settings-danger-desc">清除所有自定义目录和工具配置，恢复默认设置</div>
+              </div>
+              <button class="settings-danger-btn" id="resetCategoryBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                  <path d="M3 21v-5h5"></path>
+                </svg>
+                重置
+              </button>
+            </div>
+          </div>
+        </div>
       `;
 
+      // 语言选择事件
+      container.querySelectorAll('.settings-select-option').forEach(option => {
+        option.addEventListener('click', () => {
+          const lang = option.getAttribute('data-lang');
+          if (lang) {
+            localStorage.setItem('toolhub-language', lang);
+            container.querySelectorAll('.settings-select-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            toast({ message: lang === 'zh' ? '已切换到中文' : 'Switched to English', duration: 1500 });
+          }
+        });
+      });
+
+      // 重置按钮事件
       document.getElementById('resetCategoryBtn')?.addEventListener('click', () => {
         if (confirm('确定要重置所有目录和工具分配吗？自定义网站将被删除。')) {
           categoryManager.reset();

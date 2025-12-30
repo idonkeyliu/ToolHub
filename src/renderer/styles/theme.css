@@ -271,6 +271,64 @@
   background: rgba(100, 120, 140, 0.1) !important;
 }
 
+/* 新设置组件浅色主题 */
+.theme-light .settings-section {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-light .settings-section-header {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-bottom-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light .settings-section-header svg {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .settings-section-danger {
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.theme-light .settings-section-danger .settings-section-header {
+  color: #dc2626 !important;
+}
+
+.theme-light .settings-section-danger .settings-section-header svg {
+  color: #ef4444 !important;
+}
+
+.theme-light .settings-select-option {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-light .settings-select-option:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-light .settings-select-option.active {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.theme-light .settings-select-title {
+  color: var(--text-primary) !important;
+}
+
+.theme-light .settings-select-desc {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .settings-danger-title {
+  color: #dc2626 !important;
+}
+
+.theme-light .settings-danger-desc {
+  color: var(--text-muted) !important;
+}
+
 .theme-light .about-name {
   color: var(--text-primary) !important;
 }
