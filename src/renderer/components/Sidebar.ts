@@ -3,6 +3,7 @@
  */
 
 import { categoryManager, Category, CategoryItem } from '../core/CategoryManager';
+import { i18n } from '../core/i18n';
 
 export interface SidebarOptions {
   onItemClick: (key: string, type: 'llm' | 'tool' | 'custom-site') => void;
@@ -46,7 +47,7 @@ export class Sidebar {
     }
   }
 
-  private render(): void {
+  public render(): void {
     this.container.innerHTML = '';
     this.container.className = `sidebar ${this.collapsed ? 'collapsed' : ''}`;
 
@@ -114,11 +115,12 @@ export class Sidebar {
       });
     } else {
       // 正常模式 - 移除 + 和 > 按钮，添加 ... 菜单
+      const displayTitle = i18n.getCategoryTitle(category.id, category.title);
       header.innerHTML = `
         <span class="sidebar-category-icon">${category.icon}</span>
-        <span class="sidebar-category-title">${category.title}</span>
+        <span class="sidebar-category-title">${displayTitle}</span>
         ${!this.collapsed ? `
-          <button class="category-more-btn" title="更多操作">
+          <button class="category-more-btn" title="${i18n.t('common.edit')}">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="5" r="2"></circle>
               <circle cx="12" cy="12" r="2"></circle>
@@ -228,10 +230,11 @@ export class Sidebar {
     el.draggable = true;
 
     const isLink = item.type === 'llm' || item.type === 'custom-site';
+    const displayTitle = item.type === 'tool' ? i18n.getToolTitle(item.key, item.title) : item.title;
 
     let html = `
       <span class="sidebar-item-icon" style="background:${item.color}">${item.icon}</span>
-      <span class="sidebar-item-title">${this.collapsed ? '' : item.title}</span>
+      <span class="sidebar-item-title">${this.collapsed ? '' : displayTitle}</span>
     `;
 
     // 链接类型显示外部链接按钮
@@ -260,7 +263,7 @@ export class Sidebar {
     }
 
     el.innerHTML = html;
-    el.title = item.title;
+    el.title = displayTitle;
 
     // 点击项目
     el.addEventListener('click', (e) => {
@@ -386,44 +389,109 @@ export class Sidebar {
     return el;
   }
 
+  private readonly categoryEmojis = [
+    // 文件夹
+    '📁', '📂', '🗂️', '📋', '📑',
+    // 工具
+    '🔧', '🛠️', '⚙️', '🔨', '🔩',
+    // 技术
+    '💻', '🖥️', '⌨️', '🖱️', '💾',
+    // 代码
+    '📝', '📄', '📃', '🗒️', '📜',
+    // 网络
+    '🌐', '🔗', '📡', '📶', '🛜',
+    // 数据
+    '📊', '📈', '📉', '🗃️', '💽',
+    // 安全
+    '🔒', '🔓', '🔐', '🛡️', '🔑',
+    // 媒体
+    '🎨', '🖼️', '📷', '🎬', '🎵',
+    // 通信
+    '💬', '📧', '✉️', '📨', '📩',
+    // AI
+    '🤖', '🧠', '✨', '🔮', '💡',
+    // 游戏
+    '🎮', '🕹️', '🎲', '🃏', '🎯',
+    // 其他
+    '⭐', '❤️', '🔥', '💎', '🚀',
+    '📦', '🎁', '🏷️', '🔖', '📌',
+    '🌟', '💫', '🌈', '☁️', '⚡',
+  ];
+
   public showAddCategoryDialog(): void {
     const dialog = document.createElement('div');
     dialog.className = 'category-dialog-overlay';
+    
+    const emojiGrid = this.categoryEmojis.map(emoji => 
+      `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
+    ).join('');
+    
     dialog.innerHTML = `
       <div class="category-dialog">
-        <div class="category-dialog-header">添加目录</div>
+        <div class="category-dialog-header">${i18n.t('sidebar.addCategory')}</div>
         <div class="category-dialog-body">
           <div class="category-dialog-field">
-            <label>图标</label>
-            <input type="text" class="category-icon-input" value="📁" maxlength="2" />
+            <label>${i18n.t('dialog.categoryIcon')}</label>
+            <div class="emoji-picker-wrapper">
+              <div class="emoji-selected" title="点击选择图标">📁</div>
+              <div class="emoji-picker">
+                <div class="emoji-grid">${emojiGrid}</div>
+              </div>
+            </div>
           </div>
           <div class="category-dialog-field">
-            <label>名称</label>
-            <input type="text" class="category-name-input" placeholder="输入目录名称" />
+            <label>${i18n.t('dialog.categoryName')}</label>
+            <input type="text" class="category-name-input" placeholder="${i18n.t('dialog.categoryName')}" />
           </div>
         </div>
         <div class="category-dialog-footer">
-          <button class="category-dialog-cancel">取消</button>
-          <button class="category-dialog-confirm">确定</button>
+          <button class="category-dialog-cancel">${i18n.t('common.cancel')}</button>
+          <button class="category-dialog-confirm">${i18n.t('common.confirm')}</button>
         </div>
       </div>
     `;
 
-    const iconInput = dialog.querySelector('.category-icon-input') as HTMLInputElement;
+    const emojiSelected = dialog.querySelector('.emoji-selected') as HTMLElement;
+    const emojiPicker = dialog.querySelector('.emoji-picker') as HTMLElement;
     const nameInput = dialog.querySelector('.category-name-input') as HTMLInputElement;
     const cancelBtn = dialog.querySelector('.category-dialog-cancel');
     const confirmBtn = dialog.querySelector('.category-dialog-confirm');
+    
+    let selectedEmoji = '📁';
 
-    cancelBtn?.addEventListener('click', () => dialog.remove());
+    // 点击显示/隐藏 emoji 选择器
+    emojiSelected?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      emojiPicker?.classList.toggle('show');
+    });
+
+    // 选择 emoji
+    dialog.querySelectorAll('.emoji-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedEmoji = (item as HTMLElement).dataset.emoji || '📁';
+        emojiSelected.textContent = selectedEmoji;
+        emojiPicker?.classList.remove('show');
+        // 更新选中状态
+        dialog.querySelectorAll('.emoji-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+      });
+    });
+
+    // 点击其他地方关闭 emoji 选择器
     dialog.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('.emoji-picker-wrapper')) {
+        emojiPicker?.classList.remove('show');
+      }
       if (e.target === dialog) dialog.remove();
     });
 
+    cancelBtn?.addEventListener('click', () => dialog.remove());
+
     confirmBtn?.addEventListener('click', () => {
       const name = nameInput.value.trim();
-      const icon = iconInput.value.trim() || '📁';
       if (name) {
-        categoryManager.addCategory(name, icon);
+        categoryManager.addCategory(name, selectedEmoji);
         dialog.remove();
       }
     });
@@ -452,14 +520,14 @@ export class Sidebar {
           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
-        <span>重命名</span>
+        <span>${i18n.t('common.edit')}</span>
       </div>
       <div class="context-menu-item delete-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
-        <span>删除</span>
+        <span>${i18n.t('common.delete')}</span>
       </div>
     `;
 
@@ -480,7 +548,11 @@ export class Sidebar {
     // 删除
     menu.querySelector('.delete-item')?.addEventListener('click', () => {
       menu.remove();
-      if (confirm(`确定删除目录「${category.title}」吗？目录内的项目将被移除。`)) {
+      const displayTitle = i18n.getCategoryTitle(category.id, category.title);
+      const confirmMsg = i18n.getLanguage() === 'zh' 
+        ? `确定删除目录「${displayTitle}」吗？目录内的项目将被移除。`
+        : `Are you sure you want to delete "${displayTitle}"? Items in this category will be removed.`;
+      if (confirm(confirmMsg)) {
         categoryManager.deleteCategory(category.id);
       }
     });

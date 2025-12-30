@@ -7,6 +7,7 @@ import { eventBus } from './core/EventBus';
 import { themeManager } from './core/ThemeManager';
 import { favoriteManager } from './core/FavoriteManager';
 import { categoryManager, CategoryItem } from './core/CategoryManager';
+import { i18n } from './core/i18n';
 import { EventType } from './types/index';
 import { tools, UsageTracker } from './tools/index';
 import { StatsPanel } from './tools/stats/StatsPanel';
@@ -106,8 +107,8 @@ class App {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 默认打开 OpenAI
-    this.switchToItem('openai');
+    // 默认打开第一个可用项目
+    this.openDefaultItem();
 
     console.log('[App] Initialization complete');
   }
@@ -117,6 +118,48 @@ class App {
     allToolConfigs.forEach(config => {
       categoryManager.registerTool(config.key, config.title, config.icon || '🔧');
     });
+  }
+
+  private openDefaultItem(): void {
+    const LAST_ITEM_KEY = 'toolhub_last_item';
+    const FIRST_LAUNCH_KEY = 'toolhub_first_launch';
+    
+    // 检查是否首次启动
+    const isFirstLaunch = !localStorage.getItem(FIRST_LAUNCH_KEY);
+    
+    if (isFirstLaunch) {
+      // 首次启动，显示欢迎页面
+      localStorage.setItem(FIRST_LAUNCH_KEY, 'true');
+      this.showAboutPage();
+      return;
+    }
+    
+    // 尝试恢复上次选择的项目
+    const lastItem = localStorage.getItem(LAST_ITEM_KEY);
+    if (lastItem && lastItem !== '__about__' && categoryManager.getItem(lastItem)) {
+      this.switchToItem(lastItem);
+      return;
+    }
+
+    // 否则打开第一个目录的第一个项目
+    const categories = categoryManager.getCategories();
+    for (const category of categories) {
+      if (category.items.length > 0) {
+        this.switchToItem(category.items[0]);
+        return;
+      }
+    }
+
+    // 如果没有任何项目，显示欢迎页面
+    this.showAboutPage();
+  }
+
+  private saveLastItem(key: string): void {
+    try {
+      localStorage.setItem('toolhub_last_item', key);
+    } catch (e) {
+      // ignore
+    }
   }
 
   private initSidebar(container: HTMLElement): void {
@@ -485,6 +528,9 @@ class App {
       return;
     }
 
+    // 保存最后选择的项目
+    this.saveLastItem(key);
+
     if (item.type === 'tool') {
       this.switchTool(key);
     } else {
@@ -598,9 +644,15 @@ class App {
       }
 
       if (e.key === 'Escape') {
-        const modal = document.getElementById('settingsModal');
-        if (modal?.classList.contains('show')) {
-          modal.classList.remove('show');
+        // 关闭设置面板
+        const settingsModal = document.getElementById('settingsModal');
+        if (settingsModal?.classList.contains('show')) {
+          settingsModal.classList.remove('show');
+        }
+        // 关闭统计面板
+        const statsModal = document.getElementById('statsModal');
+        if (statsModal?.classList.contains('show')) {
+          statsModal.classList.remove('show');
         }
         this.hideAddItemDialog();
       }
@@ -836,9 +888,9 @@ class App {
     if (!container) return;
 
     const tabTitles: Record<string, string> = {
-      general: '通用',
-      theme: '主题',
-      about: '关于'
+      general: i18n.t('settings.general'),
+      theme: i18n.t('settings.theme'),
+      about: i18n.t('about.title')
     };
 
     if (titleEl) {
@@ -847,7 +899,7 @@ class App {
 
     if (tab === 'general') {
       // 获取当前语言设置
-      const currentLang = localStorage.getItem('toolhub-language') || 'zh';
+      const currentLang = i18n.getLanguage();
       
       container.innerHTML = `
         <div class="settings-section">
@@ -857,15 +909,15 @@ class App {
               <line x1="2" y1="12" x2="22" y2="12"></line>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
             </svg>
-            <span>语言设置</span>
+            <span>${i18n.t('settings.language')}</span>
           </div>
           <div class="settings-section-body">
             <div class="settings-select-group">
               <div class="settings-select-option ${currentLang === 'zh' ? 'active' : ''}" data-lang="zh">
                 <div class="settings-select-icon">🇨🇳</div>
                 <div class="settings-select-info">
-                  <div class="settings-select-title">简体中文</div>
-                  <div class="settings-select-desc">Simplified Chinese</div>
+                  <div class="settings-select-title">${i18n.t('lang.zh')}</div>
+                  <div class="settings-select-desc">${i18n.t('lang.zhDesc')}</div>
                 </div>
                 <div class="settings-select-check">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16">
@@ -876,8 +928,8 @@ class App {
               <div class="settings-select-option ${currentLang === 'en' ? 'active' : ''}" data-lang="en">
                 <div class="settings-select-icon">🇺🇸</div>
                 <div class="settings-select-info">
-                  <div class="settings-select-title">English</div>
-                  <div class="settings-select-desc">英文</div>
+                  <div class="settings-select-title">${i18n.t('lang.en')}</div>
+                  <div class="settings-select-desc">${i18n.t('lang.enDesc')}</div>
                 </div>
                 <div class="settings-select-check">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="16" height="16">
@@ -896,13 +948,13 @@ class App {
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
               <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
             </svg>
-            <span>数据管理</span>
+            <span>${i18n.t('settings.dataManagement')}</span>
           </div>
           <div class="settings-section-body">
             <div class="settings-danger-item">
               <div class="settings-danger-info">
-                <div class="settings-danger-title">重置目录和工具分配</div>
-                <div class="settings-danger-desc">清除所有自定义目录和工具配置，恢复默认设置</div>
+                <div class="settings-danger-title">${i18n.t('settings.resetData')}</div>
+                <div class="settings-danger-desc">${i18n.t('settings.resetDataDesc')}</div>
               </div>
               <button class="settings-danger-btn" id="resetCategoryBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -911,7 +963,7 @@ class App {
                   <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
                   <path d="M3 21v-5h5"></path>
                 </svg>
-                重置
+                ${i18n.t('common.reset')}
               </button>
             </div>
           </div>
@@ -921,40 +973,45 @@ class App {
       // 语言选择事件
       container.querySelectorAll('.settings-select-option').forEach(option => {
         option.addEventListener('click', () => {
-          const lang = option.getAttribute('data-lang');
+          const lang = option.getAttribute('data-lang') as 'zh' | 'en';
           if (lang) {
-            localStorage.setItem('toolhub-language', lang);
+            i18n.setLanguage(lang);
             container.querySelectorAll('.settings-select-option').forEach(o => o.classList.remove('active'));
             option.classList.add('active');
-            toast({ message: lang === 'zh' ? '已切换到中文' : 'Switched to English', duration: 1500 });
+            toast({ message: i18n.t(lang === 'zh' ? 'lang.switchedToZh' : 'lang.switchedToEn'), duration: 1500 });
+            // 刷新整个页面以应用语言变更
+            setTimeout(() => {
+              this.sidebar?.render();
+              this.renderSettingsTab('general');
+            }, 100);
           }
         });
       });
 
       // 重置按钮事件
       document.getElementById('resetCategoryBtn')?.addEventListener('click', () => {
-        if (confirm('确定要重置所有目录和工具分配吗？自定义网站将被删除。')) {
+        if (confirm(i18n.t('settings.resetConfirm'))) {
           categoryManager.reset();
-          toast({ message: '已重置', duration: 2000 });
+          toast({ message: i18n.t('settings.resetSuccess'), duration: 2000 });
         }
       });
 
     } else if (tab === 'theme') {
       const currentTheme = themeManager.getTheme();
       container.innerHTML = `
-        <div class="settings-section-title">外观</div>
+        <div class="settings-section-title">${i18n.t('settings.theme')}</div>
         <div class="theme-options">
           <div class="theme-option ${currentTheme === 'dark' ? 'active' : ''}" data-theme="dark">
             <div class="theme-option-radio"></div>
-            <span>黑暗</span>
+            <span>${i18n.t('settings.themeDark')}</span>
           </div>
           <div class="theme-option ${currentTheme === 'light' ? 'active' : ''}" data-theme="light">
             <div class="theme-option-radio"></div>
-            <span>明亮</span>
+            <span>${i18n.t('settings.themeLight')}</span>
           </div>
           <div class="theme-option ${currentTheme === 'system' ? 'active' : ''}" data-theme="system">
             <div class="theme-option-radio"></div>
-            <span>系统</span>
+            <span>${i18n.t('settings.themeSystem')}</span>
           </div>
         </div>
       `;
