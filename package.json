@@ -16,8 +16,10 @@
         "test:coverage": "vitest --coverage"
     },
     "devDependencies": {
+        "@types/d3": "^7.4.3",
         "@types/jsdom": "^27.0.0",
         "@types/node": "^20.0.0",
+        "@types/topojson-client": "^3.1.5",
         "@vitest/coverage-v8": "^1.0.0",
         "@vitest/ui": "^1.0.0",
         "concurrently": "^8.2.0",
@@ -32,12 +34,14 @@
     "dependencies": {
         "@types/ssh2": "^1.15.5",
         "better-sqlite3": "^11.5.0",
+        "d3": "^7.9.0",
         "electron-store": "^9.0.0",
         "ioredis": "^5.4.1",
         "mongodb": "^6.11.0",
         "mysql2": "^3.15.3",
         "pg": "^8.16.3",
-        "ssh2": "^1.17.0"
+        "ssh2": "^1.17.0",
+        "topojson-client": "^3.1.0"
     },
     "optionalDependencies": {
         "@types/better-sqlite3": "^7.6.11",

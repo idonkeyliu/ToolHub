@@ -1,0 +1,148 @@
+/* 世界地图页面样式 - D3.js 版本 */
+
+.world-map-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: #0a0f1a;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.world-map-page.show {
+  opacity: 1;
+}
+
+.world-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+.map-container svg {
+  display: block;
+}
+
+/* 国家样式 */
+.country {
+  transition: fill 0.2s ease;
+  cursor: default;
+}
+
+/* 经纬网格 */
+.graticule {
+  pointer-events: none;
+}
+
+/* 用户点样式 */
+.user-dot {
+  transition: r 0.2s ease;
+}
+
+.user-dot-group:hover .user-dot {
+  r: 5;
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0% {
+    r: 4;
+    opacity: 0.6;
+    stroke-width: 1;
+  }
+  100% {
+    r: 15;
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+.user-pulse {
+  pointer-events: none;
+}
+
+/* 在线指示器 */
+.online-indicator {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(0, 20, 15, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  z-index: 10;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ff88;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+.online-count {
+  font-size: 18px;
+  font-weight: 600;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.online-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 连接线 SVG */
+.connection-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .online-indicator {
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+  }
+  
+  .online-count {
+    font-size: 16px;
+  }
+}
