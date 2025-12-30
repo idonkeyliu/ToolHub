@@ -278,6 +278,13 @@ class I18n {
   }
 
   private notify(): void {
+    // 更新所有带 data-i18n 属性的元素
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key) {
+        el.textContent = this.t(key);
+      }
+    });
     this.listeners.forEach(fn => fn());
   }
 }
