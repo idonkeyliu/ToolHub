@@ -1,25 +1,13 @@
 export const statsTemplate = `
 <div class="stats-container">
-  <!-- 头部概览 -->
-  <div class="stats-header">
-    <div class="stats-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 3v18h18"/>
-        <path d="M18 17V9"/>
-        <path d="M13 17V5"/>
-        <path d="M8 17v-3"/>
-      </svg>
-      <span>使用统计</span>
-    </div>
+  <!-- 概览卡片 -->
+  <div class="stats-overview-wrapper">
     <div class="stats-period">
       <button class="period-btn active" data-period="week">近7天</button>
       <button class="period-btn" data-period="month">近30天</button>
       <button class="period-btn" data-period="year">近一年</button>
     </div>
-  </div>
-
-  <!-- 概览卡片 -->
-  <div class="stats-overview">
+    <div class="stats-overview">
     <div class="overview-card">
       <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -67,6 +55,7 @@ export const statsTemplate = `
         <div class="card-value" id="toolsUsed">0</div>
         <div class="card-label">使用工具数</div>
       </div>
+    </div>
     </div>
   </div>
 

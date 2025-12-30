@@ -216,6 +216,40 @@
             padding: 0;
         }
 
+        /* 统计面板头部 */
+        .stats-panel .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        .stats-panel .settings-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .stats-panel .settings-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: all 0.15s;
+        }
+
+        .stats-panel .settings-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
         /* 新设置面板 - 左右布局 */
         .settings-panel-new {
             background: #1a1f25;

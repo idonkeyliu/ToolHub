@@ -10,27 +10,12 @@
   background: linear-gradient(180deg, #0d1114 0%, #111519 100%);
 }
 
-/* 头部 */
-.stats-header {
+/* 概览区域包装 */
+.stats-overview-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 16px;
   flex-shrink: 0;
-}
-
-.stats-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.stats-title svg {
-  width: 24px;
-  height: 24px;
-  color: #3b82f6;
 }
 
 .stats-period {
@@ -39,6 +24,7 @@
   background: rgba(255, 255, 255, 0.05);
   padding: 4px;
   border-radius: 8px;
+  align-self: flex-end;
 }
 
 .period-btn {
@@ -65,15 +51,14 @@
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  flex-shrink: 0;
+  gap: 12px;
 }
 
 .overview-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
@@ -87,9 +72,9 @@
 }
 
 .card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,8 +82,8 @@
 }
 
 .card-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   color: #fff;
 }
 
@@ -108,16 +93,17 @@
 }
 
 .card-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .card-label {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
   margin-top: 2px;
 }
