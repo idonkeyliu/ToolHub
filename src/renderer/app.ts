@@ -1586,6 +1586,7 @@ class App {
     const tabTitles: Record<string, string> = {
       general: i18n.t('settings.general'),
       theme: i18n.t('settings.theme'),
+      fun: i18n.t('settings.fun'),
       about: i18n.t('about.title')
     };
 
@@ -1722,6 +1723,47 @@ class App {
             toast({ message: `已切换到${tabTitles[theme] || theme}主题`, duration: 1500 });
           }
         });
+      });
+
+    } else if (tab === 'fun') {
+      // 获取当前小车设置
+      const carEnabled = localStorage.getItem('funCarEnabled') !== 'false';
+      
+      container.innerHTML = `
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <svg viewBox="0 0 32 16" width="24" height="12" fill="none" stroke="currentColor" stroke-width="1.2">
+              <rect x="2" y="8" width="28" height="5" rx="1" fill="currentColor" stroke="none"/>
+              <path d="M8 8V5a1 1 0 0 1 1-1h6l3-2h3l2 3h1v3" fill="currentColor" stroke="none"/>
+              <circle cx="9" cy="13" r="2.5" fill="var(--bg-primary)" stroke="currentColor" stroke-width="1"/>
+              <circle cx="23" cy="13" r="2.5" fill="var(--bg-primary)" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span>${i18n.t('settings.funCar')}</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-toggle-item">
+              <div class="settings-toggle-info">
+                <div class="settings-toggle-desc">${i18n.t('settings.funCarDesc')}</div>
+              </div>
+              <label class="settings-toggle">
+                <input type="checkbox" id="funCarToggle" ${carEnabled ? 'checked' : ''}>
+                <span class="settings-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 绑定开关事件
+      const toggle = document.getElementById('funCarToggle') as HTMLInputElement;
+      toggle?.addEventListener('change', () => {
+        const enabled = toggle.checked;
+        localStorage.setItem('funCarEnabled', enabled ? 'true' : 'false');
+        const car = document.getElementById('movingCar');
+        if (car) {
+          car.style.display = enabled ? 'block' : 'none';
+        }
+        toast({ message: enabled ? '小车已启动 🚗' : '小车已停止', duration: 1500 });
       });
 
     } else if (tab === 'about') {
