@@ -229,6 +229,116 @@ class App {
     }, 10000);
   }
 
+  /** 飘雪效果 */
+  private startSnowEffect(): void {
+    // 如果已有雪花容器，先移除
+    const existingSnow = document.getElementById('snowContainer');
+    if (existingSnow) {
+      existingSnow.remove();
+    }
+
+    // 创建雪花容器
+    const snowContainer = document.createElement('div');
+    snowContainer.className = 'snow-container';
+    snowContainer.id = 'snowContainer';
+    document.body.appendChild(snowContainer);
+
+    // 创建积雪层
+    const snowPile = document.createElement('div');
+    snowPile.className = 'snow-pile';
+    snowContainer.appendChild(snowPile);
+
+    // 积雪高度（从 0 开始逐渐增加）
+    let pileHeight = 0;
+    const maxPileHeight = 30; // 最大积雪高度
+
+    console.log('[App] ❄️ Starting snow effect for 10 seconds...');
+
+    // 创建积雪颗粒
+    const addSnowToPile = (x: number) => {
+      if (pileHeight < maxPileHeight) {
+        // 创建积雪小颗粒
+        const pile = document.createElement('div');
+        pile.className = 'snow-pile-particle';
+        pile.style.left = `${x}%`;
+        pile.style.bottom = `${Math.random() * pileHeight}px`;
+        snowPile.appendChild(pile);
+
+        // 逐渐增加积雪高度
+        pileHeight += 0.05;
+        snowPile.style.height = `${pileHeight}px`;
+      }
+    };
+
+    // 生成雪花
+    const createSnowflake = () => {
+      const snowflake = document.createElement('div');
+      snowflake.className = 'snowflake';
+      
+      // 随机位置和属性
+      const left = Math.random() * 100;
+      const size = 3 + Math.random() * 6; // 3-9px 雪花大小
+      const duration = 3 + Math.random() * 4; // 3-7s 飘落时间（比雨慢很多）
+      const delay = Math.random() * 0.5;
+      const opacity = 0.4 + Math.random() * 0.5; // 0.4-0.9 透明度
+      const drift = -30 + Math.random() * 60; // 左右飘动范围
+      
+      snowflake.style.cssText = `
+        left: ${left}%;
+        width: ${size}px;
+        height: ${size}px;
+        animation-duration: ${duration}s;
+        animation-delay: ${delay}s;
+        opacity: ${opacity};
+        --drift: ${drift}px;
+      `;
+      
+      snowContainer.appendChild(snowflake);
+      
+      // 雪花落地时添加到积雪
+      setTimeout(() => {
+        if (snowflake.parentNode) {
+          addSnowToPile(left);
+          snowflake.remove();
+        }
+      }, (duration + delay) * 1000);
+    };
+
+    // 立即生成第一批雪花
+    for (let i = 0; i < 20; i++) {
+      createSnowflake();
+    }
+
+    // 持续生成雪花
+    const snowInterval = setInterval(() => {
+      // 每次生成 3-6 片雪花
+      const count = 3 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < count; i++) {
+        createSnowflake();
+      }
+    }, 100); // 每 100ms 生成一批
+
+    // 10 秒后停止生成新雪花
+    setTimeout(() => {
+      clearInterval(snowInterval);
+      console.log('[App] 🌨️ Snow stopping... waiting for flakes to fall');
+      
+      // 等待最长的雪花落完（最长 7s + 0.5s delay = 7.5s，留 8s 余量）
+      setTimeout(() => {
+        // 积雪渐渐消融
+        snowPile.style.transition = 'opacity 2s ease-out';
+        snowPile.style.opacity = '0';
+        
+        setTimeout(() => {
+          if (snowContainer.parentNode) {
+            snowContainer.remove();
+          }
+          console.log('[App] ☀️ Snow melted, enjoy your rest!');
+        }, 2000);
+      }, 8000);
+    }, 10000);
+  }
+
   private registerToolsToCategory(): void {
     const allToolConfigs = toolRegistry.getAllConfigs();
     allToolConfigs.forEach(config => {
@@ -1909,6 +2019,12 @@ class App {
     if (key === 'time' && themeManager.getResolvedTheme() === 'dark') {
       console.log('[App] 🌧️ Triggering rain effect!');
       this.startRainEffect();
+    }
+
+    // 切换到计算器工具时，深色主题下触发飘雪效果
+    if (key === 'calc' && themeManager.getResolvedTheme() === 'dark') {
+      console.log('[App] ❄️ Triggering snow effect!');
+      this.startSnowEffect();
     }
 
     if (this.currentKey === key) {
