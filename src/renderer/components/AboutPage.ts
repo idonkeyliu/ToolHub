@@ -11,10 +11,16 @@ export class AboutPage {
   }
 
   show(): void {
-    // 如果已经有元素，直接显示
+    // 如果已经有元素，直接显示并重新播放动画
     if (this.element) {
       this.element.style.display = 'flex';
-      this.element.classList.add('show');
+      this.element.classList.remove('show');
+      // 重置动画
+      this.resetAnimation();
+      requestAnimationFrame(() => {
+        this.element?.classList.add('show');
+        this.playAnimation();
+      });
       return;
     }
     
@@ -28,7 +34,9 @@ export class AboutPage {
             <span class="logo-text">T</span>
             <span class="logo-dot"></span>
           </div>
-          <h1 class="about-title">ToolHub</h1>
+          <h1 class="about-title">
+            <span class="title-letter" data-letter="o">o</span><span class="title-letter" data-letter="o2">o</span><span class="title-letter" data-letter="l">l</span><span class="title-letter" data-letter="H">H</span><span class="title-letter" data-letter="u">u</span><span class="title-letter" data-letter="b">b</span>
+          </h1>
         </div>
         <div class="about-support">
           <button class="bmc-button" id="bmcButton">
@@ -61,7 +69,42 @@ export class AboutPage {
     // 添加入场动画
     requestAnimationFrame(() => {
       this.element?.classList.add('show');
+      this.playAnimation();
     });
+  }
+
+  private resetAnimation(): void {
+    const letters = this.element?.querySelectorAll('.title-letter');
+    letters?.forEach(letter => {
+      letter.classList.remove('bounce');
+    });
+    const logo = this.element?.querySelector('.about-logo');
+    logo?.classList.remove('logo-bounce', 'logo-wiggle');
+    const logoText = this.element?.querySelector('.logo-text');
+    logoText?.classList.remove('logo-text-wiggle');
+  }
+
+  private playAnimation(): void {
+    const letters = this.element?.querySelectorAll('.title-letter');
+    const logo = this.element?.querySelector('.about-logo');
+    const logoText = this.element?.querySelector('.logo-text');
+    
+    // Logo 先弹跳落下
+    setTimeout(() => {
+      logo?.classList.add('logo-bounce');
+    }, 200);
+
+    // 字母依次弹跳出来，间隔更大更有节奏
+    letters?.forEach((letter, index) => {
+      setTimeout(() => {
+        letter.classList.add('bounce');
+      }, 800 + index * 180);
+    });
+
+    // Logo 中的 T 扭动 - 等所有字母落定后
+    setTimeout(() => {
+      logoText?.classList.add('logo-text-wiggle');
+    }, 2500);
   }
 
   hide(): void {
