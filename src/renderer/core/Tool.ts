@@ -103,8 +103,8 @@ export abstract class Tool implements ITool {
     const element = this.container?.querySelector(`.${this.config.key}-view`) as HTMLElement;
     if (element) {
       element.classList.add('active');
-      // 清除可能存在的行内 display 样式，让 CSS 类生效
-      element.style.display = '';
+      // 明确设置 display，覆盖之前可能的 display: none
+      element.style.display = 'flex';
     }
 
     this.active = true;

@@ -11,8 +11,12 @@ export class AboutPage {
   }
 
   show(): void {
-    // 清空容器
-    this.container.innerHTML = '';
+    // 如果已经有元素，直接显示
+    if (this.element) {
+      this.element.style.display = 'flex';
+      this.element.classList.add('show');
+      return;
+    }
     
     // 创建关于页面
     this.element = document.createElement('div');
@@ -63,10 +67,7 @@ export class AboutPage {
   hide(): void {
     if (this.element) {
       this.element.classList.remove('show');
-      setTimeout(() => {
-        this.element?.remove();
-        this.element = null;
-      }, 300);
+      this.element.style.display = 'none';
     }
   }
 }
