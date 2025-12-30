@@ -226,7 +226,8 @@ export class WindowManager {
             minWidth: 400,
             minHeight: 320,
             backgroundColor: '#000000',
-            frame: true,
+            titleBarStyle: 'hiddenInset',
+            trafficLightPosition: { x: 12, y: 12 },
             icon: __dirname ? path.join(__dirname, '../assets/icons/icon.icns') : undefined,
             webPreferences: {
                 preload: __dirname ? path.join(__dirname, 'preload.js') : undefined,
@@ -286,6 +287,13 @@ export class WindowManager {
                 dialog.showMessageBox({ message: `已清理 ${partition} 数据` });
             } catch (err) {
                 dialog.showErrorBox('清理失败', String(err));
+            }
+        });
+
+        // 控制红绿灯按钮显示/隐藏
+        ipcMain.on('set-traffic-light-visibility', (_e, visible: boolean) => {
+            if (this.mainWindow && process.platform === 'darwin') {
+                this.mainWindow.setWindowButtonVisibility(visible);
             }
         });
     }

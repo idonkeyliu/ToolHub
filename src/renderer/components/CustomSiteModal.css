@@ -1,0 +1,370 @@
+/* 自定义网站弹窗样式 */
+
+/* 弹窗遮罩层 - 默认隐藏 */
+#customSiteModal.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+#customSiteModal.modal-overlay.show {
+  display: flex;
+}
+
+/* 弹窗容器 - 更柔和的渐变背景 */
+.modal-container {
+  background: linear-gradient(145deg, rgba(45, 50, 65, 0.95), rgba(35, 38, 48, 0.95));
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 30px 90px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  overflow: hidden;
+  animation: modalSlideIn 0.25s ease-out;
+  backdrop-filter: blur(24px);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 弹窗头部 */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #f0f0f5;
+}
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.modal-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.modal-close svg {
+  width: 100%;
+  height: 100%;
+}
+
+.custom-site-modal {
+  max-width: 680px;
+  width: 90%;
+}
+
+.custom-site-body {
+  padding: 28px 32px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  color: #a0a5b8;
+  margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"] {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f0f0f5;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-group input::placeholder {
+  color: #6b7085;
+}
+
+/* 颜色选择器 */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-option:hover {
+  transform: scale(1.15);
+}
+
+.color-option.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(30, 30, 40, 0.9), 0 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* 分类选择器 */
+.category-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #c0c5d5;
+}
+
+.category-option:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.category-option.selected {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.category-option.category-custom {
+  border-style: dashed;
+}
+
+.category-icon {
+  font-size: 18px;
+}
+
+.category-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 自定义分类输入框 */
+.custom-category-input {
+  margin-top: 10px;
+}
+
+/* 表单操作按钮 */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.form-actions-right {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  padding: 11px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #7c7ff7, #9d6ffa);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #c0c5d5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f0f0f5;
+}
+
+.btn-danger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* 删除确认对话框 */
+.delete-confirm-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+}
+
+.delete-confirm-overlay.show {
+  display: flex;
+}
+
+.delete-confirm-dialog {
+  background: linear-gradient(145deg, rgba(50, 55, 70, 0.98), rgba(40, 43, 55, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.delete-confirm-dialog p {
+  margin: 0 0 20px 0;
+  font-size: 15px;
+  color: #e0e5f0;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* 添加按钮（侧边栏中的） */
+.add-custom-site-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-custom-site-btn:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.add-custom-site-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* 自定义网站项的编辑按钮 */
+.sidebar-item .edit-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.sidebar-item:hover .edit-btn {
+  opacity: 1;
+}
+
+.sidebar-item .edit-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-item .edit-btn svg {
+  width: 100%;
+  height: 100%;
+}

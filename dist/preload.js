@@ -13,6 +13,7 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
     persistLastSite: (key) => electron_1.ipcRenderer.send('persist-last-site', key),
     clearActivePartition: (partition) => electron_1.ipcRenderer.send('clear-active-partition', partition),
     openSiteWindow: (key) => electron_1.ipcRenderer.send('open-site-window', key),
+    setTrafficLightVisibility: (visible) => electron_1.ipcRenderer.send('set-traffic-light-visibility', visible),
     saveFile: (options) => electron_1.ipcRenderer.invoke('save-file', options),
     // 数据库操作 API
     db: {

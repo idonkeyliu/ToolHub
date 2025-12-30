@@ -7,65 +7,41 @@
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   transition: width 0.2s ease, min-width 0.2s ease;
   position: relative;
 }
 
+/* 分类容器 - 可滚动 */
+.sidebar-categories {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 /* 滚动条样式 */
-.sidebar::-webkit-scrollbar {
+.sidebar-categories::-webkit-scrollbar {
   width: 6px;
 }
 
-.sidebar::-webkit-scrollbar-track {
+.sidebar-categories::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
+.sidebar-categories::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
 
-.sidebar::-webkit-scrollbar-thumb:hover {
+.sidebar-categories::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
 .sidebar.collapsed {
-  width: 52px;
-  min-width: 52px;
-}
-
-/* 折叠按钮 */
-.sidebar-toggle {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #6b7280;
-  transition: all 0.2s;
-  z-index: 10;
-}
-
-.sidebar-toggle:hover {
-  color: #e5e7eb;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-toggle svg {
-  width: 14px;
-  height: 14px;
-}
-
-.sidebar.collapsed .sidebar-toggle {
-  right: 50%;
-  transform: translateX(50%);
+  width: 0;
+  min-width: 0;
+  border-right: none;
+  overflow: hidden;
 }
 
 /* 分类 */
@@ -88,7 +64,7 @@
 }
 
 .sidebar-category:first-child .sidebar-category-header {
-  margin-top: 36px;
+  margin-top: 8px;
 }
 
 .sidebar-category-header:hover {
