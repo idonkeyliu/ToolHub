@@ -11,8 +11,10 @@ export class AboutPage {
   }
 
   show(): void {
+    console.log('[AboutPage] 🎬 show() called, element exists:', !!this.element);
     // 如果已经有元素，直接显示并重新播放动画
     if (this.element) {
+      console.log('[AboutPage] ♻️ Reusing existing element');
       this.element.style.display = 'flex';
       this.element.classList.remove('show');
       // 重置动画
@@ -24,6 +26,7 @@ export class AboutPage {
       return;
     }
     
+    console.log('[AboutPage] 🆕 Creating new element');
     // 创建关于页面
     this.element = document.createElement('div');
     this.element.className = 'about-page';

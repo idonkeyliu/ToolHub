@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <title>ToolHub</title>
+    <!-- D3.js 和 TopoJSON 库 (用于世界地图) -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
     <link rel="stylesheet" href="styles/theme.css" />
     <!-- 工具样式 -->
     <link rel="stylesheet" href="tools/timestamp/styles.css" />
@@ -31,6 +34,7 @@
     <link rel="stylesheet" href="components/Sidebar.css" />
     <link rel="stylesheet" href="components/CommandPalette.css" />
     <link rel="stylesheet" href="components/AboutPage.css" />
+    <link rel="stylesheet" href="components/WorldMapPage.css" />
     <link rel="stylesheet" href="components/EmojiPicker.css" />
     <style>
         * {
@@ -788,12 +792,18 @@
 
         /* 加载状态 */
         .loading {
-            display: flex;
+            display: none; /* 默认隐藏，避免闪烁 */
             align-items: center;
             justify-content: center;
             height: 100%;
             color: #6b7280;
             font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1; /* 低于其他内容 */
         }
 
         /* Toast 样式 */
@@ -1533,6 +1543,13 @@
         <div class="bottom-bar-btn" id="aboutBtnGlobal" title="关于 ToolHub">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <text x="12" y="17" text-anchor="middle" font-size="16" font-weight="bold" fill="currentColor" stroke="none">T</text>
+            </svg>
+        </div>
+        <div class="bottom-bar-btn" id="worldMapBtnGlobal" title="我们">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20"></path>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
             </svg>
         </div>
         <div class="bottom-bar-spacer" id="carTrack">

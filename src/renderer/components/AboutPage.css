@@ -11,6 +11,7 @@
   opacity: 0;
   transform: scale(0.95);
   transition: all 0.3s ease;
+  z-index: 10; /* 确保在 loading 元素之上 */
 }
 
 .about-page.show {
