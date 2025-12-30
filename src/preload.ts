@@ -171,6 +171,9 @@ contextBridge.exposeInMainWorld('llmHub', {
         checkSync: (project: any, servers: ServerConfig[]) => ipcRenderer.invoke('sync:check-sync', project, servers),
         getFileContent: (server: ServerConfig, filePath: string) => ipcRenderer.invoke('sync:get-file-content', server, filePath),
     },
+    
+    // Emoji 文件 API
+    listEmojiFiles: (categoryDir: string): Promise<string[]> => ipcRenderer.invoke('emoji:list-files', categoryDir),
 });
 
 // 接收主进程数据

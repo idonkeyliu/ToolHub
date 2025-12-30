@@ -406,6 +406,22 @@ function installContextMenu() {
     });
 }
 
+// ==================== Emoji 文件处理器 ====================
+
+function setupEmojiHandlers() {
+    // 获取指定目录下的 emoji 文件列表
+    ipcMain.handle('emoji:list-files', async (_e, categoryDir: string) => {
+        try {
+            const emojiPath = path.join(__dirname, 'renderer', 'assets', 'emojis', categoryDir);
+            const files = fs.readdirSync(emojiPath);
+            return files.filter(f => f.endsWith('.png')).sort();
+        } catch (e) {
+            console.error(`Failed to list emoji files for ${categoryDir}:`, e);
+            return [];
+        }
+    });
+}
+
 // ==================== 应用生命周期 ====================
 
 app.whenReady().then(async () => {
@@ -417,6 +433,7 @@ app.whenReady().then(async () => {
     setupMongoHandlers();
     setupTerminalHandlers();
     setupSyncHandlers();
+    setupEmojiHandlers();
     
     // 配置窗口环境
     windowManager.installFrameBypass();
