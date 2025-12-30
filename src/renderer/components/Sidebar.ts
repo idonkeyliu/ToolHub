@@ -303,7 +303,14 @@ export class Sidebar {
       this.draggedItem = item.key;
       this.dragSourceCategory = categoryId;
       el.classList.add('dragging');
-      e.dataTransfer?.setData('text/plain', item.key);
+      // 传递完整的项目数据，支持 AI 对比功能
+      const dragData = JSON.stringify({
+        key: item.key,
+        name: item.title,
+        url: item.url || '',
+        type: item.type
+      });
+      e.dataTransfer?.setData('text/plain', dragData);
       e.dataTransfer!.effectAllowed = 'move';
     });
 

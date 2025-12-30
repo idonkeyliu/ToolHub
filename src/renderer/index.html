@@ -156,6 +156,19 @@
 
         .bottom-bar-spacer {
             flex: 1;
+            position: relative;
+            overflow: hidden;
+            height: 28px;
+        }
+
+        .moving-car {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            user-select: none;
+            opacity: 0.4;
+            display: flex;
+            align-items: center;
         }
 
         .bottom-bar-url {
@@ -1158,6 +1171,244 @@
         .edit-site-delete:hover {
             background: rgba(239, 68, 68, 0.2);
         }
+
+        /* AI 对比页面样式 */
+        .ai-compare-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 264px; /* 侧边栏宽度 200px + 工具栏 64px */
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary, #0d1114);
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .ai-compare-overlay.visible {
+            display: flex;
+        }
+
+        .ai-compare-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(22, 27, 32, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            -webkit-app-region: drag;
+        }
+
+        .ai-compare-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary, #e5e7eb);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .ai-compare-title svg {
+            width: 20px;
+            height: 20px;
+            color: #3b82f6;
+        }
+
+        .ai-compare-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.15s;
+            -webkit-app-region: no-drag;
+        }
+
+        .ai-compare-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+        }
+
+        .ai-compare-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+        }
+
+        .ai-compare-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary, #0d1114);
+            overflow: hidden;
+            min-width: 0;
+            position: relative;
+        }
+
+        .ai-compare-panel.drag-over {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .ai-compare-panel.drag-over::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .ai-panel-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: #6b7280;
+            font-size: 13px;
+            gap: 8px;
+        }
+
+        .ai-panel-empty svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.5;
+        }
+
+        .ai-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(22, 27, 32, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .ai-panel-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary, #9ca3af);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ai-panel-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .ai-panel-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.15s;
+        }
+
+        .ai-panel-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+        }
+
+        .ai-panel-btn.ai-panel-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .ai-panel-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .ai-panel-webview {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .ai-panel-webview webview {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ai-compare-input-area {
+            padding: 16px;
+            background: rgba(22, 27, 32, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .ai-compare-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.15s;
+        }
+
+        .ai-compare-input-wrapper:focus-within {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-compare-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary, #e5e7eb);
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            height: 42px;
+            min-height: 42px;
+            font-family: inherit;
+        }
+
+        .ai-compare-input::placeholder {
+            color: #6b7280;
+        }
+
+        .ai-compare-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .ai-compare-submit:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: scale(1.05);
+        }
+
+        .ai-compare-submit:active {
+            transform: scale(0.95);
+        }
+
+        .ai-compare-submit svg {
+            width: 18px;
+            height: 18px;
+        }
     </style>
 </head>
 
@@ -1223,6 +1474,13 @@
                 <path d="M21 21l-4.35-4.35"/>
             </svg>
         </div>
+        <div class="bottom-bar-btn" id="aiCompareBtnGlobal" title="AI 对比">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+                <circle cx="8" cy="14" r="1"/>
+                <circle cx="16" cy="14" r="1"/>
+            </svg>
+        </div>
         <div class="bottom-bar-btn" id="statsBtnGlobal" title="使用统计">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 20V10"></path>
@@ -1259,7 +1517,27 @@
                 <text x="12" y="17" text-anchor="middle" font-size="16" font-weight="bold" fill="currentColor" stroke="none">T</text>
             </svg>
         </div>
-        <div class="bottom-bar-spacer"></div>
+        <div class="bottom-bar-spacer" id="carTrack">
+            <div class="moving-car" id="movingCar">
+                <svg viewBox="0 0 32 16" width="32" height="16" fill="none" stroke="#d1d5db" stroke-width="1.2">
+                    <!-- 车身底盘 -->
+                    <rect x="2" y="8" width="28" height="5" rx="1" fill="#d1d5db" stroke="none"/>
+                    <!-- 车窗/车顶 -->
+                    <path d="M8 8V5a1 1 0 0 1 1-1h6l3-2h3l2 3h1v3" fill="#d1d5db" stroke="none"/>
+                    <!-- 车窗玻璃 -->
+                    <path d="M10 7V5.5h5l2-1.5h2l1.5 2V7z" fill="#2d3748" stroke="none"/>
+                    <!-- 前后灯 -->
+                    <rect x="28" y="9" width="2" height="2" rx="0.5" fill="#fbbf24" stroke="none"/>
+                    <rect x="2" y="9" width="2" height="2" rx="0.5" fill="#ef4444" stroke="none"/>
+                    <!-- 轮子 -->
+                    <circle cx="9" cy="13" r="2.5" fill="#4a5568" stroke="#d1d5db" stroke-width="1"/>
+                    <circle cx="23" cy="13" r="2.5" fill="#4a5568" stroke="#d1d5db" stroke-width="1"/>
+                    <!-- 轮毂 -->
+                    <circle cx="9" cy="13" r="1" fill="#d1d5db" stroke="none"/>
+                    <circle cx="23" cy="13" r="1" fill="#d1d5db" stroke="none"/>
+                </svg>
+            </div>
+        </div>
         <div class="bottom-bar-nav" id="bottomBarNav">
             <div class="bottom-bar-btn" id="webviewBackBtn" title="后退">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1280,6 +1558,40 @@
     <div id="toast" class="toast"></div>
 
     <!-- 统计弹窗 -->
+    <!-- AI 对比全屏页面 -->
+    <div class="ai-compare-overlay" id="aiCompareOverlay">
+        <div class="ai-compare-header">
+            <div class="ai-compare-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+                    <circle cx="8" cy="14" r="1"/>
+                    <circle cx="16" cy="14" r="1"/>
+                </svg>
+                <span>AI 对比</span>
+            </div>
+            <div class="ai-compare-close" id="aiCompareClose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+        </div>
+        <div class="ai-compare-grid" id="aiCompareGrid">
+            <!-- 面板将通过 JS 动态生成 -->
+        </div>
+        <div class="ai-compare-input-area">
+            <div class="ai-compare-input-wrapper">
+                <textarea class="ai-compare-input" id="aiCompareInput" placeholder="输入问题，同时向多个 AI 提问..." rows="2"></textarea>
+                <button class="ai-compare-submit" id="aiCompareSubmit" title="发送 (Enter)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="settings-modal" id="statsModal">
         <div class="stats-panel">
             <div class="settings-header">
@@ -1347,6 +1659,53 @@
     </div>
 
     <script type="module" src="./app.js"></script>
+    <script>
+        // 小车动画
+        (function() {
+            const car = document.getElementById('movingCar');
+            const track = document.getElementById('carTrack');
+            if (!car || !track) return;
+
+            let position = 0;
+            let direction = 1; // 1 = 向右, -1 = 向左
+            let lastTime = 0;
+            
+            // 一去一回 5 分钟，单程 2.5 分钟 = 150 秒
+            const duration = 150000; // 单程 150 秒（毫秒）
+
+            function animate(currentTime) {
+                if (!lastTime) lastTime = currentTime;
+                const deltaTime = currentTime - lastTime;
+                lastTime = currentTime;
+
+                const trackWidth = track.offsetWidth;
+                const carWidth = car.offsetWidth;
+                const maxPosition = trackWidth - carWidth - 10;
+                
+                // 根据时间计算速度：单程时间内走完整个轨道
+                const speed = maxPosition / duration * deltaTime;
+
+                position += speed * direction;
+
+                // 碰到边界就掉头
+                if (position >= maxPosition) {
+                    position = maxPosition;
+                    direction = -1;
+                    car.style.transform = 'scaleX(-1)'; // 翻转小车（向左开）
+                } else if (position <= 0) {
+                    position = 0;
+                    direction = 1;
+                    car.style.transform = 'scaleX(1)'; // 正常方向（向右开）
+                }
+
+                car.style.left = position + 'px';
+                requestAnimationFrame(animate);
+            }
+
+            // 等待 DOM 完全加载后启动
+            setTimeout(() => requestAnimationFrame(animate), 500);
+        })();
+    </script>
 </body>
 
 </html>
