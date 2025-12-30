@@ -42,6 +42,14 @@ class App {
   private addItemDialog: HTMLElement | null = null;
   private addItemTargetCategory: string | null = null;
   private aboutPage: AboutPage | null = null;
+  
+  // 天气效果控制
+  private rainInterval: ReturnType<typeof setInterval> | null = null;
+  private rainStopTimeout: ReturnType<typeof setTimeout> | null = null;
+  private snowInterval: ReturnType<typeof setInterval> | null = null;
+  private snowStopTimeout: ReturnType<typeof setTimeout> | null = null;
+  private rainActive: boolean = false;
+  private snowActive: boolean = false;
 
   constructor() {
     if (document.readyState === 'loading') {
@@ -116,14 +124,46 @@ class App {
     console.log('[App] Initialization complete');
   }
 
-  /** 下雨效果 - 逼真暴雨版 */
-  private startRainEffect(): void {
-    // 如果已有雨滴容器，先移除
-    const existingRain = document.getElementById('rainContainer');
-    if (existingRain) {
-      existingRain.remove();
+  /** 停止所有天气效果 */
+  private stopAllWeatherEffects(): void {
+    console.log('[App] 🛑 Stopping all weather effects...');
+    
+    // 停止下雨效果
+    this.rainActive = false;
+    if (this.rainInterval) {
+      clearInterval(this.rainInterval);
+      this.rainInterval = null;
+    }
+    if (this.rainStopTimeout) {
+      clearTimeout(this.rainStopTimeout);
+      this.rainStopTimeout = null;
+    }
+    const rainContainer = document.getElementById('rainContainer');
+    if (rainContainer) {
+      rainContainer.remove();
     }
 
+    // 停止飘雪效果
+    this.snowActive = false;
+    if (this.snowInterval) {
+      clearInterval(this.snowInterval);
+      this.snowInterval = null;
+    }
+    if (this.snowStopTimeout) {
+      clearTimeout(this.snowStopTimeout);
+      this.snowStopTimeout = null;
+    }
+    const snowContainer = document.getElementById('snowContainer');
+    if (snowContainer) {
+      snowContainer.remove();
+    }
+  }
+
+  /** 下雨效果 - 逼真暴雨版 */
+  private startRainEffect(): void {
+    // 设置活动标志
+    this.rainActive = true;
+    
     // 创建雨滴容器 - 只覆盖内容区域（不包括左侧边栏）
     const rainContainer = document.createElement('div');
     rainContainer.className = 'rain-container';
@@ -134,6 +174,9 @@ class App {
 
     // 创建飞溅效果
     const createSplash = (x: number) => {
+      // 检查是否仍然活动
+      if (!this.rainActive) return;
+      
       const splash = document.createElement('div');
       splash.className = 'rain-splash';
       splash.style.left = `${x}%`;
@@ -158,7 +201,10 @@ class App {
       ripple.className = 'splash-ripple';
       splash.appendChild(ripple);
 
-      rainContainer.appendChild(splash);
+      const container = document.getElementById('rainContainer');
+      if (container) {
+        container.appendChild(splash);
+      }
 
       // 移除飞溅效果
       setTimeout(() => {
@@ -170,6 +216,12 @@ class App {
 
     // 生成雨滴
     const createRaindrop = () => {
+      // 检查是否仍然活动
+      if (!this.rainActive) return;
+      
+      const container = document.getElementById('rainContainer');
+      if (!container) return;
+      
       const raindrop = document.createElement('div');
       raindrop.className = 'raindrop';
       
@@ -188,14 +240,18 @@ class App {
         opacity: ${opacity};
       `;
       
-      rainContainer.appendChild(raindrop);
+      container.appendChild(raindrop);
       
       // 雨滴落地时创建飞溅效果
       setTimeout(() => {
+        if (!this.rainActive) {
+          if (raindrop.parentNode) raindrop.remove();
+          return;
+        }
         if (raindrop.parentNode && Math.random() < 0.3) { // 30% 概率产生飞溅
           createSplash(left);
         }
-        raindrop.remove();
+        if (raindrop.parentNode) raindrop.remove();
       }, (duration + delay) * 1000);
     };
 
@@ -205,7 +261,8 @@ class App {
     }
 
     // 持续生成雨滴 - 暴雨模式但更自然
-    const rainInterval = setInterval(() => {
+    this.rainInterval = setInterval(() => {
+      if (!this.rainActive) return;
       // 每次生成 8-15 滴雨
       const count = 8 + Math.floor(Math.random() * 8);
       for (let i = 0; i < count; i++) {
@@ -214,16 +271,23 @@ class App {
     }, 50); // 每 50ms 生成一批
 
     // 10 秒后停止生成新雨滴，让现有雨滴自然落完
-    setTimeout(() => {
-      clearInterval(rainInterval);
+    this.rainStopTimeout = setTimeout(() => {
+      if (!this.rainActive) return;
+      if (this.rainInterval) {
+        clearInterval(this.rainInterval);
+        this.rainInterval = null;
+      }
       console.log('[App] 🌤️ Rain stopping... waiting for drops to fall');
       
-      // 不再添加 stopping 类，让雨滴自然落完
-      // 等待最长的雨滴落完（最长 1.4s + 0.2s delay = 1.6s，留 2s 余量）
-      setTimeout(() => {
-        if (rainContainer.parentNode) {
-          rainContainer.remove();
+      // 等待最长的雨滴落完
+      this.rainStopTimeout = setTimeout(() => {
+        if (!this.rainActive) return;
+        const container = document.getElementById('rainContainer');
+        if (container) {
+          container.remove();
         }
+        this.rainStopTimeout = null;
+        this.rainActive = false;
         console.log('[App] ☀️ Rain stopped, enjoy your rest!');
       }, 2000);
     }, 10000);
@@ -231,12 +295,9 @@ class App {
 
   /** 飘雪效果 */
   private startSnowEffect(): void {
-    // 如果已有雪花容器，先移除
-    const existingSnow = document.getElementById('snowContainer');
-    if (existingSnow) {
-      existingSnow.remove();
-    }
-
+    // 设置活动标志
+    this.snowActive = true;
+    
     // 创建雪花容器
     const snowContainer = document.createElement('div');
     snowContainer.className = 'snow-container';
@@ -256,22 +317,33 @@ class App {
 
     // 创建积雪颗粒
     const addSnowToPile = (x: number) => {
+      if (!this.snowActive) return;
+      
+      const pile = document.querySelector('#snowContainer .snow-pile') as HTMLElement;
+      if (!pile) return;
+      
       if (pileHeight < maxPileHeight) {
         // 创建积雪小颗粒
-        const pile = document.createElement('div');
-        pile.className = 'snow-pile-particle';
-        pile.style.left = `${x}%`;
-        pile.style.bottom = `${Math.random() * pileHeight}px`;
-        snowPile.appendChild(pile);
+        const particle = document.createElement('div');
+        particle.className = 'snow-pile-particle';
+        particle.style.left = `${x}%`;
+        particle.style.bottom = `${Math.random() * pileHeight}px`;
+        pile.appendChild(particle);
 
         // 逐渐增加积雪高度
         pileHeight += 0.05;
-        snowPile.style.height = `${pileHeight}px`;
+        pile.style.height = `${pileHeight}px`;
       }
     };
 
     // 生成雪花
     const createSnowflake = () => {
+      // 检查是否仍然活动
+      if (!this.snowActive) return;
+      
+      const container = document.getElementById('snowContainer');
+      if (!container) return;
+      
       const snowflake = document.createElement('div');
       snowflake.className = 'snowflake';
       
@@ -293,10 +365,14 @@ class App {
         --drift: ${drift}px;
       `;
       
-      snowContainer.appendChild(snowflake);
+      container.appendChild(snowflake);
       
       // 雪花落地时添加到积雪
       setTimeout(() => {
+        if (!this.snowActive) {
+          if (snowflake.parentNode) snowflake.remove();
+          return;
+        }
         if (snowflake.parentNode) {
           addSnowToPile(left);
           snowflake.remove();
@@ -310,7 +386,8 @@ class App {
     }
 
     // 持续生成雪花
-    const snowInterval = setInterval(() => {
+    this.snowInterval = setInterval(() => {
+      if (!this.snowActive) return;
       // 每次生成 3-6 片雪花
       const count = 3 + Math.floor(Math.random() * 4);
       for (let i = 0; i < count; i++) {
@@ -319,20 +396,32 @@ class App {
     }, 100); // 每 100ms 生成一批
 
     // 10 秒后停止生成新雪花
-    setTimeout(() => {
-      clearInterval(snowInterval);
+    this.snowStopTimeout = setTimeout(() => {
+      if (!this.snowActive) return;
+      if (this.snowInterval) {
+        clearInterval(this.snowInterval);
+        this.snowInterval = null;
+      }
       console.log('[App] 🌨️ Snow stopping... waiting for flakes to fall');
       
-      // 等待最长的雪花落完（最长 7s + 0.5s delay = 7.5s，留 8s 余量）
-      setTimeout(() => {
+      // 等待最长的雪花落完
+      this.snowStopTimeout = setTimeout(() => {
+        if (!this.snowActive) return;
         // 积雪渐渐消融
-        snowPile.style.transition = 'opacity 2s ease-out';
-        snowPile.style.opacity = '0';
+        const pile = document.querySelector('#snowContainer .snow-pile') as HTMLElement;
+        if (pile) {
+          pile.style.transition = 'opacity 2s ease-out';
+          pile.style.opacity = '0';
+        }
         
         setTimeout(() => {
-          if (snowContainer.parentNode) {
-            snowContainer.remove();
+          if (!this.snowActive) return;
+          const container = document.getElementById('snowContainer');
+          if (container) {
+            container.remove();
           }
+          this.snowStopTimeout = null;
+          this.snowActive = false;
           console.log('[App] ☀️ Snow melted, enjoy your rest!');
         }, 2000);
       }, 8000);
@@ -1952,6 +2041,9 @@ class App {
       // 获取当前小车设置
       const carEnabled = localStorage.getItem('funCarEnabled') !== 'false';
       
+      const rainEnabled = localStorage.getItem('funRainEnabled') !== 'false'; // 默认开启
+      const snowEnabled = localStorage.getItem('funSnowEnabled') !== 'false'; // 默认开启
+
       container.innerHTML = `
         <div class="settings-section">
           <div class="settings-section-header">
@@ -1974,9 +2066,43 @@ class App {
             </div>
           </div>
         </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span style="font-size: 18px;">🌧️</span>
+            <span>下雨效果</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-toggle-item">
+              <div class="settings-toggle-info">
+                <div class="settings-toggle-desc">切换到时间戳工具时显示下雨动画（深色主题）</div>
+              </div>
+              <div class="settings-toggle ${rainEnabled ? 'active' : ''}" id="funRainToggle">
+                <div class="settings-toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span style="font-size: 18px;">❄️</span>
+            <span>飘雪效果</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-toggle-item">
+              <div class="settings-toggle-info">
+                <div class="settings-toggle-desc">切换到计算器工具时显示飘雪动画（深色主题）</div>
+              </div>
+              <div class="settings-toggle ${snowEnabled ? 'active' : ''}" id="funSnowToggle">
+                <div class="settings-toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       `;
 
-      // 绑定开关事件
+      // 绑定小车开关事件
       const toggle = document.getElementById('funCarToggle');
       toggle?.addEventListener('click', () => {
         const isActive = toggle.classList.toggle('active');
@@ -1986,6 +2112,22 @@ class App {
           car.style.display = isActive ? 'block' : 'none';
         }
         toast({ message: isActive ? '小车已启动 🚗' : '小车已停止', duration: 1500 });
+      });
+
+      // 绑定雨水开关事件
+      const rainToggle = document.getElementById('funRainToggle');
+      rainToggle?.addEventListener('click', () => {
+        const isActive = rainToggle.classList.toggle('active');
+        localStorage.setItem('funRainEnabled', isActive ? 'true' : 'false');
+        toast({ message: isActive ? '下雨效果已开启 🌧️' : '下雨效果已关闭', duration: 1500 });
+      });
+
+      // 绑定雪花开关事件
+      const snowToggle = document.getElementById('funSnowToggle');
+      snowToggle?.addEventListener('click', () => {
+        const isActive = snowToggle.classList.toggle('active');
+        localStorage.setItem('funSnowEnabled', isActive ? 'true' : 'false');
+        toast({ message: isActive ? '飘雪效果已开启 ❄️' : '飘雪效果已关闭', duration: 1500 });
       });
 
     } else if (tab === 'about') {
@@ -2015,20 +2157,26 @@ class App {
 
     console.log(`[App] Switching to tool: ${key}, current: ${this.currentKey}, theme: ${themeManager.getResolvedTheme()}`);
 
-    // 切换到时间戳工具时，深色主题下触发下雨效果（每次点击都触发）
-    if (key === 'time' && themeManager.getResolvedTheme() === 'dark') {
+    // 如果切换到同一个工具，不做任何操作
+    if (this.currentKey === key) {
+      return;
+    }
+
+    // 切换工具时，先停止所有天气效果
+    this.stopAllWeatherEffects();
+
+    // 切换到时间戳工具时，深色主题下触发下雨效果（检查开关状态）
+    const rainEnabled = localStorage.getItem('funRainEnabled') !== 'false';
+    if (key === 'time' && themeManager.getResolvedTheme() === 'dark' && rainEnabled) {
       console.log('[App] 🌧️ Triggering rain effect!');
       this.startRainEffect();
     }
 
-    // 切换到计算器工具时，深色主题下触发飘雪效果
-    if (key === 'calc' && themeManager.getResolvedTheme() === 'dark') {
+    // 切换到计算器工具时，深色主题下触发飘雪效果（检查开关状态）
+    const snowEnabled = localStorage.getItem('funSnowEnabled') !== 'false';
+    if (key === 'calc' && themeManager.getResolvedTheme() === 'dark' && snowEnabled) {
       console.log('[App] ❄️ Triggering snow effect!');
       this.startSnowEffect();
-    }
-
-    if (this.currentKey === key) {
-      return;
     }
 
     // 隐藏关于页面
