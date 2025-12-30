@@ -160,6 +160,129 @@
   border: 1px solid var(--border-color) !important;
 }
 
+/* 侧边栏浅色主题 */
+.theme-light .sidebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right-color: var(--border-color) !important;
+}
+
+.theme-light .sidebar-category-header {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .sidebar-category-header:hover {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.theme-light .sidebar-item {
+  color: var(--text-secondary) !important;
+}
+
+.theme-light .sidebar-item:hover {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light .sidebar-item.active {
+  color: #fff !important;
+  background: rgba(59, 130, 246, 0.85) !important;
+}
+
+.theme-light .sidebar-titlebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+.theme-light .titlebar-btn {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .titlebar-btn:hover {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 底部栏浅色主题 */
+.theme-light .bottom-bar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+.theme-light .bottom-bar-btn {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .bottom-bar-btn:hover {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 设置弹窗浅色主题 */
+.theme-light .settings-panel-new {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-light .settings-sidebar {
+  background: var(--bg-tertiary) !important;
+  border-right-color: var(--border-color) !important;
+}
+
+.theme-light .settings-nav-item {
+  color: var(--text-secondary) !important;
+}
+
+.theme-light .settings-nav-item:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-primary) !important;
+}
+
+.theme-light .settings-content-header {
+  border-bottom-color: var(--border-color) !important;
+}
+
+.theme-light .settings-breadcrumb {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .settings-breadcrumb span {
+  color: var(--text-primary) !important;
+}
+
+.theme-light .settings-close {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .settings-close:hover {
+  color: var(--text-primary) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light .settings-section-title {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .theme-option {
+  color: var(--text-secondary) !important;
+}
+
+.theme-light .theme-option:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light .about-name {
+  color: var(--text-primary) !important;
+}
+
+.theme-light .about-version {
+  color: var(--text-muted) !important;
+}
+
+.theme-light .about-desc {
+  color: var(--text-secondary) !important;
+}
+
 /* 工具内容区浅色主题 */
 .theme-light .tool-container {
   background: var(--bg-secondary) !important;

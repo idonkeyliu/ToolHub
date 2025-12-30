@@ -6,102 +6,14 @@ import { toolRegistry } from './core/ToolRegistry';
 import { eventBus } from './core/EventBus';
 import { themeManager } from './core/ThemeManager';
 import { favoriteManager } from './core/FavoriteManager';
-import { customSiteManager, CustomSite, CUSTOM_SITE_CATEGORIES } from './core/CustomSiteManager';
+import { categoryManager, CategoryItem } from './core/CategoryManager';
 import { EventType } from './types/index';
 import { tools, UsageTracker } from './tools/index';
 import { StatsPanel } from './tools/stats/StatsPanel';
 import { Toast, toast } from './components/Toast';
-import { Sidebar, SidebarCategory } from './components/Sidebar';
+import { Sidebar } from './components/Sidebar';
 import { CommandPalette, CommandItem } from './components/CommandPalette';
-import { CustomSiteModal } from './components/CustomSiteModal';
 import type { ToolConfig } from './types/index';
-
-/** LLM 站点定义 */
-interface LLMSite {
-  key: string;
-  title: string;
-  shortTitle: string;
-  icon: string;
-  color: string;
-}
-
-/** LLM 站点列表（与 main.ts 中的 sites 保持一致） */
-const LLM_SITES: LLMSite[] = [
-  { key: 'openai', title: 'OpenAI', shortTitle: 'OpenAI', icon: 'OP', color: '#10a37f' },
-  { key: 'lmarena', title: 'LMArena', shortTitle: 'LMArena', icon: 'LM', color: '#6366f1' },
-  { key: 'gemini', title: 'Gemini', shortTitle: 'Gemini', icon: 'GE', color: '#4285f4' },
-  { key: 'aistudio', title: 'AI Studio', shortTitle: 'AIStudio', icon: 'AI', color: '#ea4335' },
-  { key: 'deepseek', title: 'DeepSeek', shortTitle: 'DeepSeek', icon: 'DE', color: '#0066ff' },
-  { key: 'kimi', title: 'Kimi', shortTitle: 'Kimi', icon: 'Ki', color: '#6b5ce7' },
-  { key: 'grok', title: 'Grok', shortTitle: 'Grok', icon: 'GR', color: '#1da1f2' },
-  { key: 'claude', title: 'Claude', shortTitle: 'Claude', icon: 'CL', color: '#d97706' },
-  { key: 'qianwen', title: '通义千问', shortTitle: '千问', icon: '千', color: '#6236ff' },
-  { key: 'doubao', title: '豆包', shortTitle: '豆包', icon: '豆', color: '#00d4aa' },
-  { key: 'yuanbao', title: '腾讯元宝', shortTitle: '元宝', icon: '元', color: '#0052d9' },
-];
-
-/** 海外大模型 */
-const OVERSEAS_LLM_KEYS = ['openai', 'claude', 'gemini', 'aistudio', 'grok', 'lmarena'];
-
-/** 国内大模型 */
-const DOMESTIC_LLM_KEYS = ['deepseek', 'kimi', 'qianwen', 'doubao', 'yuanbao'];
-
-/** 工具分类映射 */
-const TOOL_CATEGORIES: Record<string, { title: string; icon: string; keys: string[] }> = {
-  utility: {
-    title: '实用工具',
-    icon: '🧰',
-    keys: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'],
-  },
-  encoding: {
-    title: '编解码工具',
-    icon: '🔐',
-    keys: ['codec', 'crypto', 'jwt'],
-  },
-  format: {
-    title: '格式化工具',
-    icon: '📝',
-    keys: ['json', 'text', 'diff', 'regex'],
-  },
-  storage: {
-    title: '存储工具',
-    icon: '💾',
-    keys: ['database', 'redis', 'mongo'],
-  },
-  network: {
-    title: '网络工具',
-    icon: '🌐',
-    keys: ['dns', 'curl'],
-  },
-  terminal: {
-    title: '终端工具',
-    icon: '🖥️',
-    keys: ['terminal', 'sync'],
-  },
-};
-
-/** 工具图标颜色映射 */
-const TOOL_COLORS: Record<string, string> = {
-  time: '#f59e0b',
-  pwd: '#ef4444',
-  text: '#8b5cf6',
-  calc: '#06b6d4',
-  json: '#22c55e',
-  codec: '#3b82f6',
-  crypto: '#ec4899',
-  dns: '#14b8a6',
-  curl: '#f97316',
-  color: '#a855f7',
-  calendar: '#6366f1',
-  currency: '#10b981',
-  image: '#0ea5e9',
-  database: '#f472b6',
-  redis: '#dc2626',
-  mongo: '#00ed64',
-  diff: '#7c3aed',
-  jwt: '#d946ef',
-  regex: '#0891b2',
-};
 
 /** 工具快捷键映射 */
 const TOOL_SHORTCUTS: Record<string, string> = {
@@ -117,30 +29,18 @@ const TOOL_SHORTCUTS: Record<string, string> = {
   '0': 'color',
 };
 
-/** 导航可见性设置存储 key */
-const NAV_VISIBILITY_KEY = 'toolhub_nav_visibility';
-
-/** 导航可见性设置 */
-interface NavVisibility {
-  llm: Record<string, boolean>;
-  tools: Record<string, boolean>;
-  customSites?: Record<string, boolean>;
-}
-
 class App {
   private currentKey: string | null = null;
-  private currentLLM: string | null = null;
   private container: HTMLElement | null = null;
   private llmContainer: HTMLElement | null = null;
   private webviews: Map<string, HTMLElement> = new Map();
-  private navVisibility: NavVisibility = { llm: {}, tools: {} };
   private statsPanel: StatsPanel | null = null;
   private sidebar: Sidebar | null = null;
   private commandPalette: CommandPalette | null = null;
-  private customSiteModal: CustomSiteModal | null = null;
+  private addItemDialog: HTMLElement | null = null;
+  private addItemTargetCategory: string | null = null;
 
   constructor() {
-    // 等待 DOM 加载完成
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.init());
     } else {
@@ -151,7 +51,6 @@ class App {
   private init(): void {
     console.log('[App] Initializing...');
 
-    // 1. 获取 DOM 元素
     this.container = document.getElementById('mainContainer');
     this.llmContainer = document.getElementById('llmContainer');
     const sidebarEl = document.getElementById('sidebar');
@@ -161,221 +60,82 @@ class App {
       return;
     }
 
-    // 2. 加载导航可见性设置
-    this.loadNavVisibility();
-
-    // 3. 注册所有工具
+    // 注册所有工具
     toolRegistry.registerAll(tools);
     console.log(`[App] Registered ${toolRegistry.size} tools`);
 
-    // 4. 初始化 Toast 组件
+    // 注册工具到 CategoryManager
+    this.registerToolsToCategory();
+
+    // 初始化 Toast 组件
     Toast.getInstance();
 
-    // 5. 初始化主题
+    // 初始化主题
     console.log(`[App] Theme: ${themeManager.getResolvedTheme()}`);
 
-    // 6. 初始化左侧边栏
+    // 初始化左侧边栏
     this.initSidebar(sidebarEl);
 
-    // 7. 初始化 Command Palette
+    // 初始化 Command Palette
     this.initCommandPalette();
 
-    // 8. 初始化自定义网站弹窗
-    this.initCustomSiteModal();
+    // 初始化添加项目对话框
+    this.initAddItemDialog();
 
-    // 9. 监听事件
+    // 监听事件
     this.setupEventListeners();
 
-    // 9. 设置快捷键
+    // 设置快捷键
     this.setupKeyboardShortcuts();
 
-    // 10. 设置设置面板
+    // 设置设置面板
     this.setupSettings();
 
-    // 11. 设置统计面板
+    // 设置统计面板
     this.setupStats();
 
-    // 12. 设置添加网站按钮
-    this.setupAddSiteButton();
-
-    // 13. 设置搜索按钮
-    this.setupSearchButton();
-
-    // 14. 设置全局工具栏
+    // 设置全局工具栏
     this.setupGlobalToolbar();
 
-    // 15. 设置页面卸载时保存使用数据
+    // 设置页面卸载时保存使用数据
     this.setupUnloadHandler();
 
-    // 14. 隐藏加载状态
+    // 隐藏加载状态
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 15. 默认切换到 OpenAI
-    const firstLLM = LLM_SITES.find(site => this.isLLMVisible(site.key));
-    if (firstLLM) {
-      this.switchLLM(firstLLM.key);
-    } else {
-      // 如果没有可见的 LLM，则切换到第一个可见的工具
-      const firstTool = toolRegistry.getAllConfigs().find(t => this.isToolVisible(t.key));
-      if (firstTool) {
-        this.switchTool(firstTool.key);
+    // 默认切换到第一个项目
+    const categories = categoryManager.getCategories();
+    const firstCategory = categories[0];
+    if (firstCategory && firstCategory.items.length > 0) {
+      const firstItem = categoryManager.getItem(firstCategory.items[0]);
+      if (firstItem) {
+        this.switchToItem(firstItem.key);
       }
     }
 
     console.log('[App] Initialization complete');
   }
 
-  private initSidebar(container: HTMLElement): void {
-    const categories = this.buildSidebarCategories();
-    
-    this.sidebar = new Sidebar(container, {
-      categories,
-      onItemClick: (key, category) => {
-        // 判断是 LLM 还是工具还是自定义网站
-        if (category === 'overseas-llm' || category === 'domestic-llm') {
-          this.switchLLM(key);
-        } else if (category.startsWith('custom-') || category === 'custom-sites') {
-          this.switchCustomSite(key);
-        } else {
-          this.switchTool(key);
-        }
-      },
-      onAddCustomSite: () => {
-        this.customSiteModal?.open();
-      },
-      onEditCustomSite: (id) => {
-        this.customSiteModal?.edit(id);
-      },
-      onSearch: () => {
-        this.commandPalette?.open();
-      },
-      onStats: () => {
-        this.openStats();
-      },
-      onSettings: () => {
-        this.openSettings();
-      },
-      onRefresh: () => {
-        this.refreshCurrentPage();
-      },
+  private registerToolsToCategory(): void {
+    const allToolConfigs = toolRegistry.getAllConfigs();
+    allToolConfigs.forEach(config => {
+      categoryManager.registerTool(config.key, config.title, config.icon || '🔧');
     });
   }
 
-  private buildSidebarCategories(): SidebarCategory[] {
-    const categories: SidebarCategory[] = [];
-
-    // 海外大模型
-    const overseasLLMs = LLM_SITES
-      .filter(site => OVERSEAS_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
-      .map(site => ({
-        key: site.key,
-        title: site.title,
-        shortTitle: site.shortTitle,
-        icon: site.icon,
-        color: site.color,
-      }));
-
-    if (overseasLLMs.length > 0) {
-      categories.push({
-        key: 'overseas-llm',
-        title: '海外大模型',
-        icon: '🌍',
-        items: overseasLLMs,
-      });
-    }
-
-    // 国内大模型
-    const domesticLLMs = LLM_SITES
-      .filter(site => DOMESTIC_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
-      .map(site => ({
-        key: site.key,
-        title: site.title,
-        shortTitle: site.shortTitle,
-        icon: site.icon,
-        color: site.color,
-      }));
-
-    if (domesticLLMs.length > 0) {
-      categories.push({
-        key: 'domestic-llm',
-        title: '国内大模型',
-        icon: '🇨🇳',
-        items: domesticLLMs,
-      });
-    }
-
-    // 自定义网站（按分类分组）
-    const allCustomSites = customSiteManager.getAll();
-    
-    CUSTOM_SITE_CATEGORIES.forEach(cat => {
-      const sitesInCategory = allCustomSites
-        .filter(site => (site.category || 'other') === cat.key && this.isCustomSiteVisible(site.id))
-        .map(site => ({
-          key: site.id,
-          title: site.name,
-          icon: site.icon || site.name.slice(0, 2),
-          color: site.color,
-          isCustom: true,
-        }));
-
-      // 只有有网站时才显示分类
-      if (sitesInCategory.length > 0) {
-        categories.push({
-          key: `custom-${cat.key}`,
-          title: cat.label,
-          icon: cat.icon,
-          items: sitesInCategory,
-          showAddButton: false, // 添加按钮已移到顶部
-        });
-      }
+  private initSidebar(container: HTMLElement): void {
+    this.sidebar = new Sidebar(container, {
+      onItemClick: (key, type) => {
+        this.switchToItem(key);
+      },
+      onItemEdit: (key) => {
+        this.editCustomSite(key);
+      },
+      onAddItem: (categoryId) => {
+        this.showAddItemDialog(categoryId);
+      },
     });
-
-    // 工具分类
-    const allToolConfigs = toolRegistry.getAllConfigs();
-    
-    Object.entries(TOOL_CATEGORIES).forEach(([catKey, catConfig]) => {
-      const toolItems = catConfig.keys
-        .map(key => allToolConfigs.find(c => c.key === key))
-        .filter((config): config is ToolConfig => config !== undefined && this.isToolVisible(config.key))
-        .map(config => ({
-          key: config.key,
-          title: config.title,
-          icon: config.icon || '🔧',
-          color: TOOL_COLORS[config.key] || '#6b7280',
-        }));
-
-      if (toolItems.length > 0) {
-        categories.push({
-          key: catKey,
-          title: catConfig.title,
-          icon: catConfig.icon,
-          items: toolItems,
-        });
-      }
-    });
-
-    // 未分类的工具
-    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
-    const uncategorizedTools = allToolConfigs
-      .filter(config => !categorizedKeys.includes(config.key) && this.isToolVisible(config.key))
-      .map(config => ({
-        key: config.key,
-        title: config.title,
-        icon: config.icon || '🔧',
-        color: TOOL_COLORS[config.key] || '#6b7280',
-      }));
-
-    if (uncategorizedTools.length > 0) {
-      categories.push({
-        key: 'other-tools',
-        title: '其他工具',
-        icon: '📦',
-        items: uncategorizedTools,
-      });
-    }
-
-    return categories;
   }
 
   private initCommandPalette(): void {
@@ -385,294 +145,374 @@ class App {
       items,
       placeholder: '搜索工具或 AI 助手...',
       onSelect: (key) => {
-        // 判断是 LLM、自定义网站还是工具
-        const isLLM = LLM_SITES.some(site => site.key === key);
-        const isCustomSite = customSiteManager.get(key) !== undefined;
-        if (isLLM) {
-          this.switchLLM(key);
-        } else if (isCustomSite) {
-          this.switchCustomSite(key);
-        } else {
-          this.switchTool(key);
-        }
-      },
-    });
-  }
-
-  private initCustomSiteModal(): void {
-    this.customSiteModal = new CustomSiteModal({
-      onSave: (site) => {
-        this.refreshNavigation();
-        toast({ message: `已保存「${site.name}」`, duration: 2000 });
-        // 切换到新添加的网站
-        this.switchCustomSite(site.id);
-      },
-      onDelete: (id) => {
-        // 如果删除的是当前显示的网站，切换到其他
-        if (this.currentKey === id) {
-          const firstLLM = LLM_SITES.find(site => this.isLLMVisible(site.key));
-          if (firstLLM) {
-            this.switchLLM(firstLLM.key);
-          }
-        }
-        // 删除 webview
-        const webview = this.webviews.get(id);
-        if (webview) {
-          webview.remove();
-          this.webviews.delete(id);
-        }
-        this.refreshNavigation();
-        toast({ message: '已删除自定义网站', duration: 2000 });
+        this.switchToItem(key);
       },
     });
 
-    // 订阅自定义网站变化
-    customSiteManager.subscribe(() => {
-      this.refreshNavigation();
+    // 订阅数据变化更新 Command Palette
+    categoryManager.subscribe(() => {
+      this.commandPalette?.updateItems(this.buildCommandItems());
     });
   }
 
   private buildCommandItems(): CommandItem[] {
     const items: CommandItem[] = [];
+    const categories = categoryManager.getCategories();
 
-    // 海外大模型
-    LLM_SITES
-      .filter(site => OVERSEAS_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
-      .forEach(site => {
-        items.push({
-          key: site.key,
-          title: site.title,
-          icon: site.icon,
-          color: site.color,
-          category: '海外大模型',
-          keywords: ['llm', 'ai', 'chat', 'overseas', site.shortTitle.toLowerCase()],
-        });
-      });
-
-    // 国内大模型
-    LLM_SITES
-      .filter(site => DOMESTIC_LLM_KEYS.includes(site.key) && this.isLLMVisible(site.key))
-      .forEach(site => {
-        items.push({
-          key: site.key,
-          title: site.title,
-          icon: site.icon,
-          color: site.color,
-          category: '国内大模型',
-          keywords: ['llm', 'ai', 'chat', 'domestic', '国内', site.shortTitle.toLowerCase()],
-        });
-      });
-
-    // 自定义网站
-    customSiteManager.getAll()
-      .filter(site => this.isCustomSiteVisible(site.id))
-      .forEach(site => {
-        const categoryInfo = CUSTOM_SITE_CATEGORIES.find(c => c.key === (site.category || 'other'));
-        items.push({
-          key: site.id,
-          title: site.name,
-          icon: site.icon || site.name.slice(0, 2),
-          color: site.color,
-          category: categoryInfo?.label || '自定义网站',
-          keywords: ['custom', '自定义', site.name.toLowerCase(), site.url.toLowerCase()],
-        });
-      });
-
-    // 工具项目（按分类）
-    const allToolConfigs = toolRegistry.getAllConfigs();
-    
-    Object.entries(TOOL_CATEGORIES).forEach(([, catConfig]) => {
-      catConfig.keys.forEach(key => {
-        const config = allToolConfigs.find(c => c.key === key);
-        if (config && this.isToolVisible(config.key)) {
+    categories.forEach(category => {
+      category.items.forEach(itemKey => {
+        const item = categoryManager.getItem(itemKey);
+        if (item) {
           items.push({
-            key: config.key,
-            title: config.title,
-            icon: config.icon || '🔧',
-            color: TOOL_COLORS[config.key] || '#6b7280',
-            category: catConfig.title,
-            keywords: config.keywords || [],
+            key: item.key,
+            title: item.title,
+            icon: item.icon,
+            color: item.color,
+            category: category.title,
+            keywords: [item.title.toLowerCase(), item.type],
           });
         }
       });
     });
 
-    // 未分类的工具
-    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
-    allToolConfigs
-      .filter(config => !categorizedKeys.includes(config.key) && this.isToolVisible(config.key))
-      .forEach(config => {
-        items.push({
-          key: config.key,
-          title: config.title,
-          icon: config.icon || '🔧',
-          color: TOOL_COLORS[config.key] || '#6b7280',
-          category: '其他工具',
-          keywords: config.keywords || [],
-        });
-      });
-
     return items;
   }
 
-  private setupSearchButton(): void {
-    // 搜索按钮已移到 Sidebar 底部，这里不再需要
-  }
+  private initAddItemDialog(): void {
+    this.addItemDialog = document.createElement('div');
+    this.addItemDialog.className = 'add-item-dialog-overlay';
+    this.addItemDialog.style.display = 'none';
+    this.addItemDialog.innerHTML = `
+      <div class="add-item-dialog">
+        <div class="add-item-dialog-header">添加项目</div>
+        <div class="add-item-dialog-tabs">
+          <button class="add-item-tab active" data-tab="site">网站</button>
+          <button class="add-item-tab" data-tab="tool">工具</button>
+        </div>
+        <div class="add-item-dialog-body">
+          <!-- 网站表单 -->
+          <div class="add-item-form" data-form="site">
+            <div class="add-item-field">
+              <label>名称</label>
+              <input type="text" class="site-name-input" placeholder="输入网站名称" />
+            </div>
+            <div class="add-item-field">
+              <label>网址</label>
+              <input type="text" class="site-url-input" placeholder="https://example.com" />
+            </div>
+            <div class="add-item-field-row">
+              <div class="add-item-field">
+                <label>图标</label>
+                <input type="text" class="site-icon-input" placeholder="🌐" maxlength="2" />
+              </div>
+              <div class="add-item-field">
+                <label>颜色</label>
+                <input type="color" class="site-color-input" value="#3b82f6" />
+              </div>
+            </div>
+          </div>
+          <!-- 工具选择 -->
+          <div class="add-item-form" data-form="tool" style="display:none">
+            <div class="add-item-tool-list"></div>
+          </div>
+        </div>
+        <div class="add-item-dialog-footer">
+          <button class="add-item-cancel">取消</button>
+          <button class="add-item-confirm">确定</button>
+        </div>
+      </div>
+    `;
 
-  private setupUnloadHandler(): void {
-    // 页面关闭/刷新时保存使用数据
-    window.addEventListener('beforeunload', () => {
-      UsageTracker.end();
+    // 标签切换
+    const tabs = this.addItemDialog.querySelectorAll('.add-item-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const tabName = tab.getAttribute('data-tab');
+        this.addItemDialog?.querySelectorAll('.add-item-form').forEach(form => {
+          (form as HTMLElement).style.display = form.getAttribute('data-form') === tabName ? 'block' : 'none';
+        });
+      });
     });
 
-    // 页面可见性变化时也保存（切换到后台）
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && this.currentKey) {
-        UsageTracker.end();
-      } else if (!document.hidden && this.currentKey) {
-        UsageTracker.start(this.currentKey);
-      }
+    // 取消按钮
+    this.addItemDialog.querySelector('.add-item-cancel')?.addEventListener('click', () => {
+      this.hideAddItemDialog();
     });
-  }
 
-  private loadNavVisibility(): void {
-    try {
-      const saved = localStorage.getItem(NAV_VISIBILITY_KEY);
-      if (saved) {
-        this.navVisibility = JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn('[App] Failed to load nav visibility settings');
-    }
-
-    // 初始化默认值（全部显示）
-    LLM_SITES.forEach(site => {
-      if (this.navVisibility.llm[site.key] === undefined) {
-        this.navVisibility.llm[site.key] = true;
-      }
-    });
-  }
-
-  private saveNavVisibility(): void {
-    try {
-      localStorage.setItem(NAV_VISIBILITY_KEY, JSON.stringify(this.navVisibility));
-    } catch (e) {
-      console.warn('[App] Failed to save nav visibility settings');
-    }
-  }
-
-  private isLLMVisible(key: string): boolean {
-    return this.navVisibility.llm[key] !== false;
-  }
-
-  private isToolVisible(key: string): boolean {
-    return this.navVisibility.tools[key] !== false;
-  }
-
-  private toggleLLMVisibility(key: string): void {
-    this.navVisibility.llm[key] = !this.isLLMVisible(key);
-    this.saveNavVisibility();
-    this.refreshNavigation();
-    this.renderSettingsList();
-  }
-
-  private toggleToolVisibility(key: string): void {
-    this.navVisibility.tools[key] = !this.isToolVisible(key);
-    this.saveNavVisibility();
-    this.refreshNavigation();
-    this.renderSettingsList();
-  }
-
-  private isCustomSiteVisible(key: string): boolean {
-    return this.navVisibility.customSites?.[key] !== false;
-  }
-
-  private toggleCustomSiteVisibility(key: string): void {
-    if (!this.navVisibility.customSites) {
-      this.navVisibility.customSites = {};
-    }
-    this.navVisibility.customSites[key] = !this.isCustomSiteVisible(key);
-    this.saveNavVisibility();
-    this.refreshNavigation();
-    this.renderSettingsList();
-  }
-
-  private refreshNavigation(): void {
-    // 更新边栏
-    if (this.sidebar) {
-      this.sidebar.updateCategories(this.buildSidebarCategories());
-      this.sidebar.setActive(this.currentKey);
-    }
-    // 更新 Command Palette
-    if (this.commandPalette) {
-      this.commandPalette.updateItems(this.buildCommandItems());
-    }
-  }
-
-  private switchLLM(key: string): void {
-    if (!this.llmContainer || !this.container) return;
-
-    // 结束工具使用追踪
-    if (this.currentKey) {
-      UsageTracker.end();
-    }
-
-    // 失活当前工具
-    if (this.currentKey && !LLM_SITES.some(s => s.key === this.currentKey)) {
-      const currentTool = toolRegistry.getInstance(this.currentKey);
-      currentTool?.deactivate();
-    }
-
-    // 隐藏工具容器，显示 LLM 容器
-    this.container.style.display = 'none';
-    this.llmContainer.style.display = 'block';
-
-    // 隐藏其他 webview
-    this.webviews.forEach((wv, k) => {
-      if (k === key) {
-        (wv as HTMLElement).style.display = 'flex';
-      } else {
-        (wv as HTMLElement).style.display = 'none';
+    // 点击遮罩关闭
+    this.addItemDialog.addEventListener('click', (e) => {
+      if (e.target === this.addItemDialog) {
+        this.hideAddItemDialog();
       }
     });
 
-    // 创建 webview（如果不存在）
-    if (!this.webviews.has(key)) {
-      const site = LLM_SITES.find(s => s.key === key);
-      if (site) {
-        this.createWebview(key);
-      }
-    }
+    // 确定按钮
+    this.addItemDialog.querySelector('.add-item-confirm')?.addEventListener('click', () => {
+      this.confirmAddItem();
+    });
 
-    this.currentLLM = key;
-    this.currentKey = key;
-    
-    // 更新边栏高亮并滚动到选中项
-    this.sidebar?.setActive(key, true);
-    
-    // 开始 LLM 使用追踪
-    UsageTracker.start(key);
+    document.body.appendChild(this.addItemDialog);
   }
 
-  /** 切换到自定义网站 */
-  private switchCustomSite(id: string): void {
-    if (!this.llmContainer || !this.container) return;
+  private showAddItemDialog(categoryId: string): void {
+    this.addItemTargetCategory = categoryId;
+    if (!this.addItemDialog) return;
 
-    const site = customSiteManager.get(id);
-    if (!site) {
-      console.warn(`[App] Custom site "${id}" not found`);
+    // 重置表单
+    const nameInput = this.addItemDialog.querySelector('.site-name-input') as HTMLInputElement;
+    const urlInput = this.addItemDialog.querySelector('.site-url-input') as HTMLInputElement;
+    const iconInput = this.addItemDialog.querySelector('.site-icon-input') as HTMLInputElement;
+    const colorInput = this.addItemDialog.querySelector('.site-color-input') as HTMLInputElement;
+
+    if (nameInput) nameInput.value = '';
+    if (urlInput) urlInput.value = '';
+    if (iconInput) iconInput.value = '';
+    if (colorInput) colorInput.value = '#3b82f6';
+
+    // 渲染工具列表（未分配到当前目录的工具）
+    this.renderToolList();
+
+    // 显示对话框
+    this.addItemDialog.style.display = 'flex';
+
+    // 聚焦到名称输入框
+    setTimeout(() => nameInput?.focus(), 0);
+  }
+
+  private hideAddItemDialog(): void {
+    if (this.addItemDialog) {
+      this.addItemDialog.style.display = 'none';
+    }
+    this.addItemTargetCategory = null;
+  }
+
+  private renderToolList(): void {
+    const toolList = this.addItemDialog?.querySelector('.add-item-tool-list');
+    if (!toolList) return;
+
+    const targetCategory = this.addItemTargetCategory;
+    if (!targetCategory) return;
+
+    // 获取当前目录已有的项目
+    const category = categoryManager.getCategory(targetCategory);
+    const existingItems = new Set(category?.items || []);
+
+    // 获取所有工具
+    const allItems = categoryManager.getAllItems();
+    const availableTools = allItems.filter(item => 
+      item.type === 'tool' && !existingItems.has(item.key)
+    );
+
+    if (availableTools.length === 0) {
+      toolList.innerHTML = '<div class="no-tools-hint">所有工具都已添加到此目录</div>';
       return;
     }
 
+    toolList.innerHTML = availableTools.map(tool => `
+      <div class="tool-select-item" data-key="${tool.key}">
+        <span class="tool-select-icon" style="background:${tool.color}">${tool.icon}</span>
+        <span class="tool-select-name">${tool.title}</span>
+      </div>
+    `).join('');
+
+    // 点击选择工具
+    toolList.querySelectorAll('.tool-select-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('selected');
+      });
+    });
+  }
+
+  private confirmAddItem(): void {
+    if (!this.addItemTargetCategory) return;
+
+    const activeTab = this.addItemDialog?.querySelector('.add-item-tab.active');
+    const tabName = activeTab?.getAttribute('data-tab');
+
+    if (tabName === 'site') {
+      // 添加网站
+      const nameInput = this.addItemDialog?.querySelector('.site-name-input') as HTMLInputElement;
+      const urlInput = this.addItemDialog?.querySelector('.site-url-input') as HTMLInputElement;
+      const iconInput = this.addItemDialog?.querySelector('.site-icon-input') as HTMLInputElement;
+      const colorInput = this.addItemDialog?.querySelector('.site-color-input') as HTMLInputElement;
+
+      const name = nameInput?.value.trim();
+      let url = urlInput?.value.trim();
+      const icon = iconInput?.value.trim() || '🌐';
+      const color = colorInput?.value || '#3b82f6';
+
+      if (!name || !url) {
+        toast({ message: '请填写名称和网址', duration: 2000 });
+        return;
+      }
+
+      // 自动补全 https
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+
+      const item = categoryManager.addCustomSite(name, url, icon, color, this.addItemTargetCategory);
+      toast({ message: `已添加「${name}」`, duration: 2000 });
+      this.hideAddItemDialog();
+      this.switchToItem(item.key);
+
+    } else if (tabName === 'tool') {
+      // 添加工具
+      const selectedTools = this.addItemDialog?.querySelectorAll('.tool-select-item.selected');
+      if (!selectedTools || selectedTools.length === 0) {
+        toast({ message: '请选择要添加的工具', duration: 2000 });
+        return;
+      }
+
+      selectedTools.forEach(item => {
+        const key = item.getAttribute('data-key');
+        if (key) {
+          categoryManager.moveItem(key, this.addItemTargetCategory!);
+        }
+      });
+
+      toast({ message: `已添加 ${selectedTools.length} 个工具`, duration: 2000 });
+      this.hideAddItemDialog();
+    }
+  }
+
+  private editCustomSite(key: string): void {
+    const item = categoryManager.getItem(key);
+    if (!item || item.type !== 'custom-site') return;
+
+    const dialog = document.createElement('div');
+    dialog.className = 'add-item-dialog-overlay';
+    dialog.innerHTML = `
+      <div class="add-item-dialog">
+        <div class="add-item-dialog-header">编辑网站</div>
+        <div class="add-item-dialog-body">
+          <div class="add-item-form">
+            <div class="add-item-field">
+              <label>名称</label>
+              <input type="text" class="site-name-input" value="${item.title}" />
+            </div>
+            <div class="add-item-field">
+              <label>网址</label>
+              <input type="text" class="site-url-input" value="${item.url || ''}" />
+            </div>
+            <div class="add-item-field-row">
+              <div class="add-item-field">
+                <label>图标</label>
+                <input type="text" class="site-icon-input" value="${item.icon}" maxlength="2" />
+              </div>
+              <div class="add-item-field">
+                <label>颜色</label>
+                <input type="color" class="site-color-input" value="${item.color}" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="add-item-dialog-footer">
+          <button class="edit-site-delete">删除</button>
+          <div style="flex:1"></div>
+          <button class="add-item-cancel">取消</button>
+          <button class="add-item-confirm">保存</button>
+        </div>
+      </div>
+    `;
+
+    const nameInput = dialog.querySelector('.site-name-input') as HTMLInputElement;
+    const urlInput = dialog.querySelector('.site-url-input') as HTMLInputElement;
+    const iconInput = dialog.querySelector('.site-icon-input') as HTMLInputElement;
+    const colorInput = dialog.querySelector('.site-color-input') as HTMLInputElement;
+
+    dialog.querySelector('.add-item-cancel')?.addEventListener('click', () => dialog.remove());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.remove();
+    });
+
+    dialog.querySelector('.edit-site-delete')?.addEventListener('click', () => {
+      if (confirm(`确定删除「${item.title}」吗？`)) {
+        // 如果删除的是当前显示的网站，切换到其他
+        if (this.currentKey === key) {
+          const categories = categoryManager.getCategories();
+          const firstItem = categories[0]?.items[0];
+          if (firstItem) {
+            this.switchToItem(firstItem);
+          }
+        }
+        // 删除 webview
+        const webview = this.webviews.get(key);
+        if (webview) {
+          webview.remove();
+          this.webviews.delete(key);
+        }
+        categoryManager.deleteCustomSite(key);
+        toast({ message: '已删除', duration: 2000 });
+        dialog.remove();
+      }
+    });
+
+    dialog.querySelector('.add-item-confirm')?.addEventListener('click', () => {
+      const name = nameInput?.value.trim();
+      let url = urlInput?.value.trim();
+      const icon = iconInput?.value.trim();
+      const color = colorInput?.value;
+
+      if (!name || !url) {
+        toast({ message: '请填写名称和网址', duration: 2000 });
+        return;
+      }
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+
+      categoryManager.updateCustomSite(key, { title: name, url, icon, color });
+      
+      // 如果 URL 变了，需要重新加载 webview
+      if (item.url !== url) {
+        const webview = this.webviews.get(key) as any;
+        if (webview) {
+          webview.src = url;
+        }
+      }
+
+      toast({ message: '已保存', duration: 2000 });
+      dialog.remove();
+    });
+
+    document.body.appendChild(dialog);
+    setTimeout(() => nameInput?.focus(), 0);
+  }
+
+  private switchToItem(key: string): void {
+    const item = categoryManager.getItem(key);
+    if (!item) {
+      console.warn(`[App] Item "${key}" not found`);
+      return;
+    }
+
+    if (item.type === 'tool') {
+      this.switchTool(key);
+    } else {
+      // LLM 或自定义网站
+      this.switchWebview(key, item);
+    }
+  }
+
+  private switchWebview(key: string, item: CategoryItem): void {
+    if (!this.llmContainer || !this.container) return;
+
     // 结束工具使用追踪
     if (this.currentKey) {
       UsageTracker.end();
     }
 
     // 失活当前工具
-    if (this.currentKey && !LLM_SITES.some(s => s.key === this.currentKey) && !customSiteManager.get(this.currentKey)) {
-      const currentTool = toolRegistry.getInstance(this.currentKey);
-      currentTool?.deactivate();
+    if (this.currentKey) {
+      const currentItem = categoryManager.getItem(this.currentKey);
+      if (currentItem?.type === 'tool') {
+        const currentTool = toolRegistry.getInstance(this.currentKey);
+        currentTool?.deactivate();
+      }
     }
 
     // 隐藏工具容器，显示 LLM 容器
@@ -681,62 +521,24 @@ class App {
 
     // 隐藏其他 webview
     this.webviews.forEach((wv, k) => {
-      if (k === id) {
-        (wv as HTMLElement).style.display = 'flex';
-      } else {
-        (wv as HTMLElement).style.display = 'none';
-      }
+      (wv as HTMLElement).style.display = k === key ? 'flex' : 'none';
     });
 
     // 创建 webview（如果不存在）
-    if (!this.webviews.has(id)) {
-      this.createCustomWebview(id, site.url);
+    if (!this.webviews.has(key) && item.url) {
+      this.createWebview(key, item.url);
     }
 
-    this.currentLLM = null;
-    this.currentKey = id;
-    
-    // 更新边栏高亮并滚动到选中项
-    this.sidebar?.setActive(id, true);
-    
-    // 开始使用追踪
-    UsageTracker.start(id);
+    this.currentKey = key;
+    this.sidebar?.setActive(key, true);
+    UsageTracker.start(key);
   }
 
-  /** 创建自定义网站的 webview */
-  private createCustomWebview(id: string, url: string): void {
+  private createWebview(key: string, url: string): void {
     if (!this.llmContainer) return;
 
     const webview = document.createElement('webview');
     webview.setAttribute('src', url);
-    webview.setAttribute('partition', `persist:custom_${id}`);
-    webview.setAttribute('allowpopups', 'true');
-    webview.className = 'llm-webview';
-    webview.style.cssText = 'width: 100%; height: 100%; display: flex;';
-
-    this.llmContainer.appendChild(webview);
-    this.webviews.set(id, webview);
-  }
-
-  private createWebview(key: string): void {
-    if (!this.llmContainer) return;
-
-    const urls: Record<string, string> = {
-      openai: 'https://chat.openai.com',
-      lmarena: 'https://lmarena.ai/',
-      gemini: 'https://gemini.google.com',
-      aistudio: 'https://aistudio.google.com',
-      deepseek: 'https://chat.deepseek.com',
-      kimi: 'https://kimi.moonshot.cn',
-      grok: 'https://grok.com',
-      claude: 'https://claude.ai',
-      qianwen: 'https://tongyi.aliyun.com/qianwen',
-      doubao: 'https://www.doubao.com/chat',
-      yuanbao: 'https://yuanbao.tencent.com/chat',
-    };
-
-    const webview = document.createElement('webview');
-    webview.setAttribute('src', urls[key] || '');
     webview.setAttribute('partition', `persist:${key}`);
     webview.setAttribute('allowpopups', 'true');
     webview.className = 'llm-webview';
@@ -744,6 +546,20 @@ class App {
 
     this.llmContainer.appendChild(webview);
     this.webviews.set(key, webview);
+  }
+
+  private setupUnloadHandler(): void {
+    window.addEventListener('beforeunload', () => {
+      UsageTracker.end();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.currentKey) {
+        UsageTracker.end();
+      } else if (!document.hidden && this.currentKey) {
+        UsageTracker.start(this.currentKey);
+      }
+    });
   }
 
   private setupEventListeners(): void {
@@ -766,7 +582,6 @@ class App {
 
   private setupKeyboardShortcuts(): void {
     document.addEventListener('keydown', (e) => {
-      // Cmd/Ctrl + 数字键 切换工具
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey) {
         const toolKey = TOOL_SHORTCUTS[e.key];
         if (toolKey && toolRegistry.has(toolKey)) {
@@ -776,25 +591,23 @@ class App {
         }
       }
 
-      // Cmd/Ctrl + Shift + D 切换主题
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'd') {
         e.preventDefault();
         themeManager.toggle();
         toast({ message: `已切换到${themeManager.getResolvedTheme() === 'dark' ? '深色' : '浅色'}主题`, duration: 1500 });
       }
 
-      // Cmd/Ctrl + D 收藏当前工具
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'd' && this.currentKey) {
         e.preventDefault();
         favoriteManager.toggle(this.currentKey);
       }
 
-      // ESC 关闭设置面板
       if (e.key === 'Escape') {
         const modal = document.getElementById('settingsModal');
         if (modal?.classList.contains('show')) {
           modal.classList.remove('show');
         }
+        this.hideAddItemDialog();
       }
     });
   }
@@ -802,26 +615,41 @@ class App {
   private setupSettings(): void {
     const settingsModal = document.getElementById('settingsModal');
     const settingsClose = document.getElementById('settingsClose');
+    const settingsNav = settingsModal?.querySelectorAll('.settings-nav-item');
 
     if (!settingsModal || !settingsClose) return;
 
-    // 关闭设置
     settingsClose.addEventListener('click', () => {
       settingsModal.classList.remove('show');
     });
 
-    // 点击遮罩关闭
     settingsModal.addEventListener('click', (e) => {
       if (e.target === settingsModal) {
         settingsModal.classList.remove('show');
       }
+    });
+
+    // 导航切换
+    settingsNav?.forEach(nav => {
+      nav.addEventListener('click', () => {
+        const tab = nav.getAttribute('data-tab');
+        if (tab) {
+          settingsNav.forEach(n => n.classList.remove('active'));
+          nav.classList.add('active');
+          this.renderSettingsTab(tab);
+        }
+      });
     });
   }
 
   private openSettings(): void {
     const settingsModal = document.getElementById('settingsModal');
     if (settingsModal) {
-      this.renderSettingsList();
+      // 默认显示通用标签
+      const navItems = settingsModal.querySelectorAll('.settings-nav-item');
+      navItems.forEach(n => n.classList.remove('active'));
+      navItems[0]?.classList.add('active');
+      this.renderSettingsTab('general');
       settingsModal.classList.add('show');
     }
   }
@@ -832,12 +660,10 @@ class App {
 
     if (!statsModal || !statsClose) return;
 
-    // 关闭统计面板
     statsClose.addEventListener('click', () => {
       statsModal.classList.remove('show');
     });
 
-    // 点击遮罩关闭
     statsModal.addEventListener('click', (e) => {
       if (e.target === statsModal) {
         statsModal.classList.remove('show');
@@ -858,18 +684,15 @@ class App {
     }
   }
 
-  private setupAddSiteButton(): void {
-    // 按钮已移到全局底部栏，这里不再需要
-  }
-
   private setupGlobalToolbar(): void {
-    // 顶部工具栏
     const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
     const refreshBtn = document.getElementById('refreshBtn');
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    const addLinkBtn = document.getElementById('addLinkBtn');
     const expandSidebarBtn = document.getElementById('expandSidebarBtn');
     const sidebarArea = document.getElementById('sidebarArea');
+    const themeBtnGlobal = document.getElementById('themeBtnGlobal');
 
-    // 更新侧边栏区域和展开按钮的显示状态
     const updateSidebarAreaState = () => {
       const isCollapsed = this.sidebar?.isCollapsed();
       if (sidebarArea) {
@@ -878,7 +701,6 @@ class App {
       if (expandSidebarBtn) {
         expandSidebarBtn.style.display = isCollapsed ? 'flex' : 'none';
       }
-      // 控制红绿灯按钮显示/隐藏
       (window as any).llmHub?.setTrafficLightVisibility?.(!isCollapsed);
     };
 
@@ -891,27 +713,53 @@ class App {
       this.refreshCurrentPage();
     });
 
-    // 底部展开按钮
+    // 添加目录按钮
+    addCategoryBtn?.addEventListener('click', () => {
+      this.sidebar?.showAddCategoryDialog();
+    });
+
+    // 添加链接按钮 - 显示添加网站对话框（默认添加到第一个目录）
+    addLinkBtn?.addEventListener('click', () => {
+      const categories = categoryManager.getCategories();
+      const firstCategory = categories[0];
+      if (firstCategory) {
+        this.showAddItemDialog(firstCategory.id);
+      }
+    });
+
     expandSidebarBtn?.addEventListener('click', () => {
       this.sidebar?.toggleCollapse();
       updateSidebarAreaState();
     });
 
-    // 初始化状态
     updateSidebarAreaState();
+
+    // 主题切换按钮
+    const updateThemeIcon = () => {
+      const moonIcon = themeBtnGlobal?.querySelector('.theme-icon-moon') as HTMLElement;
+      const sunIcon = themeBtnGlobal?.querySelector('.theme-icon-sun') as HTMLElement;
+      const isDark = themeManager.getResolvedTheme() === 'dark';
+      if (moonIcon) moonIcon.style.display = isDark ? 'block' : 'none';
+      if (sunIcon) sunIcon.style.display = isDark ? 'none' : 'block';
+    };
+
+    themeBtnGlobal?.addEventListener('click', () => {
+      themeManager.toggle();
+      updateThemeIcon();
+      const themeName = themeManager.getResolvedTheme() === 'dark' ? '深色' : '浅色';
+      toast({ message: `已切换到${themeName}主题`, duration: 1500 });
+    });
+
+    // 初始化主题图标状态
+    updateThemeIcon();
 
     // 底部功能栏
     const searchBtnGlobal = document.getElementById('searchBtnGlobal');
-    const addSiteBtnGlobal = document.getElementById('addSiteBtnGlobal');
     const statsBtnGlobal = document.getElementById('statsBtnGlobal');
     const settingsBtnGlobal = document.getElementById('settingsBtnGlobal');
 
     searchBtnGlobal?.addEventListener('click', () => {
       this.commandPalette?.open();
-    });
-
-    addSiteBtnGlobal?.addEventListener('click', () => {
-      this.customSiteModal?.open();
     });
 
     statsBtnGlobal?.addEventListener('click', () => {
@@ -924,7 +772,6 @@ class App {
   }
 
   private refreshCurrentPage(): void {
-    // 如果当前是 LLM 或自定义网站，刷新 webview
     if (this.currentKey && this.webviews.has(this.currentKey)) {
       const webview = this.webviews.get(this.currentKey) as any;
       if (webview && typeof webview.reload === 'function') {
@@ -932,7 +779,6 @@ class App {
         toast({ message: '页面已刷新', duration: 1500 });
       }
     } else if (this.currentKey) {
-      // 如果是工具，重新激活
       const tool = toolRegistry.getInstance(this.currentKey);
       if (tool) {
         tool.deactivate();
@@ -942,141 +788,78 @@ class App {
     }
   }
 
-  private renderSettingsList(): void {
+  private renderSettingsTab(tab: string): void {
     const container = document.getElementById('settingsBody');
+    const titleEl = document.getElementById('settingsTabTitle');
     if (!container) return;
 
-    container.innerHTML = '';
+    const tabTitles: Record<string, string> = {
+      general: '通用',
+      theme: '主题',
+      about: '关于'
+    };
 
-    // 海外大模型
-    const overseasLLMs = LLM_SITES.filter(site => OVERSEAS_LLM_KEYS.includes(site.key));
-    if (overseasLLMs.length > 0) {
-      this.renderSettingsSection(container, '🌍 海外大模型', overseasLLMs.map(site => ({
-        key: site.key,
-        title: site.title,
-        icon: site.icon,
-        color: site.color,
-        visible: this.isLLMVisible(site.key),
-        type: 'llm' as const,
-      })));
+    if (titleEl) {
+      titleEl.textContent = tabTitles[tab] || tab;
     }
 
-    // 国内大模型
-    const domesticLLMs = LLM_SITES.filter(site => DOMESTIC_LLM_KEYS.includes(site.key));
-    if (domesticLLMs.length > 0) {
-      this.renderSettingsSection(container, '🇨🇳 国内大模型', domesticLLMs.map(site => ({
-        key: site.key,
-        title: site.title,
-        icon: site.icon,
-        color: site.color,
-        visible: this.isLLMVisible(site.key),
-        type: 'llm' as const,
-      })));
-    }
-
-    // 工具分类
-    const allToolConfigs = toolRegistry.getAllConfigs();
-    
-    Object.entries(TOOL_CATEGORIES).forEach(([, catConfig]) => {
-      const tools = catConfig.keys
-        .map(key => allToolConfigs.find(c => c.key === key))
-        .filter((config): config is ToolConfig => config !== undefined);
-      
-      if (tools.length > 0) {
-        this.renderSettingsSection(container, `${catConfig.icon} ${catConfig.title}`, tools.map(config => ({
-          key: config.key,
-          title: config.title,
-          icon: config.icon || '🔧',
-          color: TOOL_COLORS[config.key] || '#6b7280',
-          visible: this.isToolVisible(config.key),
-          type: 'tool' as const,
-        })));
-      }
-    });
-
-    // 未分类的工具
-    const categorizedKeys = Object.values(TOOL_CATEGORIES).flatMap(c => c.keys);
-    const uncategorizedTools = allToolConfigs.filter(config => !categorizedKeys.includes(config.key));
-    
-    if (uncategorizedTools.length > 0) {
-      this.renderSettingsSection(container, '📦 其他工具', uncategorizedTools.map(config => ({
-        key: config.key,
-        title: config.title,
-        icon: config.icon || '🔧',
-        color: TOOL_COLORS[config.key] || '#6b7280',
-        visible: this.isToolVisible(config.key),
-        type: 'tool' as const,
-      })));
-    }
-
-    // 自定义网站
-    const allCustomSites = customSiteManager.getAll();
-    CUSTOM_SITE_CATEGORIES.forEach(cat => {
-      const sitesInCategory = allCustomSites.filter(site => (site.category || 'other') === cat.key);
-      if (sitesInCategory.length > 0) {
-        this.renderSettingsSection(container, `${cat.icon} ${cat.label}`, sitesInCategory.map(site => ({
-          key: site.id,
-          title: site.name,
-          icon: site.icon || site.name.slice(0, 2),
-          color: site.color,
-          visible: this.isCustomSiteVisible(site.id),
-          type: 'custom' as const,
-        })));
-      }
-    });
-  }
-
-  private renderSettingsSection(
-    container: HTMLElement,
-    title: string,
-    items: Array<{
-      key: string;
-      title: string;
-      icon: string;
-      color: string;
-      visible: boolean;
-      type: 'llm' | 'tool' | 'custom';
-    }>
-  ): void {
-    const section = document.createElement('div');
-    section.className = 'settings-section';
-
-    const sectionTitle = document.createElement('div');
-    sectionTitle.className = 'settings-section-title';
-    sectionTitle.textContent = title;
-    section.appendChild(sectionTitle);
-
-    const list = document.createElement('div');
-    list.className = 'settings-list';
-
-    items.forEach(item => {
-      const itemEl = document.createElement('div');
-      itemEl.className = 'settings-item';
-      itemEl.innerHTML = `
-        <div class="settings-checkbox ${item.visible ? 'checked' : ''}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="settings-item-icon" style="background:${item.color}">${item.icon}</div>
-        <div class="settings-item-label">${item.title}</div>
+    if (tab === 'general') {
+      container.innerHTML = `
+        <div class="settings-section-title">数据管理</div>
+        <button class="settings-danger-btn" id="resetCategoryBtn">重置目录和工具分配</button>
       `;
 
-      itemEl.addEventListener('click', () => {
-        if (item.type === 'llm') {
-          this.toggleLLMVisibility(item.key);
-        } else if (item.type === 'custom') {
-          this.toggleCustomSiteVisibility(item.key);
-        } else {
-          this.toggleToolVisibility(item.key);
+      document.getElementById('resetCategoryBtn')?.addEventListener('click', () => {
+        if (confirm('确定要重置所有目录和工具分配吗？自定义网站将被删除。')) {
+          categoryManager.reset();
+          toast({ message: '已重置', duration: 2000 });
         }
       });
 
-      list.appendChild(itemEl);
-    });
+    } else if (tab === 'theme') {
+      const currentTheme = themeManager.getTheme();
+      container.innerHTML = `
+        <div class="settings-section-title">外观</div>
+        <div class="theme-options">
+          <div class="theme-option ${currentTheme === 'dark' ? 'active' : ''}" data-theme="dark">
+            <div class="theme-option-radio"></div>
+            <span>黑暗</span>
+          </div>
+          <div class="theme-option ${currentTheme === 'light' ? 'active' : ''}" data-theme="light">
+            <div class="theme-option-radio"></div>
+            <span>明亮</span>
+          </div>
+          <div class="theme-option ${currentTheme === 'system' ? 'active' : ''}" data-theme="system">
+            <div class="theme-option-radio"></div>
+            <span>系统</span>
+          </div>
+        </div>
+      `;
 
-    section.appendChild(list);
-    container.appendChild(section);
+      container.querySelectorAll('.theme-option').forEach(option => {
+        option.addEventListener('click', () => {
+          const theme = option.getAttribute('data-theme') as 'dark' | 'light' | 'system';
+          if (theme) {
+            themeManager.setTheme(theme);
+            container.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            toast({ message: `已切换到${tabTitles[theme] || theme}主题`, duration: 1500 });
+          }
+        });
+      });
+
+    } else if (tab === 'about') {
+      container.innerHTML = `
+        <div class="about-content">
+          <div class="about-logo">🛠️</div>
+          <div class="about-name">ToolHub Pro</div>
+          <div class="about-version">v1.0.0</div>
+          <div class="about-desc">
+            一站式开发工具集合，集成 AI 助手和常用开发工具，提升开发效率。
+          </div>
+        </div>
+      `;
+    }
   }
 
   switchTool(key: string): void {
@@ -1091,50 +874,40 @@ class App {
     }
 
     if (this.currentKey === key) {
-      return; // 已经是当前工具
+      return;
     }
 
     console.log(`[App] Switching to tool: ${key}`);
 
-    // 隐藏 LLM 容器，显示工具容器
     if (this.llmContainer) {
       this.llmContainer.style.display = 'none';
     }
     this.container.style.display = 'block';
-    this.currentLLM = null;
 
-    // 结束上一个工具的使用追踪
     if (this.currentKey) {
       UsageTracker.end();
     }
 
-    // 失活当前工具
     if (this.currentKey && toolRegistry.has(this.currentKey)) {
       const currentTool = toolRegistry.getInstance(this.currentKey);
       currentTool?.deactivate();
     }
 
-    // 获取工具实例
     const tool = toolRegistry.getInstance(key);
     if (!tool) {
       console.error(`[App] Failed to get tool instance: ${key}`);
       return;
     }
 
-    // 挂载工具（如果还没挂载）
     if (!tool.mounted) {
       tool.mount(this.container);
       console.log(`[App] Tool "${key}" mounted`);
     }
 
-    // 激活工具
     tool.activate();
     this.currentKey = key;
 
-    // 开始新工具的使用追踪
     UsageTracker.start(key);
-
-    // 更新边栏高亮并滚动到选中项
     this.sidebar?.setActive(key, true);
 
     console.log(`[App] Tool "${key}" activated`);
