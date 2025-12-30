@@ -13,6 +13,7 @@ import { StatsPanel } from './tools/stats/StatsPanel';
 import { Toast, toast } from './components/Toast';
 import { Sidebar } from './components/Sidebar';
 import { CommandPalette, CommandItem } from './components/CommandPalette';
+import { AboutPage } from './components/AboutPage';
 import type { ToolConfig } from './types/index';
 
 /** 工具快捷键映射 */
@@ -39,6 +40,7 @@ class App {
   private commandPalette: CommandPalette | null = null;
   private addItemDialog: HTMLElement | null = null;
   private addItemTargetCategory: string | null = null;
+  private aboutPage: AboutPage | null = null;
 
   constructor() {
     if (document.readyState === 'loading') {
@@ -104,15 +106,8 @@ class App {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    // 默认切换到第一个项目
-    const categories = categoryManager.getCategories();
-    const firstCategory = categories[0];
-    if (firstCategory && firstCategory.items.length > 0) {
-      const firstItem = categoryManager.getItem(firstCategory.items[0]);
-      if (firstItem) {
-        this.switchToItem(firstItem.key);
-      }
-    }
+    // 默认打开 OpenAI
+    this.switchToItem('openai');
 
     console.log('[App] Initialization complete');
   }
@@ -684,6 +679,47 @@ class App {
     }
   }
 
+  private showAboutPage(): void {
+    if (!this.container) return;
+
+    // 结束工具使用追踪
+    if (this.currentKey) {
+      UsageTracker.end();
+    }
+
+    // 隐藏当前工具和 webview
+    this.hideCurrentTool();
+
+    // 隐藏 LLM 容器，显示主容器
+    if (this.llmContainer) {
+      this.llmContainer.style.display = 'none';
+    }
+    this.container.style.display = 'block';
+
+    // 清除侧边栏选中状态
+    this.sidebar?.clearSelection();
+
+    // 显示关于页面
+    if (!this.aboutPage) {
+      this.aboutPage = new AboutPage(this.container);
+    }
+    this.aboutPage.show();
+
+    // 标记当前为关于页面
+    this.currentKey = '__about__';
+  }
+
+  private hideCurrentTool(): void {
+    // 隐藏所有工具容器
+    const toolContainers = this.container?.querySelectorAll('.tool-container');
+    toolContainers?.forEach(c => (c as HTMLElement).style.display = 'none');
+
+    // 隐藏所有 webview
+    this.webviews.forEach(webview => {
+      webview.style.display = 'none';
+    });
+  }
+
   private setupGlobalToolbar(): void {
     const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
     const refreshBtn = document.getElementById('refreshBtn');
@@ -768,6 +804,12 @@ class App {
 
     settingsBtnGlobal?.addEventListener('click', () => {
       this.openSettings();
+    });
+
+    // 关于页面按钮
+    const aboutBtnGlobal = document.getElementById('aboutBtnGlobal');
+    aboutBtnGlobal?.addEventListener('click', () => {
+      this.showAboutPage();
     });
   }
 

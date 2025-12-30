@@ -34,14 +34,8 @@ export class Sidebar {
   }
 
   private loadState(): void {
-    try {
-      const saved = localStorage.getItem('toolhub_sidebar_collapsed');
-      if (saved) {
-        this.collapsed = JSON.parse(saved);
-      }
-    } catch (e) {
-      // ignore
-    }
+    // 默认展开侧边栏，不再从 localStorage 加载折叠状态
+    this.collapsed = false;
   }
 
   private saveState(): void {
@@ -523,6 +517,12 @@ export class Sidebar {
         el.classList.remove('active');
       }
     });
+  }
+
+  clearSelection(): void {
+    this.activeKey = null;
+    const items = this.container.querySelectorAll('.sidebar-item');
+    items.forEach(el => el.classList.remove('active'));
   }
 
   isCollapsed(): boolean {
