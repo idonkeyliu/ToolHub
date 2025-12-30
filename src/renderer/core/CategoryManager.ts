@@ -15,6 +15,7 @@ export interface Category {
   id: string;
   title: string;
   icon: string;
+  iconType?: 'emoji' | 'image'; // emoji 为默认文字 emoji，image 为图片路径
   items: string[]; // item keys
   collapsed?: boolean;
   isSystem?: boolean; // 系统目录不可删除
@@ -199,6 +200,11 @@ class CategoryManager {
     return this.data.itemMap[key];
   }
 
+  // 获取项目所属的目录
+  getItemCategory(key: string): Category | undefined {
+    return this.data.categories.find(cat => cat.items.includes(key));
+  }
+
   // 获取所有项目
   getAllItems(): CategoryItem[] {
     return Object.values(this.data.itemMap);
@@ -219,12 +225,13 @@ class CategoryManager {
   }
 
   // 添加目录
-  addCategory(title: string, icon: string): Category {
+  addCategory(title: string, icon: string, iconType: 'emoji' | 'image' = 'emoji'): Category {
     const id = `custom-${Date.now()}`;
     const category: Category = {
       id,
       title,
       icon,
+      iconType,
       items: [],
       isSystem: false,
     };

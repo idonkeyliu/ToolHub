@@ -86,6 +86,8 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
         checkSync: (project, servers) => electron_1.ipcRenderer.invoke('sync:check-sync', project, servers),
         getFileContent: (server, filePath) => electron_1.ipcRenderer.invoke('sync:get-file-content', server, filePath),
     },
+    // Emoji 文件 API
+    listEmojiFiles: (categoryDir) => electron_1.ipcRenderer.invoke('emoji:list-files', categoryDir),
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

@@ -218,64 +218,73 @@ class App {
 
   private initAddItemDialog(): void {
     this.addItemDialog = document.createElement('div');
-    this.addItemDialog.className = 'add-item-dialog-overlay';
+    this.addItemDialog.className = 'add-site-overlay';
     this.addItemDialog.style.display = 'none';
     this.addItemDialog.innerHTML = `
-      <div class="add-item-dialog">
-        <div class="add-item-dialog-header">添加项目</div>
-        <div class="add-item-dialog-tabs">
-          <button class="add-item-tab active" data-tab="site">网站</button>
-          <button class="add-item-tab" data-tab="tool">工具</button>
+      <div class="add-site-dialog">
+        <div class="add-site-header">
+          <div class="add-site-title">添加网站</div>
+          <button class="add-site-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
-        <div class="add-item-dialog-body">
-          <!-- 网站表单 -->
-          <div class="add-item-form" data-form="site">
-            <div class="add-item-field">
-              <label>名称</label>
-              <input type="text" class="site-name-input" placeholder="输入网站名称" />
-            </div>
-            <div class="add-item-field">
-              <label>网址</label>
-              <input type="text" class="site-url-input" placeholder="https://example.com" />
-            </div>
-            <div class="add-item-field-row">
-              <div class="add-item-field">
-                <label>图标</label>
-                <input type="text" class="site-icon-input" placeholder="🌐" maxlength="2" />
+        <div class="add-site-body">
+          <div class="add-site-preview">
+            <div class="add-site-preview-icon" style="background: #3b82f6"></div>
+          </div>
+          <div class="add-site-field">
+            <label>网站名称</label>
+            <input type="text" class="add-site-name-input" placeholder="例如：GitHub" />
+          </div>
+          <div class="add-site-field">
+            <label>网站地址</label>
+            <input type="text" class="add-site-url-input" placeholder="https://github.com" />
+          </div>
+          <div class="add-site-field">
+            <label>所属目录</label>
+            <select class="add-site-category-select"></select>
+          </div>
+          <div class="add-site-field">
+            <label>图标颜色</label>
+            <div class="add-site-color-row">
+              <div class="add-site-color-presets">
+                <div class="color-preset active" data-color="#3b82f6" style="background: #3b82f6"></div>
+                <div class="color-preset" data-color="#10b981" style="background: #10b981"></div>
+                <div class="color-preset" data-color="#22c55e" style="background: #22c55e"></div>
+                <div class="color-preset" data-color="#f59e0b" style="background: #f59e0b"></div>
+                <div class="color-preset" data-color="#f97316" style="background: #f97316"></div>
+                <div class="color-preset" data-color="#ef4444" style="background: #ef4444"></div>
+                <div class="color-preset" data-color="#dc2626" style="background: #dc2626"></div>
+                <div class="color-preset" data-color="#8b5cf6" style="background: #8b5cf6"></div>
+                <div class="color-preset" data-color="#7c3aed" style="background: #7c3aed"></div>
+                <div class="color-preset" data-color="#ec4899" style="background: #ec4899"></div>
+                <div class="color-preset" data-color="#d946ef" style="background: #d946ef"></div>
+                <div class="color-preset" data-color="#06b6d4" style="background: #06b6d4"></div>
+                <div class="color-preset" data-color="#0ea5e9" style="background: #0ea5e9"></div>
+                <div class="color-preset" data-color="#14b8a6" style="background: #14b8a6"></div>
+                <div class="color-preset" data-color="#6b7280" style="background: #6b7280"></div>
+                <div class="color-preset" data-color="#374151" style="background: #374151"></div>
               </div>
-              <div class="add-item-field">
-                <label>颜色</label>
-                <input type="color" class="site-color-input" value="#3b82f6" />
-              </div>
+              <input type="color" class="add-site-color-input" value="#3b82f6" />
             </div>
           </div>
-          <!-- 工具选择 -->
-          <div class="add-item-form" data-form="tool" style="display:none">
-            <div class="add-item-tool-list"></div>
-          </div>
         </div>
-        <div class="add-item-dialog-footer">
-          <button class="add-item-cancel">取消</button>
-          <button class="add-item-confirm">确定</button>
+        <div class="add-site-footer">
+          <button class="add-site-cancel">取消</button>
+          <button class="add-site-confirm">确定</button>
         </div>
       </div>
     `;
 
-    // 标签切换
-    const tabs = this.addItemDialog.querySelectorAll('.add-item-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const tabName = tab.getAttribute('data-tab');
-        this.addItemDialog?.querySelectorAll('.add-item-form').forEach(form => {
-          (form as HTMLElement).style.display = form.getAttribute('data-form') === tabName ? 'block' : 'none';
-        });
-      });
+    // 取消按钮
+    this.addItemDialog.querySelector('.add-site-cancel')?.addEventListener('click', () => {
+      this.hideAddItemDialog();
     });
 
-    // 取消按钮
-    this.addItemDialog.querySelector('.add-item-cancel')?.addEventListener('click', () => {
+    // 关闭按钮
+    this.addItemDialog.querySelector('.add-site-close')?.addEventListener('click', () => {
       this.hideAddItemDialog();
     });
 
@@ -287,11 +296,93 @@ class App {
     });
 
     // 确定按钮
-    this.addItemDialog.querySelector('.add-item-confirm')?.addEventListener('click', () => {
+    this.addItemDialog.querySelector('.add-site-confirm')?.addEventListener('click', () => {
       this.confirmAddItem();
     });
 
+    // 回车提交
+    this.addItemDialog.querySelectorAll('input[type="text"]').forEach(input => {
+      input.addEventListener('keydown', (e: Event) => {
+        const ke = e as KeyboardEvent;
+        if (ke.key === 'Enter') {
+          this.confirmAddItem();
+        } else if (ke.key === 'Escape') {
+          this.hideAddItemDialog();
+        }
+      });
+    });
+
+    // 颜色预设点击
+    const colorPresets = this.addItemDialog.querySelectorAll('.color-preset');
+    const colorInput = this.addItemDialog.querySelector('.add-site-color-input') as HTMLInputElement;
+    const previewIcon = this.addItemDialog.querySelector('.add-site-preview-icon') as HTMLElement;
+
+    colorPresets.forEach(preset => {
+      preset.addEventListener('click', () => {
+        const color = (preset as HTMLElement).dataset.color || '#3b82f6';
+        colorPresets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        colorInput.value = color;
+        this.updateAddSitePreview();
+      });
+    });
+
+    // 颜色选择器变化
+    colorInput?.addEventListener('input', () => {
+      colorPresets.forEach(p => p.classList.remove('active'));
+      this.updateAddSitePreview();
+    });
+
+    // 名称输入时更新预览
+    const nameInput = this.addItemDialog.querySelector('.add-site-name-input') as HTMLInputElement;
+    nameInput?.addEventListener('input', () => {
+      this.updateAddSitePreview();
+    });
+
     document.body.appendChild(this.addItemDialog);
+  }
+
+  // 生成网站图标缩写
+  private generateSiteAbbr(name: string): string {
+    if (!name) return '';
+    const trimmed = name.trim();
+    if (!trimmed) return '';
+    
+    // 检查第一个字符是否为中文
+    const firstChar = trimmed.charAt(0);
+    const isChinese = /[\u4e00-\u9fa5]/.test(firstChar);
+    
+    if (isChinese) {
+      // 中文：取第一个汉字
+      return firstChar;
+    } else {
+      // 英文：取前两个字母大写
+      const letters = trimmed.replace(/[^a-zA-Z]/g, '');
+      if (letters.length >= 2) {
+        return letters.substring(0, 2).toUpperCase();
+      } else if (letters.length === 1) {
+        return letters.toUpperCase();
+      }
+      return trimmed.charAt(0).toUpperCase();
+    }
+  }
+
+  // 更新添加网站对话框的预览
+  private updateAddSitePreview(): void {
+    if (!this.addItemDialog) return;
+    
+    const nameInput = this.addItemDialog.querySelector('.add-site-name-input') as HTMLInputElement;
+    const colorInput = this.addItemDialog.querySelector('.add-site-color-input') as HTMLInputElement;
+    const previewIcon = this.addItemDialog.querySelector('.add-site-preview-icon') as HTMLElement;
+    
+    if (!previewIcon) return;
+    
+    const name = nameInput?.value.trim() || '';
+    const color = colorInput?.value || '#3b82f6';
+    const abbr = this.generateSiteAbbr(name);
+    
+    previewIcon.style.background = color;
+    previewIcon.textContent = abbr;
   }
 
   private showAddItemDialog(categoryId: string): void {
@@ -299,24 +390,42 @@ class App {
     if (!this.addItemDialog) return;
 
     // 重置表单
-    const nameInput = this.addItemDialog.querySelector('.site-name-input') as HTMLInputElement;
-    const urlInput = this.addItemDialog.querySelector('.site-url-input') as HTMLInputElement;
-    const iconInput = this.addItemDialog.querySelector('.site-icon-input') as HTMLInputElement;
-    const colorInput = this.addItemDialog.querySelector('.site-color-input') as HTMLInputElement;
+    const nameInput = this.addItemDialog.querySelector('.add-site-name-input') as HTMLInputElement;
+    const urlInput = this.addItemDialog.querySelector('.add-site-url-input') as HTMLInputElement;
+    const colorInput = this.addItemDialog.querySelector('.add-site-color-input') as HTMLInputElement;
+    const colorPresets = this.addItemDialog.querySelectorAll('.color-preset');
+    const previewIcon = this.addItemDialog.querySelector('.add-site-preview-icon') as HTMLElement;
+    const categorySelect = this.addItemDialog.querySelector('.add-site-category-select') as HTMLSelectElement;
 
     if (nameInput) nameInput.value = '';
     if (urlInput) urlInput.value = '';
-    if (iconInput) iconInput.value = '';
     if (colorInput) colorInput.value = '#3b82f6';
-
-    // 渲染工具列表（未分配到当前目录的工具）
-    this.renderToolList();
+    
+    // 填充目录下拉选择
+    if (categorySelect) {
+      const categories = categoryManager.getCategories();
+      categorySelect.innerHTML = categories.map(cat => 
+        `<option value="${cat.id}" ${cat.id === categoryId ? 'selected' : ''}>${cat.icon} ${cat.title}</option>`
+      ).join('');
+    }
+    
+    // 重置颜色预设选中状态
+    colorPresets.forEach((p, i) => {
+      if (i === 0) p.classList.add('active');
+      else p.classList.remove('active');
+    });
+    
+    // 重置预览
+    if (previewIcon) {
+      previewIcon.style.background = '#3b82f6';
+      previewIcon.textContent = '';
+    }
 
     // 显示对话框
     this.addItemDialog.style.display = 'flex';
 
     // 聚焦到名称输入框
-    setTimeout(() => nameInput?.focus(), 0);
+    setTimeout(() => nameInput?.focus(), 100);
   }
 
   private hideAddItemDialog(): void {
@@ -326,142 +435,158 @@ class App {
     this.addItemTargetCategory = null;
   }
 
-  private renderToolList(): void {
-    const toolList = this.addItemDialog?.querySelector('.add-item-tool-list');
-    if (!toolList) return;
-
-    const targetCategory = this.addItemTargetCategory;
+  private confirmAddItem(): void {
+    const categorySelect = this.addItemDialog?.querySelector('.add-site-category-select') as HTMLSelectElement;
+    const targetCategory = categorySelect?.value || this.addItemTargetCategory;
+    
     if (!targetCategory) return;
 
-    // 获取当前目录已有的项目
-    const category = categoryManager.getCategory(targetCategory);
-    const existingItems = new Set(category?.items || []);
+    const nameInput = this.addItemDialog?.querySelector('.add-site-name-input') as HTMLInputElement;
+    const urlInput = this.addItemDialog?.querySelector('.add-site-url-input') as HTMLInputElement;
+    const colorInput = this.addItemDialog?.querySelector('.add-site-color-input') as HTMLInputElement;
 
-    // 获取所有工具
-    const allItems = categoryManager.getAllItems();
-    const availableTools = allItems.filter(item => 
-      item.type === 'tool' && !existingItems.has(item.key)
-    );
+    const name = nameInput?.value.trim();
+    let url = urlInput?.value.trim();
+    const color = colorInput?.value || '#3b82f6';
 
-    if (availableTools.length === 0) {
-      toolList.innerHTML = '<div class="no-tools-hint">所有工具都已添加到此目录</div>';
+    if (!name) {
+      nameInput?.focus();
+      nameInput?.classList.add('shake');
+      setTimeout(() => nameInput?.classList.remove('shake'), 500);
       return;
     }
 
-    toolList.innerHTML = availableTools.map(tool => `
-      <div class="tool-select-item" data-key="${tool.key}">
-        <span class="tool-select-icon" style="background:${tool.color}">${tool.icon}</span>
-        <span class="tool-select-name">${tool.title}</span>
-      </div>
-    `).join('');
-
-    // 点击选择工具
-    toolList.querySelectorAll('.tool-select-item').forEach(item => {
-      item.addEventListener('click', () => {
-        item.classList.toggle('selected');
-      });
-    });
-  }
-
-  private confirmAddItem(): void {
-    if (!this.addItemTargetCategory) return;
-
-    const activeTab = this.addItemDialog?.querySelector('.add-item-tab.active');
-    const tabName = activeTab?.getAttribute('data-tab');
-
-    if (tabName === 'site') {
-      // 添加网站
-      const nameInput = this.addItemDialog?.querySelector('.site-name-input') as HTMLInputElement;
-      const urlInput = this.addItemDialog?.querySelector('.site-url-input') as HTMLInputElement;
-      const iconInput = this.addItemDialog?.querySelector('.site-icon-input') as HTMLInputElement;
-      const colorInput = this.addItemDialog?.querySelector('.site-color-input') as HTMLInputElement;
-
-      const name = nameInput?.value.trim();
-      let url = urlInput?.value.trim();
-      const icon = iconInput?.value.trim() || '🌐';
-      const color = colorInput?.value || '#3b82f6';
-
-      if (!name || !url) {
-        toast({ message: '请填写名称和网址', duration: 2000 });
-        return;
-      }
-
-      // 自动补全 https
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-      }
-
-      const item = categoryManager.addCustomSite(name, url, icon, color, this.addItemTargetCategory);
-      toast({ message: `已添加「${name}」`, duration: 2000 });
-      this.hideAddItemDialog();
-      this.switchToItem(item.key);
-
-    } else if (tabName === 'tool') {
-      // 添加工具
-      const selectedTools = this.addItemDialog?.querySelectorAll('.tool-select-item.selected');
-      if (!selectedTools || selectedTools.length === 0) {
-        toast({ message: '请选择要添加的工具', duration: 2000 });
-        return;
-      }
-
-      selectedTools.forEach(item => {
-        const key = item.getAttribute('data-key');
-        if (key) {
-          categoryManager.moveItem(key, this.addItemTargetCategory!);
-        }
-      });
-
-      toast({ message: `已添加 ${selectedTools.length} 个工具`, duration: 2000 });
-      this.hideAddItemDialog();
+    if (!url) {
+      urlInput?.focus();
+      urlInput?.classList.add('shake');
+      setTimeout(() => urlInput?.classList.remove('shake'), 500);
+      return;
     }
+
+    // 自动补全 https
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+    }
+
+    // 使用名称缩写作为图标
+    const icon = this.generateSiteAbbr(name);
+
+    const item = categoryManager.addCustomSite(name, url, icon, color, targetCategory);
+    toast({ message: `已添加「${name}」`, duration: 2000 });
+    this.hideAddItemDialog();
+    this.switchToItem(item.key);
   }
 
   private editCustomSite(key: string): void {
     const item = categoryManager.getItem(key);
     if (!item || item.type !== 'custom-site') return;
 
+    const currentCategory = categoryManager.getItemCategory(key);
+    const categories = categoryManager.getCategories();
+    const categoryOptions = categories.map(cat => 
+      `<option value="${cat.id}" ${cat.id === currentCategory?.id ? 'selected' : ''}>${cat.icon} ${cat.title}</option>`
+    ).join('');
+
     const dialog = document.createElement('div');
-    dialog.className = 'add-item-dialog-overlay';
+    dialog.className = 'add-site-overlay';
     dialog.innerHTML = `
-      <div class="add-item-dialog">
-        <div class="add-item-dialog-header">编辑网站</div>
-        <div class="add-item-dialog-body">
-          <div class="add-item-form">
-            <div class="add-item-field">
-              <label>名称</label>
-              <input type="text" class="site-name-input" value="${item.title}" />
-            </div>
-            <div class="add-item-field">
-              <label>网址</label>
-              <input type="text" class="site-url-input" value="${item.url || ''}" />
-            </div>
-            <div class="add-item-field-row">
-              <div class="add-item-field">
-                <label>图标</label>
-                <input type="text" class="site-icon-input" value="${item.icon}" maxlength="2" />
+      <div class="add-site-dialog">
+        <div class="add-site-header">
+          <div class="add-site-title">编辑网站</div>
+          <button class="add-site-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="add-site-body">
+          <div class="add-site-preview">
+            <div class="add-site-preview-icon" style="background: ${item.color}">${item.icon}</div>
+          </div>
+          <div class="add-site-field">
+            <label>网站名称</label>
+            <input type="text" class="add-site-name-input" value="${item.title}" />
+          </div>
+          <div class="add-site-field">
+            <label>网站地址</label>
+            <input type="text" class="add-site-url-input" value="${item.url || ''}" />
+          </div>
+          <div class="add-site-field">
+            <label>所属目录</label>
+            <select class="add-site-category-select">${categoryOptions}</select>
+          </div>
+          <div class="add-site-field">
+            <label>图标颜色</label>
+            <div class="add-site-color-row">
+              <div class="add-site-color-presets">
+                <div class="color-preset ${item.color === '#3b82f6' ? 'active' : ''}" data-color="#3b82f6" style="background: #3b82f6"></div>
+                <div class="color-preset ${item.color === '#10b981' ? 'active' : ''}" data-color="#10b981" style="background: #10b981"></div>
+                <div class="color-preset ${item.color === '#22c55e' ? 'active' : ''}" data-color="#22c55e" style="background: #22c55e"></div>
+                <div class="color-preset ${item.color === '#f59e0b' ? 'active' : ''}" data-color="#f59e0b" style="background: #f59e0b"></div>
+                <div class="color-preset ${item.color === '#f97316' ? 'active' : ''}" data-color="#f97316" style="background: #f97316"></div>
+                <div class="color-preset ${item.color === '#ef4444' ? 'active' : ''}" data-color="#ef4444" style="background: #ef4444"></div>
+                <div class="color-preset ${item.color === '#dc2626' ? 'active' : ''}" data-color="#dc2626" style="background: #dc2626"></div>
+                <div class="color-preset ${item.color === '#8b5cf6' ? 'active' : ''}" data-color="#8b5cf6" style="background: #8b5cf6"></div>
+                <div class="color-preset ${item.color === '#7c3aed' ? 'active' : ''}" data-color="#7c3aed" style="background: #7c3aed"></div>
+                <div class="color-preset ${item.color === '#ec4899' ? 'active' : ''}" data-color="#ec4899" style="background: #ec4899"></div>
+                <div class="color-preset ${item.color === '#d946ef' ? 'active' : ''}" data-color="#d946ef" style="background: #d946ef"></div>
+                <div class="color-preset ${item.color === '#06b6d4' ? 'active' : ''}" data-color="#06b6d4" style="background: #06b6d4"></div>
+                <div class="color-preset ${item.color === '#0ea5e9' ? 'active' : ''}" data-color="#0ea5e9" style="background: #0ea5e9"></div>
+                <div class="color-preset ${item.color === '#14b8a6' ? 'active' : ''}" data-color="#14b8a6" style="background: #14b8a6"></div>
+                <div class="color-preset ${item.color === '#6b7280' ? 'active' : ''}" data-color="#6b7280" style="background: #6b7280"></div>
+                <div class="color-preset ${item.color === '#374151' ? 'active' : ''}" data-color="#374151" style="background: #374151"></div>
               </div>
-              <div class="add-item-field">
-                <label>颜色</label>
-                <input type="color" class="site-color-input" value="${item.color}" />
-              </div>
+              <input type="color" class="add-site-color-input" value="${item.color}" />
             </div>
           </div>
         </div>
-        <div class="add-item-dialog-footer">
+        <div class="add-site-footer">
           <button class="edit-site-delete">删除</button>
           <div style="flex:1"></div>
-          <button class="add-item-cancel">取消</button>
-          <button class="add-item-confirm">保存</button>
+          <button class="add-site-cancel">取消</button>
+          <button class="add-site-confirm">保存</button>
         </div>
       </div>
     `;
 
-    const nameInput = dialog.querySelector('.site-name-input') as HTMLInputElement;
-    const urlInput = dialog.querySelector('.site-url-input') as HTMLInputElement;
-    const iconInput = dialog.querySelector('.site-icon-input') as HTMLInputElement;
-    const colorInput = dialog.querySelector('.site-color-input') as HTMLInputElement;
+    const nameInput = dialog.querySelector('.add-site-name-input') as HTMLInputElement;
+    const urlInput = dialog.querySelector('.add-site-url-input') as HTMLInputElement;
+    const colorInput = dialog.querySelector('.add-site-color-input') as HTMLInputElement;
+    const categorySelect = dialog.querySelector('.add-site-category-select') as HTMLSelectElement;
+    const previewIcon = dialog.querySelector('.add-site-preview-icon') as HTMLElement;
+    const colorPresets = dialog.querySelectorAll('.color-preset');
 
-    dialog.querySelector('.add-item-cancel')?.addEventListener('click', () => dialog.remove());
+    // 更新预览函数
+    const updatePreview = () => {
+      const name = nameInput?.value.trim() || '';
+      const color = colorInput?.value || '#3b82f6';
+      const abbr = this.generateSiteAbbr(name);
+      previewIcon.style.background = color;
+      previewIcon.textContent = abbr;
+    };
+
+    // 名称输入时更新预览
+    nameInput?.addEventListener('input', updatePreview);
+
+    // 颜色预设点击
+    colorPresets.forEach(preset => {
+      preset.addEventListener('click', () => {
+        const color = (preset as HTMLElement).dataset.color || '#3b82f6';
+        colorPresets.forEach(p => p.classList.remove('active'));
+        preset.classList.add('active');
+        colorInput.value = color;
+        updatePreview();
+      });
+    });
+
+    // 颜色选择器变化
+    colorInput?.addEventListener('input', () => {
+      colorPresets.forEach(p => p.classList.remove('active'));
+      updatePreview();
+    });
+
+    dialog.querySelector('.add-site-cancel')?.addEventListener('click', () => dialog.remove());
+    dialog.querySelector('.add-site-close')?.addEventListener('click', () => dialog.remove());
     dialog.addEventListener('click', (e) => {
       if (e.target === dialog) dialog.remove();
     });
@@ -488,11 +613,11 @@ class App {
       }
     });
 
-    dialog.querySelector('.add-item-confirm')?.addEventListener('click', () => {
+    dialog.querySelector('.add-site-confirm')?.addEventListener('click', () => {
       const name = nameInput?.value.trim();
       let url = urlInput?.value.trim();
-      const icon = iconInput?.value.trim();
       const color = colorInput?.value;
+      const newCategoryId = categorySelect?.value;
 
       if (!name || !url) {
         toast({ message: '请填写名称和网址', duration: 2000 });
@@ -503,7 +628,15 @@ class App {
         url = 'https://' + url;
       }
 
+      // 使用名称缩写作为图标
+      const icon = this.generateSiteAbbr(name);
+
       categoryManager.updateCustomSite(key, { title: name, url, icon, color });
+      
+      // 如果目录变了，移动项目
+      if (newCategoryId && newCategoryId !== currentCategory?.id) {
+        categoryManager.moveItem(key, newCategoryId);
+      }
       
       // 如果 URL 变了，需要重新加载 webview
       if (item.url !== url) {
@@ -533,10 +666,55 @@ class App {
 
     if (item.type === 'tool') {
       this.switchTool(key);
+      this.updateBottomBarUrl(null); // 工具模式隐藏 URL
     } else {
       // LLM 或自定义网站
       this.switchWebview(key, item);
+      this.updateBottomBarUrl(item.url || null); // 显示网站 URL
     }
+  }
+
+  private updateBottomBarUrl(url: string | null): void {
+    const urlContainer = document.getElementById('bottomBarUrl');
+    const urlText = urlContainer?.querySelector('.bottom-bar-url-text');
+    const navContainer = document.getElementById('bottomBarNav');
+    
+    if (!urlContainer || !urlText) return;
+
+    if (url) {
+      urlText.textContent = url;
+      urlContainer.classList.add('visible');
+      urlContainer.title = `点击在浏览器中打开`;
+      navContainer?.classList.add('visible');
+      this.updateNavButtonsState();
+    } else {
+      urlContainer.classList.remove('visible');
+      urlText.textContent = '';
+      navContainer?.classList.remove('visible');
+    }
+  }
+
+  private updateNavButtonsState(): void {
+    const backBtn = document.getElementById('webviewBackBtn');
+    const forwardBtn = document.getElementById('webviewForwardBtn');
+    
+    if (!backBtn || !forwardBtn) return;
+
+    if (this.currentKey && this.webviews.has(this.currentKey)) {
+      const webview = this.webviews.get(this.currentKey) as any;
+      if (webview) {
+        const canGoBack = typeof webview.canGoBack === 'function' && webview.canGoBack();
+        const canGoForward = typeof webview.canGoForward === 'function' && webview.canGoForward();
+        
+        backBtn.classList.toggle('disabled', !canGoBack);
+        forwardBtn.classList.toggle('disabled', !canGoForward);
+        return;
+      }
+    }
+    
+    // 默认禁用
+    backBtn.classList.add('disabled');
+    forwardBtn.classList.add('disabled');
   }
 
   private switchWebview(key: string, item: CategoryItem): void {
@@ -584,6 +762,18 @@ class App {
     webview.setAttribute('allowpopups', 'true');
     webview.className = 'llm-webview';
     webview.style.cssText = 'width: 100%; height: 100%; display: flex;';
+
+    // 监听导航事件，更新前进后退按钮状态
+    webview.addEventListener('did-navigate', () => {
+      if (this.currentKey === key) {
+        this.updateNavButtonsState();
+      }
+    });
+    webview.addEventListener('did-navigate-in-page', () => {
+      if (this.currentKey === key) {
+        this.updateNavButtonsState();
+      }
+    });
 
     this.llmContainer.appendChild(webview);
     this.webviews.set(key, webview);
@@ -862,6 +1052,40 @@ class App {
     const aboutBtnGlobal = document.getElementById('aboutBtnGlobal');
     aboutBtnGlobal?.addEventListener('click', () => {
       this.showAboutPage();
+    });
+
+    // 底部栏 URL 点击复制
+    const bottomBarUrl = document.getElementById('bottomBarUrl');
+    bottomBarUrl?.addEventListener('click', () => {
+      const urlText = bottomBarUrl.querySelector('.bottom-bar-url-text')?.textContent;
+      if (urlText) {
+        // 使用 Electron 的 shell 模块在默认浏览器中打开
+        (window as any).llmHub?.openExternal?.(urlText);
+      }
+    });
+
+    // Webview 前进后退按钮
+    const webviewBackBtn = document.getElementById('webviewBackBtn');
+    const webviewForwardBtn = document.getElementById('webviewForwardBtn');
+
+    webviewBackBtn?.addEventListener('click', () => {
+      if (webviewBackBtn.classList.contains('disabled')) return;
+      if (this.currentKey && this.webviews.has(this.currentKey)) {
+        const webview = this.webviews.get(this.currentKey) as any;
+        if (webview && typeof webview.goBack === 'function' && webview.canGoBack()) {
+          webview.goBack();
+        }
+      }
+    });
+
+    webviewForwardBtn?.addEventListener('click', () => {
+      if (webviewForwardBtn.classList.contains('disabled')) return;
+      if (this.currentKey && this.webviews.has(this.currentKey)) {
+        const webview = this.webviews.get(this.currentKey) as any;
+        if (webview && typeof webview.goForward === 'function' && webview.canGoForward()) {
+          webview.goForward();
+        }
+      }
     });
   }
 
