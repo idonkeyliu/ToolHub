@@ -134,6 +134,97 @@
   }
 }
 
+/* ========================================
+   飘雪动画效果 ❄️
+   ======================================== */
+.snow-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: var(--sidebar-width, 220px) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: calc(100vw - var(--sidebar-width, 220px)) !important;
+  height: 100vh !important;
+  pointer-events: none;
+  z-index: 99999 !important;
+  overflow: hidden;
+}
+
+.snowflake {
+  position: absolute;
+  top: -20px;
+  background: radial-gradient(circle at 30% 30%, 
+    rgba(255, 255, 255, 1) 0%,
+    rgba(240, 248, 255, 0.9) 40%,
+    rgba(220, 240, 255, 0.7) 100%
+  );
+  border-radius: 50%;
+  animation: snow-fall linear forwards;
+  box-shadow: 
+    0 0 4px rgba(255, 255, 255, 0.8),
+    0 0 8px rgba(200, 220, 255, 0.4);
+  filter: blur(0.3px);
+}
+
+@keyframes snow-fall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(50vh) translateX(var(--drift, 0)) rotate(180deg);
+  }
+  95% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(calc(100vh - 30px)) translateX(calc(var(--drift, 0) * 0.5)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* 积雪层 */
+.snow-pile {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(to top,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 248, 255, 0.8) 50%,
+    rgba(220, 235, 255, 0.4) 80%,
+    transparent 100%
+  );
+  border-radius: 100% 100% 0 0 / 20px 20px 0 0;
+  transition: height 0.3s ease-out;
+}
+
+/* 积雪颗粒 */
+.snow-pile-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+  animation: pile-settle 0.5s ease-out forwards;
+}
+
+@keyframes pile-settle {
+  0% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
 /* 浅色主题 - 磨砂玻璃质感风格 */
 [data-theme="light"] {
   --bg-primary: linear-gradient(135deg, #e8eef5 0%, #dde4ed 50%, #e2e9f2 100%);
