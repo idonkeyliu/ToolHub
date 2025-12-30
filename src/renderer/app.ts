@@ -116,6 +116,119 @@ class App {
     console.log('[App] Initialization complete');
   }
 
+  /** 下雨效果 - 逼真暴雨版 */
+  private startRainEffect(): void {
+    // 如果已有雨滴容器，先移除
+    const existingRain = document.getElementById('rainContainer');
+    if (existingRain) {
+      existingRain.remove();
+    }
+
+    // 创建雨滴容器 - 只覆盖内容区域（不包括左侧边栏）
+    const rainContainer = document.createElement('div');
+    rainContainer.className = 'rain-container';
+    rainContainer.id = 'rainContainer';
+    document.body.appendChild(rainContainer);
+
+    console.log('[App] 🌧️ Starting realistic rain effect for 10 seconds...');
+
+    // 创建飞溅效果
+    const createSplash = (x: number) => {
+      const splash = document.createElement('div');
+      splash.className = 'rain-splash';
+      splash.style.left = `${x}%`;
+      splash.style.bottom = '0';
+
+      // 创建多个飞溅水滴
+      for (let i = 0; i < 5; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'splash-drop';
+        const angle = -60 + Math.random() * 120; // -60 到 60 度
+        const distance = 8 + Math.random() * 15;
+        const xOffset = Math.sin(angle * Math.PI / 180) * distance;
+        const yOffset = -Math.abs(Math.cos(angle * Math.PI / 180) * distance) - 5;
+        drop.style.setProperty('--splash-x', `${xOffset}px`);
+        drop.style.setProperty('--splash-y', `${yOffset}px`);
+        drop.style.animationDuration = `${0.3 + Math.random() * 0.2}s`;
+        splash.appendChild(drop);
+      }
+
+      // 创建涟漪
+      const ripple = document.createElement('div');
+      ripple.className = 'splash-ripple';
+      splash.appendChild(ripple);
+
+      rainContainer.appendChild(splash);
+
+      // 移除飞溅效果
+      setTimeout(() => {
+        if (splash.parentNode) {
+          splash.remove();
+        }
+      }, 600);
+    };
+
+    // 生成雨滴
+    const createRaindrop = () => {
+      const raindrop = document.createElement('div');
+      raindrop.className = 'raindrop';
+      
+      // 随机位置和属性 - 更逼真的雨滴
+      const left = Math.random() * 100;
+      const height = 15 + Math.random() * 25; // 15-40px 雨滴长度
+      const duration = 0.8 + Math.random() * 0.6; // 0.8-1.4s 更慢更逼真
+      const delay = Math.random() * 0.2;
+      const opacity = 0.3 + Math.random() * 0.4; // 0.3-0.7 透明度
+      
+      raindrop.style.cssText = `
+        left: ${left}%;
+        height: ${height}px;
+        animation-duration: ${duration}s;
+        animation-delay: ${delay}s;
+        opacity: ${opacity};
+      `;
+      
+      rainContainer.appendChild(raindrop);
+      
+      // 雨滴落地时创建飞溅效果
+      setTimeout(() => {
+        if (raindrop.parentNode && Math.random() < 0.3) { // 30% 概率产生飞溅
+          createSplash(left);
+        }
+        raindrop.remove();
+      }, (duration + delay) * 1000);
+    };
+
+    // 立即生成第一批雨滴
+    for (let i = 0; i < 30; i++) {
+      createRaindrop();
+    }
+
+    // 持续生成雨滴 - 暴雨模式但更自然
+    const rainInterval = setInterval(() => {
+      // 每次生成 8-15 滴雨
+      const count = 8 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < count; i++) {
+        createRaindrop();
+      }
+    }, 50); // 每 50ms 生成一批
+
+    // 10 秒后停止生成新雨滴，让现有雨滴自然落完
+    setTimeout(() => {
+      clearInterval(rainInterval);
+      console.log('[App] 🌤️ Rain stopping... waiting for drops to fall');
+      
+      // 不再添加 stopping 类，让雨滴自然落完
+      // 等待最长的雨滴落完（最长 1.4s + 0.2s delay = 1.6s，留 2s 余量）
+      setTimeout(() => {
+        if (rainContainer.parentNode) {
+          rainContainer.remove();
+        }
+        console.log('[App] ☀️ Rain stopped, enjoy your rest!');
+      }, 2000);
+    }, 10000);
+  }
+
   private registerToolsToCategory(): void {
     const allToolConfigs = toolRegistry.getAllConfigs();
     allToolConfigs.forEach(config => {
@@ -1745,25 +1858,24 @@ class App {
               <div class="settings-toggle-info">
                 <div class="settings-toggle-desc">${i18n.t('settings.funCarDesc')}</div>
               </div>
-              <label class="settings-toggle">
-                <input type="checkbox" id="funCarToggle" ${carEnabled ? 'checked' : ''}>
-                <span class="settings-toggle-slider"></span>
-              </label>
+              <div class="settings-toggle ${carEnabled ? 'active' : ''}" id="funCarToggle">
+                <div class="settings-toggle-knob"></div>
+              </div>
             </div>
           </div>
         </div>
       `;
 
       // 绑定开关事件
-      const toggle = document.getElementById('funCarToggle') as HTMLInputElement;
-      toggle?.addEventListener('change', () => {
-        const enabled = toggle.checked;
-        localStorage.setItem('funCarEnabled', enabled ? 'true' : 'false');
+      const toggle = document.getElementById('funCarToggle');
+      toggle?.addEventListener('click', () => {
+        const isActive = toggle.classList.toggle('active');
+        localStorage.setItem('funCarEnabled', isActive ? 'true' : 'false');
         const car = document.getElementById('movingCar');
         if (car) {
-          car.style.display = enabled ? 'block' : 'none';
+          car.style.display = isActive ? 'block' : 'none';
         }
-        toast({ message: enabled ? '小车已启动 🚗' : '小车已停止', duration: 1500 });
+        toast({ message: isActive ? '小车已启动 🚗' : '小车已停止', duration: 1500 });
       });
 
     } else if (tab === 'about') {
@@ -1791,11 +1903,17 @@ class App {
       return;
     }
 
+    console.log(`[App] Switching to tool: ${key}, current: ${this.currentKey}, theme: ${themeManager.getResolvedTheme()}`);
+
+    // 切换到时间戳工具时，深色主题下触发下雨效果（每次点击都触发）
+    if (key === 'time' && themeManager.getResolvedTheme() === 'dark') {
+      console.log('[App] 🌧️ Triggering rain effect!');
+      this.startRainEffect();
+    }
+
     if (this.currentKey === key) {
       return;
     }
-
-    console.log(`[App] Switching to tool: ${key}`);
 
     // 隐藏关于页面
     if (this.aboutPage) {
