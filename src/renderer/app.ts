@@ -6,12 +6,14 @@ import { toolRegistry } from './core/ToolRegistry';
 import { eventBus } from './core/EventBus';
 import { themeManager } from './core/ThemeManager';
 import { favoriteManager } from './core/FavoriteManager';
+import { customSiteManager, CustomSite, CUSTOM_SITE_CATEGORIES } from './core/CustomSiteManager';
 import { EventType } from './types/index';
 import { tools, UsageTracker } from './tools/index';
 import { StatsPanel } from './tools/stats/StatsPanel';
 import { Toast, toast } from './components/Toast';
 import { Sidebar, SidebarCategory } from './components/Sidebar';
 import { CommandPalette, CommandItem } from './components/CommandPalette';
+import { CustomSiteModal } from './components/CustomSiteModal';
 import type { ToolConfig } from './types/index';
 
 /** LLM 站点定义 */
@@ -122,6 +124,7 @@ const NAV_VISIBILITY_KEY = 'toolhub_nav_visibility';
 interface NavVisibility {
   llm: Record<string, boolean>;
   tools: Record<string, boolean>;
+  customSites?: Record<string, boolean>;
 }
 
 class App {
@@ -134,7 +137,7 @@ class App {
   private statsPanel: StatsPanel | null = null;
   private sidebar: Sidebar | null = null;
   private commandPalette: CommandPalette | null = null;
-  private currentTitle: HTMLElement | null = null;
+  private customSiteModal: CustomSiteModal | null = null;
 
   constructor() {
     // 等待 DOM 加载完成
@@ -151,7 +154,6 @@ class App {
     // 1. 获取 DOM 元素
     this.container = document.getElementById('mainContainer');
     this.llmContainer = document.getElementById('llmContainer');
-    this.currentTitle = document.getElementById('currentTitle');
     const sidebarEl = document.getElementById('sidebar');
 
     if (!this.container || !sidebarEl) {
@@ -178,7 +180,10 @@ class App {
     // 7. 初始化 Command Palette
     this.initCommandPalette();
 
-    // 8. 监听事件
+    // 8. 初始化自定义网站弹窗
+    this.initCustomSiteModal();
+
+    // 9. 监听事件
     this.setupEventListeners();
 
     // 9. 设置快捷键
@@ -190,10 +195,16 @@ class App {
     // 11. 设置统计面板
     this.setupStats();
 
-    // 12. 设置搜索按钮
+    // 12. 设置添加网站按钮
+    this.setupAddSiteButton();
+
+    // 13. 设置搜索按钮
     this.setupSearchButton();
 
-    // 13. 设置页面卸载时保存使用数据
+    // 14. 设置全局工具栏
+    this.setupGlobalToolbar();
+
+    // 15. 设置页面卸载时保存使用数据
     this.setupUnloadHandler();
 
     // 14. 隐藏加载状态
@@ -221,12 +232,32 @@ class App {
     this.sidebar = new Sidebar(container, {
       categories,
       onItemClick: (key, category) => {
-        // 判断是 LLM 还是工具
+        // 判断是 LLM 还是工具还是自定义网站
         if (category === 'overseas-llm' || category === 'domestic-llm') {
           this.switchLLM(key);
+        } else if (category.startsWith('custom-') || category === 'custom-sites') {
+          this.switchCustomSite(key);
         } else {
           this.switchTool(key);
         }
+      },
+      onAddCustomSite: () => {
+        this.customSiteModal?.open();
+      },
+      onEditCustomSite: (id) => {
+        this.customSiteModal?.edit(id);
+      },
+      onSearch: () => {
+        this.commandPalette?.open();
+      },
+      onStats: () => {
+        this.openStats();
+      },
+      onSettings: () => {
+        this.openSettings();
+      },
+      onRefresh: () => {
+        this.refreshCurrentPage();
       },
     });
   }
@@ -273,6 +304,32 @@ class App {
         items: domesticLLMs,
       });
     }
+
+    // 自定义网站（按分类分组）
+    const allCustomSites = customSiteManager.getAll();
+    
+    CUSTOM_SITE_CATEGORIES.forEach(cat => {
+      const sitesInCategory = allCustomSites
+        .filter(site => (site.category || 'other') === cat.key && this.isCustomSiteVisible(site.id))
+        .map(site => ({
+          key: site.id,
+          title: site.name,
+          icon: site.icon || site.name.slice(0, 2),
+          color: site.color,
+          isCustom: true,
+        }));
+
+      // 只有有网站时才显示分类
+      if (sitesInCategory.length > 0) {
+        categories.push({
+          key: `custom-${cat.key}`,
+          title: cat.label,
+          icon: cat.icon,
+          items: sitesInCategory,
+          showAddButton: false, // 添加按钮已移到顶部
+        });
+      }
+    });
 
     // 工具分类
     const allToolConfigs = toolRegistry.getAllConfigs();
@@ -328,14 +385,50 @@ class App {
       items,
       placeholder: '搜索工具或 AI 助手...',
       onSelect: (key) => {
-        // 判断是 LLM 还是工具
+        // 判断是 LLM、自定义网站还是工具
         const isLLM = LLM_SITES.some(site => site.key === key);
+        const isCustomSite = customSiteManager.get(key) !== undefined;
         if (isLLM) {
           this.switchLLM(key);
+        } else if (isCustomSite) {
+          this.switchCustomSite(key);
         } else {
           this.switchTool(key);
         }
       },
+    });
+  }
+
+  private initCustomSiteModal(): void {
+    this.customSiteModal = new CustomSiteModal({
+      onSave: (site) => {
+        this.refreshNavigation();
+        toast({ message: `已保存「${site.name}」`, duration: 2000 });
+        // 切换到新添加的网站
+        this.switchCustomSite(site.id);
+      },
+      onDelete: (id) => {
+        // 如果删除的是当前显示的网站，切换到其他
+        if (this.currentKey === id) {
+          const firstLLM = LLM_SITES.find(site => this.isLLMVisible(site.key));
+          if (firstLLM) {
+            this.switchLLM(firstLLM.key);
+          }
+        }
+        // 删除 webview
+        const webview = this.webviews.get(id);
+        if (webview) {
+          webview.remove();
+          this.webviews.delete(id);
+        }
+        this.refreshNavigation();
+        toast({ message: '已删除自定义网站', duration: 2000 });
+      },
+    });
+
+    // 订阅自定义网站变化
+    customSiteManager.subscribe(() => {
+      this.refreshNavigation();
     });
   }
 
@@ -367,6 +460,21 @@ class App {
           color: site.color,
           category: '国内大模型',
           keywords: ['llm', 'ai', 'chat', 'domestic', '国内', site.shortTitle.toLowerCase()],
+        });
+      });
+
+    // 自定义网站
+    customSiteManager.getAll()
+      .filter(site => this.isCustomSiteVisible(site.id))
+      .forEach(site => {
+        const categoryInfo = CUSTOM_SITE_CATEGORIES.find(c => c.key === (site.category || 'other'));
+        items.push({
+          key: site.id,
+          title: site.name,
+          icon: site.icon || site.name.slice(0, 2),
+          color: site.color,
+          category: categoryInfo?.label || '自定义网站',
+          keywords: ['custom', '自定义', site.name.toLowerCase(), site.url.toLowerCase()],
         });
       });
 
@@ -408,12 +516,7 @@ class App {
   }
 
   private setupSearchButton(): void {
-    const searchBtn = document.getElementById('searchBtn');
-    if (searchBtn) {
-      searchBtn.addEventListener('click', () => {
-        this.commandPalette?.open();
-      });
-    }
+    // 搜索按钮已移到 Sidebar 底部，这里不再需要
   }
 
   private setupUnloadHandler(): void {
@@ -480,6 +583,20 @@ class App {
     this.renderSettingsList();
   }
 
+  private isCustomSiteVisible(key: string): boolean {
+    return this.navVisibility.customSites?.[key] !== false;
+  }
+
+  private toggleCustomSiteVisibility(key: string): void {
+    if (!this.navVisibility.customSites) {
+      this.navVisibility.customSites = {};
+    }
+    this.navVisibility.customSites[key] = !this.isCustomSiteVisible(key);
+    this.saveNavVisibility();
+    this.refreshNavigation();
+    this.renderSettingsList();
+  }
+
   private refreshNavigation(): void {
     // 更新边栏
     if (this.sidebar) {
@@ -489,12 +606,6 @@ class App {
     // 更新 Command Palette
     if (this.commandPalette) {
       this.commandPalette.updateItems(this.buildCommandItems());
-    }
-  }
-
-  private updateCurrentTitle(title: string): void {
-    if (this.currentTitle) {
-      this.currentTitle.textContent = title;
     }
   }
 
@@ -539,12 +650,72 @@ class App {
     // 更新边栏高亮并滚动到选中项
     this.sidebar?.setActive(key, true);
     
-    // 更新标题
-    const site = LLM_SITES.find(s => s.key === key);
-    this.updateCurrentTitle(site?.title || 'ToolHub');
-    
     // 开始 LLM 使用追踪
     UsageTracker.start(key);
+  }
+
+  /** 切换到自定义网站 */
+  private switchCustomSite(id: string): void {
+    if (!this.llmContainer || !this.container) return;
+
+    const site = customSiteManager.get(id);
+    if (!site) {
+      console.warn(`[App] Custom site "${id}" not found`);
+      return;
+    }
+
+    // 结束工具使用追踪
+    if (this.currentKey) {
+      UsageTracker.end();
+    }
+
+    // 失活当前工具
+    if (this.currentKey && !LLM_SITES.some(s => s.key === this.currentKey) && !customSiteManager.get(this.currentKey)) {
+      const currentTool = toolRegistry.getInstance(this.currentKey);
+      currentTool?.deactivate();
+    }
+
+    // 隐藏工具容器，显示 LLM 容器
+    this.container.style.display = 'none';
+    this.llmContainer.style.display = 'block';
+
+    // 隐藏其他 webview
+    this.webviews.forEach((wv, k) => {
+      if (k === id) {
+        (wv as HTMLElement).style.display = 'flex';
+      } else {
+        (wv as HTMLElement).style.display = 'none';
+      }
+    });
+
+    // 创建 webview（如果不存在）
+    if (!this.webviews.has(id)) {
+      this.createCustomWebview(id, site.url);
+    }
+
+    this.currentLLM = null;
+    this.currentKey = id;
+    
+    // 更新边栏高亮并滚动到选中项
+    this.sidebar?.setActive(id, true);
+    
+    // 开始使用追踪
+    UsageTracker.start(id);
+  }
+
+  /** 创建自定义网站的 webview */
+  private createCustomWebview(id: string, url: string): void {
+    if (!this.llmContainer) return;
+
+    const webview = document.createElement('webview');
+    webview.setAttribute('src', url);
+    webview.setAttribute('partition', `persist:custom_${id}`);
+    webview.setAttribute('allowpopups', 'true');
+    webview.className = 'llm-webview';
+    webview.style.cssText = 'width: 100%; height: 100%; display: flex;';
+
+    this.llmContainer.appendChild(webview);
+    this.webviews.set(id, webview);
   }
 
   private createWebview(key: string): void {
@@ -629,17 +800,10 @@ class App {
   }
 
   private setupSettings(): void {
-    const settingsBtn = document.getElementById('settingsBtn');
     const settingsModal = document.getElementById('settingsModal');
     const settingsClose = document.getElementById('settingsClose');
 
-    if (!settingsBtn || !settingsModal || !settingsClose) return;
-
-    // 打开设置
-    settingsBtn.addEventListener('click', () => {
-      this.renderSettingsList();
-      settingsModal.classList.add('show');
-    });
+    if (!settingsModal || !settingsClose) return;
 
     // 关闭设置
     settingsClose.addEventListener('click', () => {
@@ -654,23 +818,19 @@ class App {
     });
   }
 
+  private openSettings(): void {
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+      this.renderSettingsList();
+      settingsModal.classList.add('show');
+    }
+  }
+
   private setupStats(): void {
-    const statsBtn = document.getElementById('statsBtn');
     const statsModal = document.getElementById('statsModal');
     const statsClose = document.getElementById('statsClose');
-    const statsBody = document.getElementById('statsBody');
 
-    if (!statsBtn || !statsModal || !statsClose || !statsBody) return;
-
-    // 打开统计面板
-    statsBtn.addEventListener('click', () => {
-      if (!this.statsPanel) {
-        this.statsPanel = new StatsPanel(statsBody);
-      } else {
-        this.statsPanel.refresh();
-      }
-      statsModal.classList.add('show');
-    });
+    if (!statsModal || !statsClose) return;
 
     // 关闭统计面板
     statsClose.addEventListener('click', () => {
@@ -683,6 +843,103 @@ class App {
         statsModal.classList.remove('show');
       }
     });
+  }
+
+  private openStats(): void {
+    const statsModal = document.getElementById('statsModal');
+    const statsBody = document.getElementById('statsBody');
+    if (statsModal && statsBody) {
+      if (!this.statsPanel) {
+        this.statsPanel = new StatsPanel(statsBody);
+      } else {
+        this.statsPanel.refresh();
+      }
+      statsModal.classList.add('show');
+    }
+  }
+
+  private setupAddSiteButton(): void {
+    // 按钮已移到全局底部栏，这里不再需要
+  }
+
+  private setupGlobalToolbar(): void {
+    // 顶部工具栏
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const expandSidebarBtn = document.getElementById('expandSidebarBtn');
+    const sidebarArea = document.getElementById('sidebarArea');
+
+    // 更新侧边栏区域和展开按钮的显示状态
+    const updateSidebarAreaState = () => {
+      const isCollapsed = this.sidebar?.isCollapsed();
+      if (sidebarArea) {
+        sidebarArea.classList.toggle('collapsed', isCollapsed || false);
+      }
+      if (expandSidebarBtn) {
+        expandSidebarBtn.style.display = isCollapsed ? 'flex' : 'none';
+      }
+      // 控制红绿灯按钮显示/隐藏
+      (window as any).llmHub?.setTrafficLightVisibility?.(!isCollapsed);
+    };
+
+    toggleSidebarBtn?.addEventListener('click', () => {
+      this.sidebar?.toggleCollapse();
+      updateSidebarAreaState();
+    });
+
+    refreshBtn?.addEventListener('click', () => {
+      this.refreshCurrentPage();
+    });
+
+    // 底部展开按钮
+    expandSidebarBtn?.addEventListener('click', () => {
+      this.sidebar?.toggleCollapse();
+      updateSidebarAreaState();
+    });
+
+    // 初始化状态
+    updateSidebarAreaState();
+
+    // 底部功能栏
+    const searchBtnGlobal = document.getElementById('searchBtnGlobal');
+    const addSiteBtnGlobal = document.getElementById('addSiteBtnGlobal');
+    const statsBtnGlobal = document.getElementById('statsBtnGlobal');
+    const settingsBtnGlobal = document.getElementById('settingsBtnGlobal');
+
+    searchBtnGlobal?.addEventListener('click', () => {
+      this.commandPalette?.open();
+    });
+
+    addSiteBtnGlobal?.addEventListener('click', () => {
+      this.customSiteModal?.open();
+    });
+
+    statsBtnGlobal?.addEventListener('click', () => {
+      this.openStats();
+    });
+
+    settingsBtnGlobal?.addEventListener('click', () => {
+      this.openSettings();
+    });
+  }
+
+  private refreshCurrentPage(): void {
+    // 如果当前是 LLM 或自定义网站，刷新 webview
+    if (this.currentKey && this.webviews.has(this.currentKey)) {
+      const webview = this.webviews.get(this.currentKey) as any;
+      if (webview && typeof webview.reload === 'function') {
+        webview.reload();
+        toast({ message: '页面已刷新', duration: 1500 });
+      }
+    } else if (this.currentKey) {
+      // 如果是工具，重新激活
+      const tool = toolRegistry.getInstance(this.currentKey);
+      if (tool) {
+        tool.deactivate();
+        tool.activate();
+        toast({ message: '工具已刷新', duration: 1500 });
+      }
+    }
   }
 
   private renderSettingsList(): void {
@@ -751,6 +1008,22 @@ class App {
         type: 'tool' as const,
       })));
     }
+
+    // 自定义网站
+    const allCustomSites = customSiteManager.getAll();
+    CUSTOM_SITE_CATEGORIES.forEach(cat => {
+      const sitesInCategory = allCustomSites.filter(site => (site.category || 'other') === cat.key);
+      if (sitesInCategory.length > 0) {
+        this.renderSettingsSection(container, `${cat.icon} ${cat.label}`, sitesInCategory.map(site => ({
+          key: site.id,
+          title: site.name,
+          icon: site.icon || site.name.slice(0, 2),
+          color: site.color,
+          visible: this.isCustomSiteVisible(site.id),
+          type: 'custom' as const,
+        })));
+      }
+    });
   }
 
   private renderSettingsSection(
@@ -762,7 +1035,7 @@ class App {
       icon: string;
       color: string;
       visible: boolean;
-      type: 'llm' | 'tool';
+      type: 'llm' | 'tool' | 'custom';
     }>
   ): void {
     const section = document.createElement('div');
@@ -792,6 +1065,8 @@ class App {
       itemEl.addEventListener('click', () => {
         if (item.type === 'llm') {
           this.toggleLLMVisibility(item.key);
+        } else if (item.type === 'custom') {
+          this.toggleCustomSiteVisibility(item.key);
         } else {
           this.toggleToolVisibility(item.key);
         }
@@ -861,9 +1136,6 @@ class App {
 
     // 更新边栏高亮并滚动到选中项
     this.sidebar?.setActive(key, true);
-
-    // 更新标题
-    this.updateCurrentTitle(tool.config.title);
 
     console.log(`[App] Tool "${key}" activated`);
   }
