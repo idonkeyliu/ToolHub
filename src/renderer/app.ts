@@ -15,6 +15,7 @@ import { Toast, toast } from './components/Toast';
 import { Sidebar } from './components/Sidebar';
 import { CommandPalette, CommandItem } from './components/CommandPalette';
 import { AboutPage } from './components/AboutPage';
+import { WorldMapPage } from './components/WorldMapPage';
 import type { ToolConfig } from './types/index';
 
 /** 工具快捷键映射 */
@@ -42,6 +43,7 @@ class App {
   private addItemDialog: HTMLElement | null = null;
   private addItemTargetCategory: string | null = null;
   private aboutPage: AboutPage | null = null;
+  private worldMapPage: WorldMapPage | null = null;
   
   // 天气效果控制
   private rainInterval: ReturnType<typeof setInterval> | null = null;
@@ -114,9 +116,12 @@ class App {
     // 设置页面卸载时保存使用数据
     this.setupUnloadHandler();
 
-    // 隐藏加载状态
+    // 隐藏并移除加载状态
     const loading = document.getElementById('loading');
-    if (loading) loading.style.display = 'none';
+    if (loading) {
+      loading.style.display = 'none';
+      loading.remove(); // 彻底移除 loading 元素
+    }
 
     // 默认打开第一个可用项目
     this.openDefaultItem();
@@ -436,36 +441,59 @@ class App {
   }
 
   private openDefaultItem(): void {
+    console.log('[App] 🚀 openDefaultItem called');
     const LAST_ITEM_KEY = 'toolhub_last_item';
     const FIRST_LAUNCH_KEY = 'toolhub_first_launch';
     
     // 检查是否首次启动
     const isFirstLaunch = !localStorage.getItem(FIRST_LAUNCH_KEY);
+    console.log('[App] 🔍 isFirstLaunch:', isFirstLaunch, 'FIRST_LAUNCH_KEY value:', localStorage.getItem(FIRST_LAUNCH_KEY));
     
     if (isFirstLaunch) {
       // 首次启动，显示欢迎页面
       localStorage.setItem(FIRST_LAUNCH_KEY, 'true');
+      console.log('[App] 👋 First launch, showing AboutPage');
       this.showAboutPage();
       return;
     }
     
     // 尝试恢复上次选择的项目
     const lastItem = localStorage.getItem(LAST_ITEM_KEY);
-    if (lastItem && lastItem !== '__about__' && categoryManager.getItem(lastItem)) {
+    console.log('[App] 💾 lastItem from localStorage:', lastItem);
+    
+    // 如果上次是 About 页面或世界地图，恢复显示
+    if (lastItem === '__about__') {
+      console.log('[App] 📄 Restoring AboutPage');
+      this.showAboutPage();
+      return;
+    }
+    
+    if (lastItem === '__worldmap__') {
+      console.log('[App] 🌍 Restoring WorldMapPage');
+      this.showWorldMapPage();
+      return;
+    }
+    
+    // 尝试恢复上次的工具
+    if (lastItem && categoryManager.getItem(lastItem)) {
+      console.log('[App] 🔧 Restoring tool:', lastItem);
       this.switchToItem(lastItem);
       return;
     }
 
     // 否则打开第一个目录的第一个项目
     const categories = categoryManager.getCategories();
+    console.log('[App] 📂 Categories:', categories.length);
     for (const category of categories) {
       if (category.items.length > 0) {
+        console.log('[App] 🎯 Opening first item:', category.items[0]);
         this.switchToItem(category.items[0]);
         return;
       }
     }
 
     // 如果没有任何项目，显示欢迎页面
+    console.log('[App] 🏠 No items found, showing AboutPage as fallback');
     this.showAboutPage();
   }
 
@@ -1248,6 +1276,48 @@ class App {
   }
 
   private showAboutPage(): void {
+    console.log('[App] 🎯 showAboutPage called, container:', this.container);
+    if (!this.container) {
+      console.error('[App] ❌ container is null!');
+      return;
+    }
+
+    // 结束工具使用追踪
+    if (this.currentKey) {
+      UsageTracker.end();
+    }
+
+    // 隐藏当前工具和 webview
+    this.hideCurrentTool();
+
+    // 隐藏世界地图页面
+    if (this.worldMapPage) {
+      this.worldMapPage.hide();
+    }
+
+    // 隐藏 LLM 容器，显示主容器
+    if (this.llmContainer) {
+      this.llmContainer.style.display = 'none';
+    }
+    this.container.style.display = 'block';
+    console.log('[App] ✅ container display set to block');
+
+    // 清除侧边栏选中状态
+    this.sidebar?.clearSelection();
+
+    // 显示关于页面
+    if (!this.aboutPage) {
+      console.log('[App] 📄 Creating new AboutPage');
+      this.aboutPage = new AboutPage(this.container);
+    }
+    console.log('[App] 🎨 Calling aboutPage.show()');
+    this.aboutPage.show();
+
+    // 标记当前为关于页面
+    this.currentKey = '__about__';
+  }
+
+  private showWorldMapPage(): void {
     if (!this.container) return;
 
     // 结束工具使用追踪
@@ -1258,6 +1328,11 @@ class App {
     // 隐藏当前工具和 webview
     this.hideCurrentTool();
 
+    // 隐藏关于页面
+    if (this.aboutPage) {
+      this.aboutPage.hide();
+    }
+
     // 隐藏 LLM 容器，显示主容器
     if (this.llmContainer) {
       this.llmContainer.style.display = 'none';
@@ -1267,14 +1342,14 @@ class App {
     // 清除侧边栏选中状态
     this.sidebar?.clearSelection();
 
-    // 显示关于页面
-    if (!this.aboutPage) {
-      this.aboutPage = new AboutPage(this.container);
+    // 显示世界地图页面
+    if (!this.worldMapPage) {
+      this.worldMapPage = new WorldMapPage(this.container);
     }
-    this.aboutPage.show();
+    this.worldMapPage.show();
 
-    // 标记当前为关于页面
-    this.currentKey = '__about__';
+    // 标记当前为世界地图页面
+    this.currentKey = '__worldmap__';
   }
 
   private hideCurrentTool(): void {
@@ -1378,6 +1453,12 @@ class App {
     const aboutBtnGlobal = document.getElementById('aboutBtnGlobal');
     aboutBtnGlobal?.addEventListener('click', () => {
       this.showAboutPage();
+    });
+
+    // 世界地图页面按钮
+    const worldMapBtnGlobal = document.getElementById('worldMapBtnGlobal');
+    worldMapBtnGlobal?.addEventListener('click', () => {
+      this.showWorldMapPage();
     });
 
     // 底部栏 URL 点击复制
@@ -2182,6 +2263,11 @@ class App {
     // 隐藏关于页面
     if (this.aboutPage) {
       this.aboutPage.hide();
+    }
+
+    // 隐藏世界地图页面
+    if (this.worldMapPage) {
+      this.worldMapPage.hide();
     }
 
     if (this.llmContainer) {
