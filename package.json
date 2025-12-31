@@ -1,7 +1,11 @@
 {
-    "name": "llm-hub-shell",
+    "name": "ToolHub",
     "version": "0.1.0",
     "description": "Desktop shell aggregating multiple LLM web UIs (OpenAI, Gemini, DeepSeek, Kimi, etc.) with persistent sessions",
+    "author": {
+        "name": "idonkeyliu",
+        "email": "idonkeyliu@gmail.com"
+    },
     "main": "dist/main.js",
     "type": "module",
     "scripts": {
@@ -9,7 +13,11 @@
         "watch": "tsc -w",
         "start": "electron .",
         "dev": "concurrently -n BUILD,ELECTRON -c green,cyan \"tsc -w\" \"wait-on dist/main.js && electron .\"",
+        "dist": "npm run build && electron-builder --mac --win",
+        "dist:all": "npm run build && electron-builder --mac --win --linux",
         "dist:mac": "npm run build && electron-builder --mac dmg zip",
+        "dist:win": "npm run build && electron-builder --win",
+        "dist:linux": "npm run build && electron-builder --linux",
         "dist:dir": "npm run build && electron-builder --dir",
         "test": "vitest",
         "test:ui": "vitest --ui",
@@ -65,12 +73,31 @@
                 "zip"
             ]
         },
+        "win": {
+            "icon": "assets/icons/icon.ico",
+            "target": [
+                "nsis",
+                "zip"
+            ]
+        },
+        "linux": {
+            "icon": "assets/icons",
+            "target": [
+                "AppImage",
+                "deb"
+            ],
+            "category": "Development"
+        },
         "dmg": {
             "backgroundColor": "#0d1114",
             "window": {
                 "width": 540,
                 "height": 380
             }
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
         }
     }
 }
