@@ -26,14 +26,15 @@ const FRAME_BYPASS_HOSTS = [
     'chatgpt.com',
     'gemini.google.com',
     'accounts.google.com',
-    'aistudio.google.com',
     'alkalimakersuite-pa.clients6.google.com',
     'makersuite.google.com',
     'generativelanguage.googleapis.com',
     'kimi.moonshot.cn',
     'grok.com',
     'accounts.x.ai',
-    'lmarena.ai'
+    'lmarena.ai',
+    'www.perplexity.ai',
+    'perplexity.ai'
 ];
 
 // 按域自定义 User-Agent
@@ -41,22 +42,24 @@ const UA_MAP: Record<string, string> = {
     'chat.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'auth.openai.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'chatgpt.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'aistudio.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'accounts.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'alkalimakersuite-pa.clients6.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'makersuite.google.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     'grok.com': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'lmarena.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+    'lmarena.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'www.perplexity.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'perplexity.ai': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
 };
 
 // 信任的站点列表（权限控制）
 const TRUSTED_HOSTS = new Set<string>([
     'chat.openai.com', 'auth.openai.com', 'chatgpt.com', 'ab.chatgpt.com',
     'gemini.google.com', 'accounts.google.com',
-    'aistudio.google.com', 'alkalimakersuite-pa.clients6.google.com', 'makersuite.google.com',
+    'alkalimakersuite-pa.clients6.google.com', 'makersuite.google.com',
     'chat.deepseek.com', 'kimi.moonshot.cn',
     'grok.com', 'accounts.x.ai',
-    'lmarena.ai'
+    'lmarena.ai',
+    'www.perplexity.ai', 'perplexity.ai'
 ]);
 
 // 允许的权限列表
@@ -154,8 +157,8 @@ export class WindowManager {
                     });
                 }
 
-                // Google AI Studio 特殊请求头
-                if (host === 'aistudio.google.com' || host === 'accounts.google.com' || host.endsWith('.google.com')) {
+                // Google 特殊请求头
+                if (host === 'accounts.google.com' || host.endsWith('.google.com')) {
                     Object.assign(details.requestHeaders, {
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
                         'Accept-Language': 'en-US,en;q=0.9',
