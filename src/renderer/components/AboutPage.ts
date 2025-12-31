@@ -35,7 +35,6 @@ export class AboutPage {
         <div class="about-header">
           <div class="about-logo">
             <span class="logo-text">T</span>
-            <span class="logo-dot"></span>
           </div>
           <h1 class="about-title">
             <span class="title-letter" data-letter="o">o</span><span class="title-letter" data-letter="o2">o</span><span class="title-letter" data-letter="l">l</span><span class="title-letter" data-letter="H">H</span><span class="title-letter" data-letter="u">u</span><span class="title-letter" data-letter="b">b</span>

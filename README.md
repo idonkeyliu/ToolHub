@@ -1,220 +1,107 @@
-# 🚀 ToolHub - 智能工具集合平台
+# ToolHub - All-in-One Developer Toolkit
 
-一个基于 Electron 的桌面应用，集成多个 AI 聊天平台和实用工具，提供统一、高效的工作环境。
+> A powerful Electron-based desktop app that brings together AI chat platforms and 20+ essential developer tools in one unified workspace.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
 
-## ✨ 特性
+## Why ToolHub?
 
-### 🤖 AI 聊天平台
+**Stop switching between dozens of browser tabs and apps.** ToolHub combines everything developers need into a single, beautiful desktop application:
 
-- **OpenAI ChatGPT**: 最先进的对话AI
-- **LMArena**: 大语言模型竞技场和排行榜
-- **Google Gemini**: Google的多模态AI助手  
-- **DeepSeek**: 专业的代码生成AI
-- **Kimi**: Moonshot AI的长文本处理专家
-- **Grok**: xAI的实时信息AI
+- 🤖 **7 AI Assistants** - ChatGPT, Gemini, DeepSeek, Kimi, Grok, Perplexity, LMArena
+- 🛠️ **20+ Built-in Tools** - JSON formatter, Base64 encoder, JWT decoder, and more
+- 💾 **Database Clients** - MySQL, PostgreSQL, SQLite, Redis, MongoDB
+- 🎨 **Modern Dark UI** - Neon-style design that's easy on the eyes
 
-### 🛠️ 内置实用工具
+## Features
 
-| 工具 | 功能描述 |
-|------|----------|
-| ⏰ 时间戳工具 | Unix时间戳转换、实时时钟显示 |
-| 🔑 密码生成器 | 安全密码生成、强度检测 |
-| 📝 文本处理 | 文本编辑、字符统计、格式转换 |
-| 🧮 计算器 | 简洁高效的数学计算器 |
-| 🌐 DNS 解析 | 多源DNS查询、记录类型支持 |
-| 📋 JSON 解析 | 智能格式化、树形展示、路径查询 |
-| 🔤 编解码工具 | URL、Base64、Unicode编解码转换 |
-| 🔐 加解密工具 | MD5哈希、AES/DES加解密 |
-| 💱 货币转换 | 实时汇率查询、多币种转换 |
-| 🔧 CURL工具 | HTTP请求构建、API测试 |
-| 📅 万年历 | 公历农历查询、节日节气显示 |
-| 🎨 颜色工具 | 颜色选择器、格式转换、调色板 |
-| 🖼️ 图片工具 | 图片压缩、格式转换、尺寸调整 |
-| 🗄️ 数据库工具 | MySQL/PostgreSQL/SQLite 连接管理 |
-| 📦 Redis 工具 | Redis 数据查看和操作 |
-| 📊 MongoDB 工具 | MongoDB 数据库管理 |
-| 📝 Diff 工具 | 文本差异对比 |
-| 🔐 JWT 工具 | JWT Token 解析和生成 |
-| 🔣 正则工具 | 正则表达式测试、常用模板 |
+### AI Chat Platforms
 
-### 🎨 用户体验
+| Platform | Description |
+|----------|-------------|
+| [ChatGPT](https://chat.openai.com) | OpenAI's powerful conversational AI |
+| [Gemini](https://gemini.google.com) | Google's multimodal AI assistant |
+| [DeepSeek](https://chat.deepseek.com) | Professional code generation AI |
+| [Kimi](https://kimi.moonshot.cn) | Long-context processing expert |
+| [Grok](https://grok.x.ai) | xAI's real-time information AI |
+| [Perplexity](https://www.perplexity.ai/) | AI-powered search engine |
+| [LMArena](https://lmarena.ai/zh) | LLM leaderboard & comparison |
 
-- **现代化界面**: 深色主题、霓虹风格设计
-- **智能布局**: 自适应窗口大小、响应式设计
-- **会话持久化**: 自动保存聊天状态和工具数据
-- **快捷操作**: 一键复制、粘贴、清空等便捷功能
+### Developer Tools
 
-## 🚀 快速开始
+| Category | Tools |
+|----------|-------|
+| **Encoding** | Base64, URL, Unicode, JWT |
+| **Crypto** | MD5, SHA, AES, DES encryption |
+| **Data** | JSON formatter, Diff viewer, Regex tester |
+| **Network** | cURL builder, DNS lookup |
+| **Utilities** | Timestamp converter, Password generator, Calculator |
+| **Media** | Color picker, Image compressor |
+| **Database** | MySQL, PostgreSQL, SQLite, Redis, MongoDB clients |
 
-### 前置要求
+### User Experience
 
-- **Node.js** v16+
-- **npm** 或 yarn
-- **macOS / Windows / Linux** 操作系统
+- **Session Persistence** - Your chat history and tool data are automatically saved
+- **Keyboard Shortcuts** - Navigate quickly with hotkeys
+- **Responsive Layout** - Adapts to any window size
+- **Cross-Platform** - Works on macOS, Windows, and Linux
 
-### 安装与运行
+## Quick Start
 
 ```bash
-# 1. 克隆项目
-git clone https://github.com/rubylc/ToolHub.git
+# Clone the repository
+git clone https://github.com/idonkeyliu/ToolHub.git
 cd ToolHub
 
-# 2. 安装依赖
+# Install dependencies
 npm install
 
-# 3. 构建并运行
+# Build and run
 npm run build
 npm start
-
-# 4. 开发模式（实时编译）
-npm run dev
 ```
 
-## 📦 打包发布
+## Download
 
-### 使用打包脚本（推荐）
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [ToolHub-0.1.0-arm64.dmg](#) |
+| macOS (Intel) | [ToolHub-0.1.0-x64.dmg](#) |
+| Windows | [ToolHub-0.1.0-Setup.exe](#) |
+| Linux | [ToolHub-0.1.0.AppImage](#) |
 
-```bash
-# 添加执行权限
-chmod +x scripts/build.sh
+## Tech Stack
 
-# 打包 macOS
-./scripts/build.sh mac
+- **Framework**: Electron 28
+- **Language**: TypeScript 5.4
+- **Database**: better-sqlite3, mysql2, pg, mongodb, ioredis
+- **Build**: electron-builder
 
-# 打包 Windows
-./scripts/build.sh win
+## Roadmap
 
-# 打包 Linux
-./scripts/build.sh linux
+- [ ] Plugin system for custom tools
+- [ ] Cloud sync for settings
+- [ ] More AI platforms (Claude)
+- [ ] Team collaboration features
 
-# 打包所有平台
-./scripts/build.sh all
+## Contributing
 
-# 清理构建产物
-./scripts/build.sh clean
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-# 查看帮助
-./scripts/build.sh help
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### 使用 npm 命令
+## License
 
-```bash
-# macOS 打包 (dmg + zip)
-npm run dist:mac
-
-# 目录打包（所有平台）
-npm run dist:dir
-```
-
-### 构建产物
-
-打包完成后，文件位于 `dist/` 目录：
-
-| 平台 | 格式 | 文件 |
-|------|------|------|
-| macOS | DMG 安装包 | `ToolHub-x.x.x-arm64.dmg` |
-| macOS | ZIP 压缩包 | `ToolHub-x.x.x-arm64-mac.zip` |
-| Windows | 安装程序 | `ToolHub-x.x.x-Setup.exe` |
-| Windows | 便携版 | `ToolHub-x.x.x-portable.exe` |
-| Linux | AppImage | `ToolHub-x.x.x.AppImage` |
-| Linux | DEB 包 | `ToolHub-x.x.x.deb` |
-
-## 🏗️ 项目结构
-
-```
-ToolHub/
-├── src/
-│   ├── main.ts              # 主进程 - 窗口管理、权限控制
-│   ├── preload.ts           # 预加载脚本 - 安全API桥接
-│   └── renderer/            # 渲染进程 - 用户界面
-│       ├── index.html       # 主界面
-│       ├── tools/           # 内置工具模块
-│       │   ├── timestamp/   # 时间戳工具
-│       │   ├── password/    # 密码生成器
-│       │   ├── json/        # JSON 解析
-│       │   ├── calc/        # 计算器
-│       │   ├── dns/         # DNS 解析
-│       │   ├── codec/       # 编解码工具
-│       │   ├── crypto/      # 加解密工具
-│       │   ├── curl/        # CURL 工具
-│       │   ├── currency/    # 货币转换
-│       │   ├── color/       # 颜色工具
-│       │   ├── calendar/    # 万年历
-│       │   ├── image/       # 图片工具
-│       │   ├── database/    # 数据库工具
-│       │   ├── redis/       # Redis 工具
-│       │   ├── mongo/       # MongoDB 工具
-│       │   ├── diff/        # Diff 工具
-│       │   ├── jwt/         # JWT 工具
-│       │   └── regex/       # 正则工具
-│       └── assets/          # 图标资源
-├── scripts/
-│   ├── build.sh             # 打包脚本
-│   └── fix-imports.cjs      # 导入修复脚本
-├── assets/                  # 应用资源
-├── package.json             # 项目配置
-├── tsconfig.json            # TypeScript 配置
-└── README.md                # 项目文档
-```
-
-## 🛠️ 技术栈
-
-| 类别 | 技术 |
-|------|------|
-| 框架 | Electron 28 |
-| 语言 | TypeScript 5.4 |
-| 数据库 | better-sqlite3, mysql2, pg, mongodb |
-| 缓存 | ioredis |
-| 打包 | electron-builder |
-
-## 🔧 开发指南
-
-### 添加新工具
-
-1. 在 `src/renderer/tools/` 下创建工具目录
-2. 创建 `template.ts`、`styles.css`、`XxxTool.ts`
-3. 在 `src/renderer/tools/index.ts` 中注册工具
-4. 在 `src/renderer/index.html` 中引入样式
-
-### 调试技巧
-
-- **开发者工具**: `Cmd+Option+I` (macOS) / `Ctrl+Shift+I` (Windows/Linux)
-- **重载应用**: `Cmd+R` (macOS) / `Ctrl+R` (Windows/Linux)
-
-## ❓ 常见问题
-
-### Q: 应用启动失败？
-确保 Node.js 版本 ≥ 16，运行 `npm install` 重新安装依赖。
-
-### Q: 打包失败 (better-sqlite3 编译错误)？
-确保使用 Electron 28.x 版本，清理缓存后重新安装：
-```bash
-rm -rf node_modules package-lock.json ~/.electron-gyp
-npm install
-```
-
-### Q: 工具显示异常？
-尝试调整窗口大小或重启应用，工具采用响应式设计。
-
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE)
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add AmazingFeature'`)
-4. 推送分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**⭐ 如果 ToolHub 对你有帮助，请给个星标支持！**
+**Made with ❤️ for developers who value productivity**
+
+⭐ **Star this repo if ToolHub helps your workflow!**

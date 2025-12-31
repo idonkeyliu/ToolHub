@@ -141,6 +141,11 @@ export const zhCN: Translations = {
   'tool.terminal': '终端',
   'tool.sync': '数据同步',
   'tool.timestamp': '时间戳',
+
+  // LLM 站点名称
+  'llm.qianwen': '通义千问',
+  'llm.doubao': '豆包',
+  'llm.yuanbao': '腾讯元宝',
   'tool.timestampDesc': 'Unix时间戳转换、实时时钟显示',
   'tool.password': '密码生成',
   'tool.passwordDesc': '安全随机密码生成器',

@@ -2,6 +2,8 @@
  * 目录管理器 - 管理自定义目录和工具分配
  */
 
+import { i18n } from './i18n/index.js';
+
 export interface CategoryItem {
   key: string;
   title: string;
@@ -33,25 +35,26 @@ const CURRENT_VERSION = 1;
 // 默认 LLM 站点
 const DEFAULT_LLM_SITES: CategoryItem[] = [
   { key: 'openai', title: 'OpenAI', icon: 'OP', color: '#10a37f', type: 'llm', url: 'https://chat.openai.com' },
-  { key: 'lmarena', title: 'LMArena', icon: 'LM', color: '#6366f1', type: 'llm', url: 'https://lmarena.ai/' },
+  { key: 'lmarena', title: 'LMArena', icon: 'LM', color: '#6366f1', type: 'llm', url: 'https://lmarena.ai/zh' },
   { key: 'gemini', title: 'Gemini', icon: 'GE', color: '#4285f4', type: 'llm', url: 'https://gemini.google.com' },
-  { key: 'aistudio', title: 'AI Studio', icon: 'AI', color: '#ea4335', type: 'llm', url: 'https://aistudio.google.com' },
+  { key: 'perplexity', title: 'Perplexity', icon: 'PP', color: '#20808d', type: 'llm', url: 'https://www.perplexity.ai/' },
   { key: 'deepseek', title: 'DeepSeek', icon: 'DE', color: '#0066ff', type: 'llm', url: 'https://chat.deepseek.com' },
   { key: 'kimi', title: 'Kimi', icon: 'Ki', color: '#6b5ce7', type: 'llm', url: 'https://kimi.moonshot.cn' },
   { key: 'grok', title: 'Grok', icon: 'GR', color: '#1da1f2', type: 'llm', url: 'https://grok.com' },
   { key: 'claude', title: 'Claude', icon: 'CL', color: '#d97706', type: 'llm', url: 'https://claude.ai' },
-  { key: 'qianwen', title: '通义千问', icon: '千', color: '#6236ff', type: 'llm', url: 'https://tongyi.aliyun.com/qianwen' },
-  { key: 'doubao', title: '豆包', icon: '豆', color: '#00d4aa', type: 'llm', url: 'https://www.doubao.com/chat' },
-  { key: 'yuanbao', title: '腾讯元宝', icon: '元', color: '#0052d9', type: 'llm', url: 'https://yuanbao.tencent.com/chat' },
+  { key: 'qianwen', title: 'Qwen', icon: 'Qw', color: '#6236ff', type: 'llm', url: 'https://tongyi.aliyun.com/qianwen' },
+  { key: 'doubao', title: 'Doubao', icon: 'Db', color: '#00d4aa', type: 'llm', url: 'https://www.doubao.com/chat' },
+  { key: 'yuanbao', title: 'Yuanbao', icon: 'Yb', color: '#0052d9', type: 'llm', url: 'https://yuanbao.tencent.com/chat' },
 ];
+
+// 需要 i18n 翻译的 LLM 站点 key
+const I18N_LLM_KEYS = ['qianwen', 'doubao', 'yuanbao'];
 
 // 默认开发工具站点
 const DEFAULT_DEV_SITES: CategoryItem[] = [
   { key: 'vscode', title: 'VS Code', icon: 'VS', color: '#007acc', type: 'llm', url: 'https://vscode.dev' },
   { key: 'github', title: 'GitHub', icon: 'GH', color: '#24292e', type: 'llm', url: 'https://github.com' },
-  { key: 'replit', title: 'Replit', icon: 'RE', color: '#f26207', type: 'llm', url: 'https://replit.com' },
   { key: 'huggingface', title: 'Hugging Face', icon: 'HF', color: '#ff9d00', type: 'llm', url: 'https://huggingface.co' },
-  { key: 'projectidx', title: 'Project IDX', icon: 'IX', color: '#669df6', type: 'llm', url: 'https://idx.google.com' },
 ];
 
 // 社区站点
@@ -64,7 +67,6 @@ const DEFAULT_COMMUNITY_SITES: CategoryItem[] = [
 // 设计站点
 const DEFAULT_DESIGN_SITES: CategoryItem[] = [
   { key: 'figma', title: 'Figma', icon: 'FG', color: '#f24e1e', type: 'llm', url: 'https://www.figma.com' },
-  { key: 'dribbble', title: 'Dribbble', icon: 'DR', color: '#ea4c89', type: 'llm', url: 'https://dribbble.com' },
 ];
 
 // 邮件站点
@@ -89,11 +91,11 @@ const TOOL_COLORS: Record<string, string> = {
 
 // 默认分类配置
 const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'overseas-llm', title: '海外大模型', icon: '🌍', items: ['openai', 'claude', 'gemini', 'aistudio', 'grok', 'lmarena'], isSystem: true },
-  { id: 'domestic-llm', title: '国内大模型', icon: '🇨🇳', items: ['deepseek', 'kimi', 'qianwen', 'doubao', 'yuanbao'], isSystem: true },
-  { id: 'dev', title: '编程开发', icon: '💻', items: ['vscode', 'github', 'replit', 'huggingface', 'projectidx'], isSystem: true },
+  { id: 'overseas-llm', title: 'Global LLM', icon: '🌍', items: ['openai', 'claude', 'gemini', 'perplexity', 'grok', 'lmarena'], isSystem: true },
+  { id: 'domestic-llm', title: 'China LLM', icon: '🇨🇳', items: ['deepseek', 'kimi', 'qianwen', 'doubao', 'yuanbao'], isSystem: true },
+  { id: 'dev', title: '编程开发', icon: '💻', items: ['vscode', 'github', 'huggingface'], isSystem: true },
   { id: 'community', title: 'Community', icon: '👥', items: ['twitter', 'discord', 'hackernews'], isSystem: true },
-  { id: 'design', title: 'Design', icon: '🎨', items: ['figma', 'dribbble'], isSystem: true },
+  { id: 'design', title: 'Design', icon: '🎨', items: ['figma'], isSystem: true },
   { id: 'email', title: 'Email', icon: '📧', items: ['gmail', 'outlook'], isSystem: true },
   { id: 'video', title: 'Video', icon: '🎬', items: ['youtube'], isSystem: true },
   { id: 'utility', title: '实用工具', icon: '🧰', items: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'], isSystem: true },
@@ -197,7 +199,11 @@ class CategoryManager {
 
   // 获取项目
   getItem(key: string): CategoryItem | undefined {
-    return this.data.itemMap[key];
+    const item = this.data.itemMap[key];
+    if (item && I18N_LLM_KEYS.includes(key)) {
+      return { ...item, title: i18n.t(`llm.${key}`) };
+    }
+    return item;
   }
 
   // 获取项目所属的目录

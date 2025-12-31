@@ -48,8 +48,8 @@ export const enUS: Translations = {
   'sidebar.addSite': 'Add Website',
 
   // Categories
-  'category.overseas-llm': 'Overseas LLM',
-  'category.domestic-llm': 'Domestic LLM',
+  'category.overseas-llm': 'Global LLM',
+  'category.domestic-llm': 'China LLM',
   'category.dev': 'Development',
   'category.community': 'Community',
   'category.design': 'Design',
@@ -140,6 +140,11 @@ export const enUS: Translations = {
   'tool.regex': 'Regex Tester',
   'tool.terminal': 'Terminal',
   'tool.sync': 'Data Sync',
+
+  // LLM site names
+  'llm.qianwen': 'Qwen',
+  'llm.doubao': 'Doubao',
+  'llm.yuanbao': 'Yuanbao',
 
   // ============== Timestamp Tool ==============
   'timestamp.unixSec': 'Unix Seconds',
