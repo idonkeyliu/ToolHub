@@ -1,59 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import type { DBConnectionConfig, RedisConnectionConfig, MongoConnectionConfig, ServerConfig } from './shared/types';
 
 // 存储数据（在 preload 作用域内可修改）
 let _sites: any[] = [];
 let _lastSite = '';
-
-// 数据库连接配置接口
-interface DBConnectionConfig {
-    id?: string;
-    name: string;
-    type: 'mysql' | 'postgresql' | 'sqlite';
-    host?: string;
-    port?: number;
-    user?: string;
-    password?: string;
-    database?: string;
-    sqlitePath?: string;
-}
-
-// Redis 连接配置接口
-interface RedisConnectionConfig {
-    id?: string;
-    name: string;
-    host: string;
-    port: number;
-    password?: string;
-    database: number;
-    tls?: boolean;
-}
-
-// MongoDB 连接配置接口
-interface MongoConnectionConfig {
-    id?: string;
-    name: string;
-    mode: 'standard' | 'uri';
-    host?: string;
-    port?: number;
-    user?: string;
-    password?: string;
-    authDB?: string;
-    uri?: string;
-    tls?: boolean;
-}
-
-// SSH 服务器配置接口
-interface ServerConfig {
-    id?: string;
-    name: string;
-    host: string;
-    port: number;
-    username: string;
-    authType: 'password' | 'key';
-    password?: string;
-    privateKey?: string;
-    tags?: string[];
-}
 
 // 暴露给渲染进程的API
 contextBridge.exposeInMainWorld('llmHub', {

@@ -7,42 +7,7 @@ import { ToolConfig, ToolCategory } from '../../types/index';
 import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
 import { i18n } from '../../core/i18n';
-
-// 数据库 IPC 接口
-declare const llmHub: {
-  db: {
-    testConnection: (config: DBConnectionConfig) => Promise<{ success: boolean; error?: string }>;
-    connect: (config: DBConnectionConfig) => Promise<{ success: boolean; connectionId?: string; error?: string }>;
-    disconnect: (connectionId: string) => Promise<{ success: boolean; error?: string }>;
-    getDatabases: (connectionId: string) => Promise<{ success: boolean; databases?: string[]; error?: string }>;
-    getTables: (connectionId: string, database: string) => Promise<{ success: boolean; tables?: string[]; error?: string }>;
-    getTableStructure: (connectionId: string, database: string, table: string) => Promise<{ success: boolean; columns?: TableColumn[]; error?: string }>;
-    getTableData: (connectionId: string, database: string, table: string, page: number, pageSize: number) => Promise<{ success: boolean; data?: any[]; total?: number; error?: string }>;
-    executeQuery: (connectionId: string, database: string, sql: string) => Promise<{ success: boolean; data?: any[]; affectedRows?: number; error?: string }>;
-    updateRecord: (connectionId: string, database: string, table: string, primaryKey: string, primaryValue: any, column: string, value: any) => Promise<{ success: boolean; error?: string }>;
-  };
-};
-
-interface DBConnectionConfig {
-  id?: string;
-  name: string;
-  type: 'mysql' | 'postgresql' | 'sqlite';
-  host?: string;
-  port?: number;
-  user?: string;
-  password?: string;
-  database?: string;
-  sqlitePath?: string;
-}
-
-interface TableColumn {
-  name: string;
-  type: string;
-  nullable: boolean;
-  key: string;
-  default: any;
-  extra: string;
-}
+import type { DBConnectionConfig, TableColumn } from '../../types';
 
 interface TabInfo {
   id: string;
