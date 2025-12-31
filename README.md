@@ -43,25 +43,11 @@
 
 ### User Experience
 
+- **Custom Websites** - Add any website to the app with custom icons and categories
 - **Session Persistence** - Your chat history and tool data are automatically saved
 - **Keyboard Shortcuts** - Navigate quickly with hotkeys
 - **Responsive Layout** - Adapts to any window size
 - **Cross-Platform** - Works on macOS, Windows, and Linux
-
-## Quick Start
-
-```bash
-# Clone the repository
-git clone https://github.com/idonkeyliu/ToolHub.git
-cd ToolHub
-
-# Install dependencies
-npm install
-
-# Build and run
-npm run build
-npm start
-```
 
 ## Download
 
@@ -71,6 +57,11 @@ npm start
 | macOS (Intel) | [ToolHub-0.1.0-x64.dmg](#) |
 | Windows | [ToolHub-0.1.0-Setup.exe](#) |
 | Linux | [ToolHub-0.1.0.AppImage](#) |
+
+> **macOS 用户注意**: 如果下载的应用提示"已损坏"或"无法打开"，请在终端执行：
+> ```bash
+> xattr -cr /Applications/ToolHub.app
+> ```
 
 ## Tech Stack
 
@@ -83,24 +74,6 @@ npm start
 
 - [ ] Plugin system for custom tools
 - [ ] Cloud sync for settings
-- [ ] More AI platforms (Claude)
-- [ ] Team collaboration features
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
 
 **Made with ❤️ for developers who value productivity**
 
