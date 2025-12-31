@@ -1,10 +1,32 @@
 # ToolHub - All-in-One Developer Toolkit
 
+<p align="center">
+  <img src="docs/images/toolhub1.png" alt="ToolHub Logo">
+</p>
+
 > A powerful Electron-based desktop app that brings together AI chat platforms and 20+ essential developer tools in one unified workspace.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/images/toolhub2.png" width="800" alt="ToolHub Main Interface">
+</p>
+
+<p align="center">
+  <img src="docs/images/toolhub3.png" width="800" alt="ToolHub Tools">
+</p>
+
+<p align="center">
+  <img src="docs/images/toolhub4.png" width="800" alt="ToolHub Features">
+</p>
+
+<p align="center">
+  <img src="docs/images/toolhub5.png" width="800" alt="ToolHub Database">
+</p>
 
 ## Why ToolHub?
 
