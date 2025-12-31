@@ -1,4 +1,6 @@
-export const template = `
+import { i18n } from '../../core/i18n';
+
+export const getTemplate = () => `
 <div class="sync-wrap">
   <div class="sync-container">
     <!-- 左侧：配置管理 -->
@@ -6,29 +8,29 @@ export const template = `
       <!-- 项目配置 -->
       <div class="config-panel">
         <div class="panel-header">
-          <h3>同步项目</h3>
-          <button class="add-btn" id="addProjectBtn" title="添加项目">+</button>
+          <h3>${i18n.t('sync.projects')}</h3>
+          <button class="add-btn" id="addProjectBtn" title="${i18n.t('sync.addProject')}">+</button>
         </div>
         <div class="project-list" id="projectList">
-          <div class="empty-hint">暂无同步项目</div>
+          <div class="empty-hint">${i18n.t('sync.noProjects')}</div>
         </div>
       </div>
       
       <!-- 服务器列表 -->
       <div class="config-panel">
         <div class="panel-header">
-          <h3>服务器</h3>
-          <button class="add-btn" id="addServerBtn" title="添加服务器">+</button>
+          <h3>${i18n.t('sync.servers')}</h3>
+          <button class="add-btn" id="addServerBtn" title="${i18n.t('sync.addServer')}">+</button>
         </div>
         <div class="server-list" id="serverList">
-          <div class="empty-hint">暂无服务器</div>
+          <div class="empty-hint">${i18n.t('sync.noServers')}</div>
         </div>
       </div>
       
       <!-- 状态栏 -->
       <div class="sidebar-status">
         <span class="status-dot" id="statusDot"></span>
-        <span class="status-text" id="statusText">就绪</span>
+        <span class="status-text" id="statusText">${i18n.t('sync.ready')}</span>
       </div>
     </div>
     
@@ -37,11 +39,11 @@ export const template = `
       <!-- 顶部工具栏 -->
       <div class="sync-toolbar">
         <div class="toolbar-left">
-          <span class="toolbar-title" id="toolbarTitle">文件同步检测</span>
+          <span class="toolbar-title" id="toolbarTitle">${i18n.t('sync.title')}</span>
         </div>
         <div class="toolbar-right">
-          <button class="toolbar-btn" id="refreshBtn" title="刷新">🔄 刷新</button>
-          <button class="toolbar-btn primary" id="syncCheckBtn" title="开始检测">▶️ 开始检测</button>
+          <button class="toolbar-btn" id="refreshBtn" title="${i18n.t('sync.refresh')}">${i18n.t('sync.refresh')}</button>
+          <button class="toolbar-btn primary" id="syncCheckBtn" title="${i18n.t('sync.startCheck')}">${i18n.t('sync.startCheck')}</button>
         </div>
       </div>
       
@@ -50,27 +52,27 @@ export const template = `
         <!-- 欢迎页 -->
         <div class="welcome-panel" id="welcomePanel">
           <div class="welcome-icon">🔄</div>
-          <h2>文件同步检测</h2>
-          <p>比对 Git 仓库与服务器文件的差异</p>
+          <h2>${i18n.t('sync.title')}</h2>
+          <p>${i18n.t('sync.description')}</p>
           <div class="feature-list">
             <div class="feature-item">
               <span class="feature-icon">📁</span>
-              <span>支持多 Git 仓库配置</span>
+              <span>${i18n.t('sync.feature1')}</span>
             </div>
             <div class="feature-item">
               <span class="feature-icon">🖥️</span>
-              <span>支持多服务器同时检测</span>
+              <span>${i18n.t('sync.feature2')}</span>
             </div>
             <div class="feature-item">
               <span class="feature-icon">🗺️</span>
-              <span>灵活的路径映射配置</span>
+              <span>${i18n.t('sync.feature3')}</span>
             </div>
             <div class="feature-item">
               <span class="feature-icon">📊</span>
-              <span>可视化差异展示</span>
+              <span>${i18n.t('sync.feature4')}</span>
             </div>
           </div>
-          <button class="start-btn" id="welcomeAddBtn">+ 创建同步项目</button>
+          <button class="start-btn" id="welcomeAddBtn">${i18n.t('sync.createProject')}</button>
         </div>
         
         <!-- 检测结果面板 -->
@@ -78,25 +80,25 @@ export const template = `
           <!-- 项目信息 -->
           <div class="result-header">
             <div class="project-info">
-              <span class="project-name" id="resultProjectName">项目名称</span>
+              <span class="project-name" id="resultProjectName">${i18n.t('sync.projectName')}</span>
               <span class="project-git" id="resultGitUrl">git@example.com:repo.git</span>
             </div>
             <div class="result-summary">
               <div class="summary-item synced">
                 <span class="summary-count" id="syncedCount">0</span>
-                <span class="summary-label">已同步</span>
+                <span class="summary-label">${i18n.t('sync.synced')}</span>
               </div>
               <div class="summary-item modified">
                 <span class="summary-count" id="modifiedCount">0</span>
-                <span class="summary-label">已修改</span>
+                <span class="summary-label">${i18n.t('sync.modified')}</span>
               </div>
               <div class="summary-item added">
                 <span class="summary-count" id="addedCount">0</span>
-                <span class="summary-label">新增</span>
+                <span class="summary-label">${i18n.t('sync.added')}</span>
               </div>
               <div class="summary-item deleted">
                 <span class="summary-count" id="deletedCount">0</span>
-                <span class="summary-label">已删除</span>
+                <span class="summary-label">${i18n.t('sync.deleted')}</span>
               </div>
             </div>
           </div>
@@ -106,7 +108,7 @@ export const template = `
           
           <!-- 文件差异列表 -->
           <div class="diff-list" id="diffList">
-            <div class="diff-empty">选择一个服务器查看差异</div>
+            <div class="diff-empty">${i18n.t('sync.selectServer')}</div>
           </div>
           
           <!-- 文件内容对比 -->
@@ -117,11 +119,11 @@ export const template = `
             </div>
             <div class="diff-viewer-content">
               <div class="diff-pane git-pane">
-                <div class="diff-pane-header">Git 版本</div>
+                <div class="diff-pane-header">${i18n.t('sync.gitVersion')}</div>
                 <div class="diff-pane-content" id="gitContent"></div>
               </div>
               <div class="diff-pane server-pane">
-                <div class="diff-pane-header">服务器版本</div>
+                <div class="diff-pane-header">${i18n.t('sync.serverVersion')}</div>
                 <div class="diff-pane-content" id="serverContent"></div>
               </div>
             </div>
@@ -131,11 +133,11 @@ export const template = `
         <!-- 检测进度 -->
         <div class="progress-panel" id="progressPanel" style="display: none;">
           <div class="progress-icon">⏳</div>
-          <div class="progress-title">正在检测...</div>
+          <div class="progress-title">${i18n.t('sync.checking')}</div>
           <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
           </div>
-          <div class="progress-text" id="progressText">准备中...</div>
+          <div class="progress-text" id="progressText">${i18n.t('sync.preparing')}</div>
         </div>
       </div>
     </div>
@@ -144,57 +146,57 @@ export const template = `
     <div class="modal-overlay" id="projectModal" style="display: none;">
       <div class="modal-content modal-large">
         <div class="modal-header">
-          <h3 id="projectModalTitle">添加同步项目</h3>
+          <h3 id="projectModalTitle">${i18n.t('sync.addProject')}</h3>
           <button class="modal-close" id="closeProjectModalBtn">×</button>
         </div>
         <div class="modal-body">
           <div class="form-section">
-            <h4>基本信息</h4>
+            <h4>${i18n.t('sync.projectName')}</h4>
             <div class="form-group">
-              <label>项目名称</label>
-              <input type="text" id="projectName" placeholder="例如：前端项目">
+              <label>${i18n.t('sync.projectName')}</label>
+              <input type="text" id="projectName" placeholder="${i18n.t('sync.projectNamePlaceholder')}">
             </div>
             <div class="form-group">
-              <label>Git 仓库地址</label>
-              <input type="text" id="gitUrl" placeholder="git@github.com:user/repo.git 或 https://...">
+              <label>${i18n.t('sync.gitUrl')}</label>
+              <input type="text" id="gitUrl" placeholder="${i18n.t('sync.gitUrlPlaceholder')}">
             </div>
             <div class="form-row">
               <div class="form-group" style="flex: 1;">
-                <label>分支</label>
+                <label>${i18n.t('sync.branch')}</label>
                 <input type="text" id="gitBranch" placeholder="master" value="master">
               </div>
               <div class="form-group" style="flex: 2;">
-                <label>Git 认证（可选）</label>
+                <label>${i18n.t('sync.gitAuth')}</label>
                 <input type="text" id="gitToken" placeholder="Personal Access Token">
               </div>
             </div>
           </div>
           
           <div class="form-section">
-            <h4>服务器路径映射</h4>
+            <h4>${i18n.t('sync.pathMapping')}</h4>
             <div class="mapping-list" id="mappingList">
-              <div class="mapping-empty">请添加服务器路径映射</div>
+              <div class="mapping-empty">${i18n.t('sync.noMapping')}</div>
             </div>
-            <button class="add-mapping-btn" id="addMappingBtn">+ 添加映射</button>
+            <button class="add-mapping-btn" id="addMappingBtn">${i18n.t('sync.addMapping')}</button>
           </div>
           
           <div class="form-section">
-            <h4>检测选项</h4>
+            <h4>${i18n.t('sync.checkOptions')}</h4>
             <div class="form-row">
               <div class="form-group" style="flex: 1;">
-                <label>忽略文件（正则）</label>
+                <label>${i18n.t('sync.ignorePattern')}</label>
                 <input type="text" id="ignorePattern" placeholder="node_modules|\.git|dist" value="node_modules|\.git|dist|\.DS_Store">
               </div>
             </div>
             <div class="form-check">
               <input type="checkbox" id="checkContent" checked>
-              <label for="checkContent">检测文件内容差异（否则只检测文件存在性）</label>
+              <label for="checkContent">${i18n.t('sync.checkContent')}</label>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" id="cancelProjectBtn">取消</button>
-          <button class="btn-primary" id="saveProjectBtn">保存</button>
+          <button class="btn-secondary" id="cancelProjectBtn">${i18n.t('common.cancel')}</button>
+          <button class="btn-primary" id="saveProjectBtn">${i18n.t('common.save')}</button>
         </div>
       </div>
     </div>
@@ -203,48 +205,48 @@ export const template = `
     <div class="modal-overlay" id="serverModal" style="display: none;">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="serverModalTitle">添加服务器</h3>
+          <h3 id="serverModalTitle">${i18n.t('sync.addServer')}</h3>
           <button class="modal-close" id="closeServerModalBtn">×</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>服务器名称</label>
-            <input type="text" id="serverName" placeholder="例如：生产服务器">
+            <label>${i18n.t('terminal.connName')}</label>
+            <input type="text" id="serverName" placeholder="${i18n.t('terminal.connNamePlaceholder')}">
           </div>
           <div class="form-group">
-            <label>主机地址</label>
-            <input type="text" id="serverHost" placeholder="192.168.1.100 或 example.com">
+            <label>${i18n.t('terminal.host')}</label>
+            <input type="text" id="serverHost" placeholder="${i18n.t('terminal.hostPlaceholder')}">
           </div>
           <div class="form-row">
             <div class="form-group" style="flex: 1;">
-              <label>端口</label>
+              <label>${i18n.t('terminal.port')}</label>
               <input type="number" id="serverPort" placeholder="22" value="22">
             </div>
             <div class="form-group" style="flex: 2;">
-              <label>用户名</label>
+              <label>${i18n.t('terminal.username')}</label>
               <input type="text" id="serverUser" placeholder="root" value="root">
             </div>
           </div>
           <div class="form-group">
-            <label>认证方式</label>
+            <label>${i18n.t('terminal.authType')}</label>
             <select id="serverAuthType">
-              <option value="password">密码</option>
-              <option value="key">私钥</option>
+              <option value="password">${i18n.t('terminal.password')}</option>
+              <option value="key">${i18n.t('terminal.privateKey')}</option>
             </select>
           </div>
           <div class="form-group" id="serverPasswordGroup">
-            <label>密码</label>
-            <input type="password" id="serverPassword" placeholder="输入密码">
+            <label>${i18n.t('terminal.password')}</label>
+            <input type="password" id="serverPassword" placeholder="${i18n.t('terminal.passwordPlaceholder')}">
           </div>
           <div class="form-group" id="serverKeyGroup" style="display: none;">
-            <label>私钥内容</label>
-            <textarea id="serverKey" placeholder="粘贴私钥内容..." rows="4"></textarea>
+            <label>${i18n.t('terminal.privateKey')}</label>
+            <textarea id="serverKey" placeholder="${i18n.t('terminal.privateKeyPlaceholder')}" rows="4"></textarea>
           </div>
         </div>
         <div class="modal-footer">
           <span class="conn-test-status" id="serverTestStatus"></span>
-          <button class="btn-secondary" id="testServerBtn">测试连接</button>
-          <button class="btn-primary" id="saveServerBtn">保存</button>
+          <button class="btn-secondary" id="testServerBtn">${i18n.t('terminal.testConnection')}</button>
+          <button class="btn-primary" id="saveServerBtn">${i18n.t('common.save')}</button>
         </div>
       </div>
     </div>
@@ -253,28 +255,28 @@ export const template = `
     <div class="modal-overlay" id="mappingModal" style="display: none;">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>添加路径映射</h3>
+          <h3>${i18n.t('sync.pathMapping')}</h3>
           <button class="modal-close" id="closeMappingModalBtn">×</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>选择服务器</label>
+            <label>${i18n.t('sync.selectServerLabel')}</label>
             <select id="mappingServer">
-              <option value="">-- 请选择服务器 --</option>
+              <option value="">${i18n.t('sync.selectServerPlaceholder')}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>服务器部署路径</label>
+            <label>${i18n.t('sync.serverPath')}</label>
             <input type="text" id="mappingPath" placeholder="/data/www/project">
           </div>
           <div class="form-group">
-            <label>Git 子目录（可选）</label>
-            <input type="text" id="mappingGitSubdir" placeholder="留空表示仓库根目录">
+            <label>${i18n.t('sync.gitSubdir')}</label>
+            <input type="text" id="mappingGitSubdir" placeholder="${i18n.t('sync.gitSubdirPlaceholder')}">
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" id="cancelMappingBtn">取消</button>
-          <button class="btn-primary" id="saveMappingBtn">添加</button>
+          <button class="btn-secondary" id="cancelMappingBtn">${i18n.t('common.cancel')}</button>
+          <button class="btn-primary" id="saveMappingBtn">${i18n.t('common.add')}</button>
         </div>
       </div>
     </div>

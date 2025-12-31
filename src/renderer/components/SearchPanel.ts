@@ -5,6 +5,7 @@
 
 import { toolRegistry } from '../core/ToolRegistry';
 import { ToolCategory, type ToolConfig } from '../types/index';
+import { i18n } from '../core/i18n';
 
 /** 分类图标 */
 const CATEGORY_ICONS: Record<ToolCategory, string> = {
@@ -15,13 +16,16 @@ const CATEGORY_ICONS: Record<ToolCategory, string> = {
   [ToolCategory.TERMINAL]: '🖥️',
 };
 
-/** 分类显示名称 */
-const CATEGORY_LABELS: Record<ToolCategory, string> = {
-  [ToolCategory.UTILITY]: '实用工具',
-  [ToolCategory.DEVELOPER]: '开发工具',
-  [ToolCategory.CONVERTER]: '转换工具',
-  [ToolCategory.NETWORK]: '网络工具',
-  [ToolCategory.TERMINAL]: '终端工具',
+/** 分类显示名称 - 使用函数获取以支持动态语言切换 */
+const getCategoryLabel = (cat: ToolCategory): string => {
+  const labels: Record<ToolCategory, string> = {
+    [ToolCategory.UTILITY]: i18n.t('toolCategory.utility'),
+    [ToolCategory.DEVELOPER]: i18n.t('toolCategory.dev'),
+    [ToolCategory.CONVERTER]: i18n.t('toolCategory.convert'),
+    [ToolCategory.NETWORK]: i18n.t('toolCategory.network'),
+    [ToolCategory.TERMINAL]: i18n.t('toolCategory.terminal'),
+  };
+  return labels[cat];
 };
 
 class SearchPanel {
@@ -55,14 +59,14 @@ class SearchPanel {
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
-          <input type="text" class="search-input" placeholder="搜索工具... (输入名称或关键词)" autofocus />
+          <input type="text" class="search-input" placeholder="${i18n.t('search.placeholder')}" autofocus />
           <kbd class="search-kbd">ESC</kbd>
         </div>
         <div class="search-list"></div>
         <div class="search-footer">
-          <span><kbd>↑↓</kbd> 导航</span>
-          <span><kbd>Enter</kbd> 选择</span>
-          <span><kbd>ESC</kbd> 关闭</span>
+          <span><kbd>↑↓</kbd> ${i18n.t('search.navigate')}</span>
+          <span><kbd>Enter</kbd> ${i18n.t('search.select')}</span>
+          <span><kbd>ESC</kbd> ${i18n.t('search.close')}</span>
         </div>
       </div>
     `;
@@ -306,7 +310,7 @@ class SearchPanel {
     if (!this.list) return;
 
     if (this.filteredConfigs.length === 0) {
-      this.list.innerHTML = '<div class="search-empty">没有找到匹配的工具</div>';
+      this.list.innerHTML = `<div class="search-empty">${i18n.t('search.noResults')}</div>`;
       return;
     }
 
@@ -319,7 +323,7 @@ class SearchPanel {
             <div class="search-item-title">${config.title}</div>
             <div class="search-item-desc">${config.description || ''}</div>
           </div>
-          <span class="search-item-category">${CATEGORY_ICONS[config.category]} ${CATEGORY_LABELS[config.category]}</span>
+          <span class="search-item-category">${CATEGORY_ICONS[config.category]} ${getCategoryLabel(config.category)}</span>
         </div>
       `
       )

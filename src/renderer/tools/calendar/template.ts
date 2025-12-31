@@ -1,4 +1,8 @@
-export const template = `
+import { i18n } from '../../core/i18n';
+
+export const getTemplate = () => {
+  const weekdays = i18n.t('calendar.weekdays').split(',');
+  return `
 <div class="calendar-container">
   <div class="calendar-main">
     <div class="calendar-left">
@@ -9,13 +13,7 @@ export const template = `
       </div>
       
       <div class="calendar-grid" id="calendarGrid">
-        <div class="day-header">日</div>
-        <div class="day-header">一</div>
-        <div class="day-header">二</div>
-        <div class="day-header">三</div>
-        <div class="day-header">四</div>
-        <div class="day-header">五</div>
-        <div class="day-header">六</div>
+        ${weekdays.map(day => `<div class="day-header">${day}</div>`).join('')}
       </div>
     </div>
     
@@ -23,10 +21,11 @@ export const template = `
       <div class="date-detail-card" id="dateDetailCard">
         <div class="empty-state">
           <div class="empty-icon">📅</div>
-          <div>点击左侧日期查看详情</div>
+          <div>${i18n.t('calendar.clickToView')}</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 `;
+};

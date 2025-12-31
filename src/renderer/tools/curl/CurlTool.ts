@@ -1,15 +1,16 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class CurlTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'curl',
-    title: 'CURL工具',
+    title: i18n.t('tool.curl'),
     category: ToolCategory.NETWORK,
     icon: '📡',
-    description: 'HTTP 请求测试与 cURL 命令解析',
-    keywords: ['curl', 'http', 'api', '请求', 'request', 'get', 'post'],
+    description: i18n.t('tool.curlDesc'),
+    keywords: ['curl', 'http', 'api', 'request', 'get', 'post'],
   };
 
   readonly config = CurlTool.config;
@@ -21,7 +22,7 @@ export class CurlTool extends Tool {
   render(): HTMLElement {
     const container = document.createElement('div');
     container.className = 'tool-view curl-tool';
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container;
   }
 
@@ -83,9 +84,9 @@ export class CurlTool extends Tool {
     const headerItem = document.createElement('div');
     headerItem.className = 'header-item';
     headerItem.innerHTML = `
-      <input type="text" class="curl-input header-name" placeholder="名称">
-      <input type="text" class="curl-input header-value" placeholder="值">
-      <button class="curl-remove-btn">删除</button>
+      <input type="text" class="curl-input header-name" placeholder="${i18n.t('curl.name')}">
+      <input type="text" class="curl-input header-value" placeholder="${i18n.t('curl.value')}">
+      <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
     `;
     container.appendChild(headerItem);
     this.setupRemoveButton(headerItem.querySelector('.curl-remove-btn')!);
@@ -107,9 +108,9 @@ export class CurlTool extends Tool {
     const formItem = document.createElement('div');
     formItem.className = 'form-data-item';
     formItem.innerHTML = `
-      <input type="text" class="curl-input form-key" placeholder="键">
-      <input type="text" class="curl-input form-value" placeholder="值">
-      <button class="curl-remove-btn">删除</button>
+      <input type="text" class="curl-input form-key" placeholder="${i18n.t('curl.key')}">
+      <input type="text" class="curl-input form-value" placeholder="${i18n.t('curl.value')}">
+      <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
     `;
     container.appendChild(formItem);
     this.setupRemoveButton(formItem.querySelector('.curl-remove-btn')!);
@@ -172,7 +173,7 @@ export class CurlTool extends Tool {
       }
       return [];
     } catch (error) {
-      console.error('加载历史记录失败:', error);
+      console.error(i18n.t('curl.loadHistoryFailed'), error);
       return this.inMemoryHistory;
     }
   }
@@ -183,7 +184,7 @@ export class CurlTool extends Tool {
       if (!this.isLocalStorageAvailable()) return;
       localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
     } catch (error) {
-      console.error('保存历史记录失败:', error);
+      console.error(i18n.t('curl.saveHistoryFailed'), error);
     }
   }
 
@@ -218,7 +219,7 @@ export class CurlTool extends Tool {
     historyList.innerHTML = '';
 
     if (history.length === 0) {
-      historyList.innerHTML = '<div class="curl-history-empty">暂无历史记录</div>';
+      historyList.innerHTML = `<div class="curl-history-empty">${i18n.t('curl.historyEmpty')}</div>`;
       return;
     }
 
@@ -236,10 +237,10 @@ export class CurlTool extends Tool {
         <div class="history-info-row">
           <div class="history-left">
             <span class="history-method ${item.method.toLowerCase()}">${item.method}</span>
-            <span class="history-time">${item.time || '未知时间'}</span>
+            <span class="history-time">${item.time || i18n.t('curl.unknownTime')}</span>
           </div>
           <div class="history-actions">
-            <button class="history-action-btn history-action-delete" title="删除这条记录">🗑️</button>
+            <button class="history-action-btn history-action-delete" title="${i18n.t('curl.deleteRecord')}">🗑️</button>
           </div>
         </div>
       `;
@@ -301,9 +302,9 @@ export class CurlTool extends Tool {
               const newFormItem = document.createElement('div');
               newFormItem.className = 'form-data-item';
               newFormItem.innerHTML = `
-                <input type="text" class="curl-input form-key" placeholder="名称" value="${formItem.key || ''}">
-                <input type="text" class="curl-input form-value" placeholder="值" value="${formItem.value || ''}">
-                <button class="curl-remove-btn">删除</button>
+                <input type="text" class="curl-input form-key" placeholder="${i18n.t('curl.name')}" value="${formItem.key || ''}">
+                <input type="text" class="curl-input form-value" placeholder="${i18n.t('curl.value')}" value="${formItem.value || ''}">
+                <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
               `;
               this.setupRemoveButton(newFormItem.querySelector('.curl-remove-btn')!);
               formContainer.appendChild(newFormItem);
@@ -322,9 +323,9 @@ export class CurlTool extends Tool {
           const headerItem = document.createElement('div');
           headerItem.className = 'header-item';
           headerItem.innerHTML = `
-            <input type="text" class="curl-input header-name" placeholder="名称" value="${name}">
-            <input type="text" class="curl-input header-value" placeholder="值" value="${value}">
-            <button class="curl-remove-btn">删除</button>
+            <input type="text" class="curl-input header-name" placeholder="${i18n.t('curl.name')}" value="${name}">
+            <input type="text" class="curl-input header-value" placeholder="${i18n.t('curl.value')}" value="${value}">
+            <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
           `;
           this.setupRemoveButton(headerItem.querySelector('.curl-remove-btn')!);
           headersContainer.appendChild(headerItem);
@@ -396,7 +397,7 @@ export class CurlTool extends Tool {
     const url = curlUrl?.value?.trim();
     if (!url) {
       if (curlError) {
-        (curlError as HTMLElement).textContent = '请输入URL';
+        (curlError as HTMLElement).textContent = i18n.t('curl.enterUrl');
         (curlError as HTMLElement).style.display = 'block';
       }
       return;
@@ -470,7 +471,7 @@ export class CurlTool extends Tool {
         responseStatus.className = 'response-status ' + (status >= 200 && status < 300 ? 'success' : 'error');
       }
       if (responseTime) responseTime.textContent = `${duration}ms`;
-      if (responseContentType) responseContentType.textContent = `内容类型: ${contentType}`;
+      if (responseContentType) responseContentType.textContent = `${i18n.t('curl.contentType')}: ${contentType}`;
 
       // 获取响应体
       let responseText = '';
@@ -484,7 +485,7 @@ export class CurlTool extends Tool {
           } catch {}
         }
       } catch (e) {
-        responseText = '无法读取响应体';
+        responseText = i18n.t('curl.cannotReadBody');
       }
 
       if (responseBodyContent) responseBodyContent.textContent = responseText;
@@ -494,16 +495,16 @@ export class CurlTool extends Tool {
       response.headers.forEach((value, key) => {
         headersText += `${key}: ${value}\n`;
       });
-      if (responseHeadersContent) responseHeadersContent.textContent = headersText || '无响应头';
+      if (responseHeadersContent) responseHeadersContent.textContent = headersText || i18n.t('curl.noHeaders');
 
       // 请求信息
-      const requestInfoText = `请求方法: ${method}
-请求URL: ${url}
-请求头:
-${Object.entries(headers).map(([k, v]) => `  ${k}: ${v}`).join('\n') || '  无'}
+      const requestInfoText = `${i18n.t('curl.requestMethod')}: ${method}
+${i18n.t('curl.requestUrl')}: ${url}
+${i18n.t('curl.requestHeaders')}:
+${Object.entries(headers).map(([k, v]) => `  ${k}: ${v}`).join('\n') || `  ${i18n.t('curl.none')}`}
 
-请求体:
-${body instanceof FormData ? formData.map(f => `  ${f.key}: ${f.value}`).join('\n') : (body || '无')}`;
+${i18n.t('curl.requestBody')}:
+${body instanceof FormData ? formData.map(f => `  ${f.key}: ${f.value}`).join('\n') : (body || i18n.t('curl.none'))}`;
 
       if (requestInfoContent) requestInfoContent.textContent = requestInfoText;
 
@@ -524,22 +525,22 @@ ${body instanceof FormData ? formData.map(f => `  ${f.key}: ${f.value}`).join('\
       const duration = endTime - startTime;
 
       if (responseStatus) {
-        responseStatus.textContent = '请求失败';
+        responseStatus.textContent = i18n.t('curl.requestFailed');
         responseStatus.className = 'response-status error';
       }
       if (responseTime) responseTime.textContent = `${duration}ms`;
-      if (responseBodyContent) responseBodyContent.textContent = `错误: ${error.message}`;
-      if (responseHeadersContent) responseHeadersContent.textContent = '无响应头';
+      if (responseBodyContent) responseBodyContent.textContent = `${i18n.t('curl.errorInfo')}: ${error.message}`;
+      if (responseHeadersContent) responseHeadersContent.textContent = i18n.t('curl.noHeaders');
 
-      const requestInfoText = `请求方法: ${method}
-请求URL: ${url}
-请求头:
-${Object.entries(headers).map(([k, v]) => `  ${k}: ${v}`).join('\n') || '  无'}
+      const requestInfoText = `${i18n.t('curl.requestMethod')}: ${method}
+${i18n.t('curl.requestUrl')}: ${url}
+${i18n.t('curl.requestHeaders')}:
+${Object.entries(headers).map(([k, v]) => `  ${k}: ${v}`).join('\n') || `  ${i18n.t('curl.none')}`}
 
-请求体:
-${body instanceof FormData ? formData.map(f => `  ${f.key}: ${f.value}`).join('\n') : (body || '无')}
+${i18n.t('curl.requestBody')}:
+${body instanceof FormData ? formData.map(f => `  ${f.key}: ${f.value}`).join('\n') : (body || i18n.t('curl.none'))}
 
-错误信息:
+${i18n.t('curl.errorInfo')}:
 ${error.message}`;
 
       if (requestInfoContent) requestInfoContent.textContent = requestInfoText;
@@ -561,15 +562,15 @@ ${error.message}`;
     if (curlUrl) curlUrl.value = '';
     if (jsonBodyInput) jsonBodyInput.value = '';
     if (rawBodyInput) rawBodyInput.value = '';
-    if (responseBodyContent) responseBodyContent.textContent = '请先发送请求...';
-    if (responseHeadersContent) responseHeadersContent.textContent = '请先发送请求...';
-    if (requestInfoContent) requestInfoContent.textContent = '请先发送请求...';
+    if (responseBodyContent) responseBodyContent.textContent = i18n.t('curl.sendFirst');
+    if (responseHeadersContent) responseHeadersContent.textContent = i18n.t('curl.sendFirst');
+    if (requestInfoContent) requestInfoContent.textContent = i18n.t('curl.sendFirst');
     if (responseStatus) {
       responseStatus.textContent = '';
       responseStatus.className = 'response-status';
     }
     if (responseTime) responseTime.textContent = '';
-    if (responseContentType) responseContentType.textContent = '内容类型: -';
+    if (responseContentType) responseContentType.textContent = `${i18n.t('curl.contentType')}: -`;
     if (curlError) (curlError as HTMLElement).style.display = 'none';
 
     // 重置请求头
@@ -577,9 +578,9 @@ ${error.message}`;
     if (headersContainer) {
       headersContainer.innerHTML = `
         <div class="header-item">
-          <input type="text" class="curl-input header-name" placeholder="名称">
-          <input type="text" class="curl-input header-value" placeholder="值">
-          <button class="curl-remove-btn">删除</button>
+          <input type="text" class="curl-input header-name" placeholder="${i18n.t('curl.name')}">
+          <input type="text" class="curl-input header-value" placeholder="${i18n.t('curl.value')}">
+          <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
         </div>
       `;
       this.setupRemoveButtons(headersContainer as HTMLElement);
@@ -590,9 +591,9 @@ ${error.message}`;
     if (formDataContainer) {
       formDataContainer.innerHTML = `
         <div class="form-data-item">
-          <input type="text" class="curl-input form-key" placeholder="键">
-          <input type="text" class="curl-input form-value" placeholder="值">
-          <button class="curl-remove-btn">删除</button>
+          <input type="text" class="curl-input form-key" placeholder="${i18n.t('curl.key')}">
+          <input type="text" class="curl-input form-value" placeholder="${i18n.t('curl.value')}">
+          <button class="curl-remove-btn">${i18n.t('curl.remove')}</button>
         </div>
       `;
       this.setupRemoveButtons(formDataContainer as HTMLElement);
@@ -602,12 +603,12 @@ ${error.message}`;
   private copyResponse(): void {
     const responseBodyContent = this.querySelector('#responseBodyContent');
     const text = responseBodyContent?.textContent || '';
-    if (text && text !== '请先发送请求...') {
+    if (text && text !== i18n.t('curl.sendFirst')) {
       navigator.clipboard.writeText(text).then(() => {
         const copyBtn = this.querySelector('#copyResponseBtn');
         if (copyBtn) {
           const originalText = copyBtn.textContent;
-          copyBtn.textContent = '已复制';
+          copyBtn.textContent = i18n.t('curl.copied');
           setTimeout(() => {
             copyBtn.textContent = originalText;
           }, 1500);

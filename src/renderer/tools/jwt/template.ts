@@ -2,7 +2,9 @@
  * JWT 解析器模板
  */
 
-export const template = `
+import { i18n } from '../../core/i18n';
+
+export const getTemplate = () => `
 <div class="jwt-wrap">
   <div class="jwt-main">
     <!-- 输入区域 -->
@@ -10,25 +12,25 @@ export const template = `
       <div class="section-header">
         <div class="section-title">
           <span class="section-icon">🔐</span>
-          <span>JWT Token</span>
+          <span>${i18n.t('jwt.token')}</span>
         </div>
         <div class="section-actions">
-          <button class="action-btn" id="pasteBtn" title="粘贴">
+          <button class="action-btn" id="pasteBtn" title="${i18n.t('jwt.paste')}">
             <span>📋</span>
-            <span>粘贴</span>
+            <span>${i18n.t('jwt.paste')}</span>
           </button>
-          <button class="action-btn" id="sampleBtn" title="示例 Token">
+          <button class="action-btn" id="sampleBtn" title="${i18n.t('jwt.sample')}">
             <span>📝</span>
-            <span>示例</span>
+            <span>${i18n.t('jwt.sample')}</span>
           </button>
-          <button class="action-btn" id="clearBtn" title="清空">
+          <button class="action-btn" id="clearBtn" title="${i18n.t('jwt.clear')}">
             <span>🗑️</span>
-            <span>清空</span>
+            <span>${i18n.t('jwt.clear')}</span>
           </button>
         </div>
       </div>
       <div class="jwt-input-wrapper">
-        <textarea class="jwt-input" id="jwtInput" placeholder="粘贴 JWT Token 到这里..." spellcheck="false"></textarea>
+        <textarea class="jwt-input" id="jwtInput" placeholder="${i18n.t('jwt.placeholder')}" spellcheck="false"></textarea>
         <div class="jwt-parts-indicator" id="partsIndicator">
           <span class="part-dot header" title="Header"></span>
           <span class="part-dot payload" title="Payload"></span>
@@ -46,7 +48,7 @@ export const template = `
             <span class="part-badge header">HEADER</span>
             <span class="part-alg" id="headerAlg"></span>
           </div>
-          <button class="copy-btn" id="copyHeaderBtn" title="复制">
+          <button class="copy-btn" id="copyHeaderBtn" title="${i18n.t('jwt.copy')}">
             <span>📑</span>
           </button>
         </div>
@@ -62,7 +64,7 @@ export const template = `
             <span class="part-badge payload">PAYLOAD</span>
             <span class="part-claims" id="claimsCount"></span>
           </div>
-          <button class="copy-btn" id="copyPayloadBtn" title="复制">
+          <button class="copy-btn" id="copyPayloadBtn" title="${i18n.t('jwt.copy')}">
             <span>📑</span>
           </button>
         </div>
@@ -72,15 +74,15 @@ export const template = `
         <!-- 时间信息 -->
         <div class="time-info" id="timeInfo">
           <div class="time-item" id="iatInfo">
-            <span class="time-label">签发时间 (iat)</span>
+            <span class="time-label">${i18n.t('jwt.issuedAt')}</span>
             <span class="time-value" id="iatValue">-</span>
           </div>
           <div class="time-item" id="expInfo">
-            <span class="time-label">过期时间 (exp)</span>
+            <span class="time-label">${i18n.t('jwt.expiresAt')}</span>
             <span class="time-value" id="expValue">-</span>
           </div>
           <div class="time-item" id="nbfInfo">
-            <span class="time-label">生效时间 (nbf)</span>
+            <span class="time-label">${i18n.t('jwt.notBefore')}</span>
             <span class="time-value" id="nbfValue">-</span>
           </div>
         </div>
@@ -94,7 +96,7 @@ export const template = `
           <div class="part-title">
             <span class="part-badge signature">SIGNATURE</span>
           </div>
-          <button class="copy-btn" id="copySignatureBtn" title="复制">
+          <button class="copy-btn" id="copySignatureBtn" title="${i18n.t('jwt.copy')}">
             <span>📑</span>
           </button>
         </div>
@@ -104,26 +106,26 @@ export const template = `
         <!-- 验证区域 -->
         <div class="verify-section" id="verifySection">
           <div class="verify-header">
-            <span class="verify-title">签名验证</span>
+            <span class="verify-title">${i18n.t('jwt.signatureVerify')}</span>
             <label class="verify-toggle">
               <input type="checkbox" id="verifyToggle">
-              <span>启用验证</span>
+              <span>${i18n.t('jwt.enableVerify')}</span>
             </label>
           </div>
           <div class="verify-content" id="verifyContent" style="display: none;">
             <div class="secret-input-group">
               <label class="secret-label">
                 <input type="radio" name="secretType" value="secret" checked>
-                <span>Secret (HMAC)</span>
+                <span>${i18n.t('jwt.secret')}</span>
               </label>
               <label class="secret-label">
                 <input type="radio" name="secretType" value="publicKey">
-                <span>Public Key (RSA/EC)</span>
+                <span>${i18n.t('jwt.publicKey')}</span>
               </label>
             </div>
-            <textarea class="secret-input" id="secretInput" placeholder="输入密钥或公钥..." spellcheck="false"></textarea>
+            <textarea class="secret-input" id="secretInput" placeholder="${i18n.t('jwt.secretPlaceholder')}" spellcheck="false"></textarea>
             <div class="verify-actions">
-              <button class="verify-btn" id="verifyBtn">验证签名</button>
+              <button class="verify-btn" id="verifyBtn">${i18n.t('jwt.verify')}</button>
               <span class="verify-result" id="verifyResult"></span>
             </div>
           </div>
@@ -135,40 +137,40 @@ export const template = `
   <!-- 侧边栏 - Claims 说明 -->
   <div class="jwt-sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-title">标准 Claims</div>
+      <div class="sidebar-title">${i18n.t('jwt.standardClaims')}</div>
       <div class="claims-list" id="standardClaims">
         <div class="claim-item">
           <span class="claim-key">iss</span>
-          <span class="claim-desc">签发者</span>
+          <span class="claim-desc">${i18n.t('jwt.issuer')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">sub</span>
-          <span class="claim-desc">主题</span>
+          <span class="claim-desc">${i18n.t('jwt.subject')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">aud</span>
-          <span class="claim-desc">接收方</span>
+          <span class="claim-desc">${i18n.t('jwt.audience')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">exp</span>
-          <span class="claim-desc">过期时间</span>
+          <span class="claim-desc">${i18n.t('jwt.expiration')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">nbf</span>
-          <span class="claim-desc">生效时间</span>
+          <span class="claim-desc">${i18n.t('jwt.notBeforeTime')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">iat</span>
-          <span class="claim-desc">签发时间</span>
+          <span class="claim-desc">${i18n.t('jwt.issuedAtTime')}</span>
         </div>
         <div class="claim-item">
           <span class="claim-key">jti</span>
-          <span class="claim-desc">JWT ID</span>
+          <span class="claim-desc">${i18n.t('jwt.jwtId')}</span>
         </div>
       </div>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-title">算法说明</div>
+      <div class="sidebar-title">${i18n.t('jwt.algorithms')}</div>
       <div class="alg-list">
         <div class="alg-item">
           <span class="alg-name">HS256</span>

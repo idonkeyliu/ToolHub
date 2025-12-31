@@ -5,8 +5,9 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
+import { i18n } from '../../core/i18n';
 
 // Sync IPC 接口
 declare const llmHub: {
@@ -71,11 +72,11 @@ interface SyncResult {
 export class SyncTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'sync',
-    title: '文件同步检测',
+    title: i18n.t('tool.sync'),
     category: ToolCategory.TERMINAL,
     icon: '🔄',
-    description: '比对 Git 仓库与服务器文件的差异',
-    keywords: ['同步', 'sync', 'git', '服务器', 'server', '差异', 'diff', '部署', 'deploy'],
+    description: i18n.t('tool.syncDesc'),
+    keywords: ['sync', 'git', 'server', 'diff', 'deploy'],
   };
 
   readonly config = SyncTool.config;
@@ -91,7 +92,7 @@ export class SyncTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -181,7 +182,7 @@ export class SyncTool extends Tool {
     if (!list) return;
 
     if (this.projects.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无同步项目</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('sync.noProjects')}</div>`;
       return;
     }
 
@@ -190,11 +191,11 @@ export class SyncTool extends Tool {
         <div class="item-icon">📁</div>
         <div class="item-info">
           <div class="item-name">${this.escapeHtml(project.name)}</div>
-          <div class="item-detail">${project.mappings.length} 个服务器映射</div>
+          <div class="item-detail">${project.mappings.length} ${i18n.t('sync.serverMappings')}</div>
         </div>
         <div class="item-actions">
-          <button class="item-action-btn edit" data-action="edit" title="编辑">✏️</button>
-          <button class="item-action-btn delete" data-action="delete" title="删除">🗑️</button>
+          <button class="item-action-btn edit" data-action="edit" title="${i18n.t('common.edit')}">✏️</button>
+          <button class="item-action-btn delete" data-action="delete" title="${i18n.t('common.delete')}">🗑️</button>
         </div>
       </div>
     `).join('');
@@ -243,7 +244,7 @@ export class SyncTool extends Tool {
     if (!modal || !title) return;
 
     this.editingProjectId = project?.id || null;
-    title.textContent = project ? '编辑同步项目' : '添加同步项目';
+    title.textContent = project ? i18n.t('sync.editProject') : i18n.t('sync.addProject');
 
     // 填充表单
     (this.querySelector('#projectName') as HTMLInputElement).value = project?.name || '';
@@ -276,12 +277,12 @@ export class SyncTool extends Tool {
     const checkContent = (this.querySelector('#checkContent') as HTMLInputElement).checked;
 
     if (!name || !gitUrl) {
-      toast('请填写项目名称和 Git 仓库地址');
+      toast(i18n.t('sync.fillProjectInfo'));
       return;
     }
 
     if (this.tempMappings.length === 0) {
-      toast('请至少添加一个服务器路径映射');
+      toast(i18n.t('sync.addAtLeastOneMapping'));
       return;
     }
 
@@ -306,7 +307,7 @@ export class SyncTool extends Tool {
     this.saveData();
     this.renderProjectList();
     this.hideProjectModal();
-    toast('项目配置已保存');
+    toast(i18n.t('sync.projectSaved'));
   }
 
   private editProject(id: string): void {
@@ -315,7 +316,7 @@ export class SyncTool extends Tool {
   }
 
   private deleteProject(id: string): void {
-    if (!confirm('确定要删除这个项目吗？')) return;
+    if (!confirm(i18n.t('sync.confirmDeleteProject'))) return;
     
     this.projects = this.projects.filter(p => p.id !== id);
     this.syncResults.delete(id);
@@ -325,7 +326,7 @@ export class SyncTool extends Tool {
     }
     this.saveData();
     this.renderProjectList();
-    toast('项目已删除');
+    toast(i18n.t('sync.projectDeleted'));
   }
 
   // ==================== 服务器管理 ====================
@@ -335,7 +336,7 @@ export class SyncTool extends Tool {
     if (!list) return;
 
     if (this.servers.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无服务器</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('sync.noServers')}</div>`;
       return;
     }
 
@@ -347,8 +348,8 @@ export class SyncTool extends Tool {
           <div class="item-detail">${this.escapeHtml(server.username)}@${this.escapeHtml(server.host)}:${server.port}</div>
         </div>
         <div class="item-actions">
-          <button class="item-action-btn edit" data-action="edit" title="编辑">✏️</button>
-          <button class="item-action-btn delete" data-action="delete" title="删除">🗑️</button>
+          <button class="item-action-btn edit" data-action="edit" title="${i18n.t('common.edit')}">✏️</button>
+          <button class="item-action-btn delete" data-action="delete" title="${i18n.t('common.delete')}">🗑️</button>
         </div>
       </div>
     `).join('');
@@ -377,7 +378,7 @@ export class SyncTool extends Tool {
     if (!modal || !title) return;
 
     this.editingServerId = server?.id || null;
-    title.textContent = server ? '编辑服务器' : '添加服务器';
+    title.textContent = server ? i18n.t('sync.editServer') : i18n.t('sync.addServer');
 
     // 填充表单
     (this.querySelector('#serverName') as HTMLInputElement).value = server?.name || '';
@@ -412,7 +413,7 @@ export class SyncTool extends Tool {
   private async testServerConnection(): Promise<void> {
     const config = this.getServerFormData();
     if (!config.name || !config.host || !config.username) {
-      toast('请填写完整的服务器信息');
+      toast(i18n.t('sync.fillServerInfo'));
       return;
     }
 
@@ -420,7 +421,7 @@ export class SyncTool extends Tool {
     const testBtn = this.querySelector('#testServerBtn') as HTMLButtonElement;
     
     if (statusEl) {
-      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.textContent = i18n.t('sync.testing');
       statusEl.style.color = '#f59e0b';
     }
     if (testBtn) testBtn.disabled = true;
@@ -429,23 +430,23 @@ export class SyncTool extends Tool {
       const result = await llmHub.sync.testConnection(config);
       if (result.success) {
         if (statusEl) {
-          statusEl.textContent = '✅ 连接成功！';
+          statusEl.textContent = i18n.t('sync.testSuccess');
           statusEl.style.color = '#22c55e';
         }
-        toast('连接成功！');
+        toast(i18n.t('sync.connectionSuccess'));
       } else {
         if (statusEl) {
           statusEl.textContent = `❌ ${result.error}`;
           statusEl.style.color = '#ef4444';
         }
-        toast(`连接失败: ${result.error}`);
+        toast(`${i18n.t('sync.connectionFailed')}: ${result.error}`);
       }
     } catch (e) {
       if (statusEl) {
         statusEl.textContent = `❌ ${e}`;
         statusEl.style.color = '#ef4444';
       }
-      toast(`连接失败: ${e}`);
+      toast(`${i18n.t('sync.connectionFailed')}: ${e}`);
     } finally {
       if (testBtn) testBtn.disabled = false;
     }
@@ -469,17 +470,17 @@ export class SyncTool extends Tool {
     const server = this.getServerFormData();
     
     if (!server.name || !server.host || !server.username) {
-      toast('请填写完整的服务器信息');
+      toast(i18n.t('sync.fillServerInfo'));
       return;
     }
 
     if (server.authType === 'password' && !server.password) {
-      toast('请输入密码');
+      toast(i18n.t('sync.enterPassword'));
       return;
     }
 
     if (server.authType === 'key' && !server.privateKey) {
-      toast('请输入私钥');
+      toast(i18n.t('sync.enterPrivateKey'));
       return;
     }
 
@@ -493,7 +494,7 @@ export class SyncTool extends Tool {
     this.saveData();
     this.renderServerList();
     this.hideServerModal();
-    toast('服务器配置已保存');
+    toast(i18n.t('sync.serverSaved'));
   }
 
   private editServer(id: string): void {
@@ -502,7 +503,7 @@ export class SyncTool extends Tool {
   }
 
   private deleteServer(id: string): void {
-    if (!confirm('确定要删除这个服务器吗？')) return;
+    if (!confirm(i18n.t('sync.confirmDeleteServer'))) return;
     
     this.servers = this.servers.filter(s => s.id !== id);
     
@@ -514,7 +515,7 @@ export class SyncTool extends Tool {
     this.saveData();
     this.renderServerList();
     this.renderProjectList();
-    toast('服务器已删除');
+    toast(i18n.t('sync.serverDeleted'));
   }
 
   // ==================== 映射管理 ====================
@@ -524,7 +525,7 @@ export class SyncTool extends Tool {
     if (!list) return;
 
     if (this.tempMappings.length === 0) {
-      list.innerHTML = '<div class="mapping-empty">请添加服务器路径映射</div>';
+      list.innerHTML = `<div class="mapping-empty">${i18n.t('sync.noMapping')}</div>`;
       return;
     }
 
@@ -555,7 +556,7 @@ export class SyncTool extends Tool {
     if (!modal || !serverSelect) return;
 
     // 填充服务器选项
-    serverSelect.innerHTML = '<option value="">-- 请选择服务器 --</option>' +
+    serverSelect.innerHTML = `<option value="">${i18n.t('sync.selectServerPlaceholder')}</option>` +
       this.servers.map(s => `<option value="${s.id}">${this.escapeHtml(s.name)} (${s.host})</option>`).join('');
 
     (this.querySelector('#mappingPath') as HTMLInputElement).value = '';
@@ -575,25 +576,25 @@ export class SyncTool extends Tool {
     const gitSubdir = (this.querySelector('#mappingGitSubdir') as HTMLInputElement).value.trim();
 
     if (!serverId) {
-      toast('请选择服务器');
+      toast(i18n.t('sync.pleaseSelectServer'));
       return;
     }
 
     if (!serverPath) {
-      toast('请填写服务器部署路径');
+      toast(i18n.t('sync.fillServerPath'));
       return;
     }
 
     const server = this.servers.find(s => s.id === serverId);
     if (!server) {
-      toast('服务器不存在');
+      toast(i18n.t('sync.serverNotExist'));
       return;
     }
 
     // 检查是否已存在相同映射
     const exists = this.tempMappings.some(m => m.serverId === serverId && m.serverPath === serverPath);
     if (exists) {
-      toast('该映射已存在');
+      toast(i18n.t('sync.mappingExists'));
       return;
     }
 
@@ -612,7 +613,7 @@ export class SyncTool extends Tool {
 
   private async startSyncCheck(): Promise<void> {
     if (!this.activeProjectId) {
-      toast('请先选择一个项目');
+      toast(i18n.t('sync.selectProjectFirst'));
       return;
     }
 
@@ -624,22 +625,22 @@ export class SyncTool extends Tool {
     const servers = this.servers.filter(s => serverIds.includes(s.id));
 
     if (servers.length === 0) {
-      toast('没有找到关联的服务器配置');
+      toast(i18n.t('sync.noServerFound'));
       return;
     }
 
     this.showProgressPanel();
-    this.setStatus('正在检测...', 'loading');
+    this.setStatus(i18n.t('sync.detecting'), 'loading');
 
     try {
       const result = await llmHub.sync.checkSync(project, servers);
       this.syncResults.set(project.id, result);
       this.showSyncResult(result);
-      this.setStatus('检测完成', 'success');
-      toast('同步检测完成');
+      this.setStatus(i18n.t('sync.detectComplete'), 'success');
+      toast(i18n.t('sync.syncDetectComplete'));
     } catch (e) {
-      toast(`检测失败: ${e}`);
-      this.setStatus('检测失败', 'error');
+      toast(`${i18n.t('sync.detectFailed')}: ${e}`);
+      this.setStatus(i18n.t('sync.detectFailed'), 'error');
       this.showWelcomePanel();
     }
   }
@@ -737,7 +738,7 @@ export class SyncTool extends Tool {
     if (!list) return;
 
     if (server.status === 'error') {
-      list.innerHTML = `<div class="diff-empty" style="color: #ef4444;">❌ ${this.escapeHtml(server.error || '连接失败')}</div>`;
+      list.innerHTML = `<div class="diff-empty" style="color: #ef4444;">❌ ${this.escapeHtml(server.error || i18n.t('sync.connectionFailed'))}</div>`;
       return;
     }
 
@@ -746,22 +747,22 @@ export class SyncTool extends Tool {
     const deleted = server.files.filter(f => f.status === 'deleted');
 
     if (modified.length === 0 && added.length === 0 && deleted.length === 0) {
-      list.innerHTML = '<div class="diff-empty" style="color: #22c55e;">✅ 所有文件已同步</div>';
+      list.innerHTML = `<div class="diff-empty" style="color: #22c55e;">✅ ${i18n.t('sync.allFilesSynced')}</div>`;
       return;
     }
 
     let html = '';
 
     if (modified.length > 0) {
-      html += this.renderDiffGroup('modified', '已修改', '📝', modified);
+      html += this.renderDiffGroup('modified', i18n.t('sync.modified'), '📝', modified);
     }
 
     if (added.length > 0) {
-      html += this.renderDiffGroup('added', 'Git 新增（服务器缺失）', '➕', added);
+      html += this.renderDiffGroup('added', i18n.t('sync.gitAdded'), '➕', added);
     }
 
     if (deleted.length > 0) {
-      html += this.renderDiffGroup('deleted', '服务器多余（Git 无）', '➖', deleted);
+      html += this.renderDiffGroup('deleted', i18n.t('sync.serverExtra'), '➖', deleted);
     }
 
     list.innerHTML = html;

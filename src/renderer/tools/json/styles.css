@@ -8,7 +8,7 @@
 }
 
 .json-wrap {
-  width: min(1180px, 96%);
+  width: min(1400px, 96%);
   margin: 0 auto;
   height: calc(100vh - 120px);
   display: flex;
@@ -40,8 +40,9 @@
 
 .json-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
 }
 
 .json-btn {
@@ -53,6 +54,8 @@
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .json-btn:hover {

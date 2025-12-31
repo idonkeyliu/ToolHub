@@ -4,8 +4,9 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
+import { i18n } from '../../core/i18n';
 
 declare const llmHub: {
   redis: {
@@ -69,8 +70,8 @@ export class RedisTool extends Tool {
     title: 'Redis',
     category: ToolCategory.DEVELOPER,
     icon: '🔴',
-    description: 'Redis 管理工具',
-    keywords: ['redis', '缓存', 'cache', 'nosql', '键值'],
+    description: i18n.t('tool.redisDesc'),
+    keywords: ['redis', 'cache', 'nosql'],
   };
 
   readonly config = RedisTool.config;
@@ -82,13 +83,13 @@ export class RedisTool extends Tool {
   private keys: KeyInfo[] = [];
   private scanCursor: string = '0';
   private hasMoreKeys: boolean = false;
-  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: '欢迎' }];
+  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: i18n.t('redis.welcome') }];
   private activeTabId = 'welcome';
   private editingConfigId: string | null = null;
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -145,7 +146,7 @@ export class RedisTool extends Tool {
     if (!list) return;
 
     if (this.connections.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无连接配置</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('redis.noConnections')}</div>`;
       return;
     }
 
@@ -160,8 +161,8 @@ export class RedisTool extends Tool {
             <div class="conn-detail">${this.escapeHtml(conn.host)}:${conn.port}</div>
           </div>
           <div class="conn-actions">
-            <button class="conn-action-btn edit" data-action="edit" title="编辑">✏️</button>
-            <button class="conn-action-btn delete" data-action="delete" title="删除">🗑️</button>
+            <button class="conn-action-btn edit" data-action="edit" title="Edit">✏️</button>
+            <button class="conn-action-btn delete" data-action="delete" title="Delete">🗑️</button>
           </div>
         </div>
       `;
@@ -185,7 +186,7 @@ export class RedisTool extends Tool {
     if (!modal || !title) return;
 
     this.editingConfigId = config?.id || null;
-    title.textContent = config ? '编辑 Redis 连接' : '添加 Redis 连接';
+    title.textContent = config ? i18n.t('redis.editConnection') : i18n.t('redis.addRedisConnection');
 
     (this.querySelector('#connName') as HTMLInputElement).value = config?.name || '';
     (this.querySelector('#connHost') as HTMLInputElement).value = config?.host || 'localhost';
@@ -219,13 +220,13 @@ export class RedisTool extends Tool {
     console.log('[Redis] testConnection called');
     const config = this.getFormConfig();
     console.log('[Redis] config:', config);
-    if (!config.name) { toast('请输入连接名称'); return; }
+    if (!config.name) { toast(i18n.t('redis.enterConnName')); return; }
 
     const statusEl = this.querySelector('#connTestStatus');
     const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
     
     if (statusEl) {
-      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.textContent = i18n.t('redis.testing');
       statusEl.style.color = '#f59e0b';
     }
     if (testBtn) testBtn.disabled = true;
@@ -236,16 +237,16 @@ export class RedisTool extends Tool {
       console.log('[Redis] testConnection result:', result);
       if (result.success) { 
         if (statusEl) {
-          statusEl.textContent = '✅ 连接成功！';
+          statusEl.textContent = i18n.t('redis.testSuccess');
           statusEl.style.color = '#22c55e';
         }
-        toast('连接成功！'); 
+        toast(i18n.t('redis.connectionSuccess')); 
       } else { 
         if (statusEl) {
           statusEl.textContent = `❌ ${result.error}`;
           statusEl.style.color = '#ef4444';
         }
-        toast(`连接失败: ${result.error}`); 
+        toast(`${i18n.t('redis.connectionFailed')}: ${result.error}`); 
       }
     } catch (e) { 
       console.error('[Redis] testConnection error:', e);
@@ -253,7 +254,7 @@ export class RedisTool extends Tool {
         statusEl.textContent = `❌ ${e}`;
         statusEl.style.color = '#ef4444';
       }
-      toast(`连接失败: ${e}`); 
+      toast(`${i18n.t('redis.connectionFailed')}: ${e}`); 
     } finally {
       if (testBtn) testBtn.disabled = false;
     }
@@ -263,7 +264,7 @@ export class RedisTool extends Tool {
     console.log('[Redis] saveConnection called');
     const config = this.getFormConfig();
     console.log('[Redis] config to save:', config);
-    if (!config.name) { toast('请输入连接名称'); return; }
+    if (!config.name) { toast(i18n.t('redis.enterConnName')); return; }
 
     if (this.editingConfigId) {
       const index = this.connections.findIndex(c => c.id === this.editingConfigId);
@@ -275,7 +276,7 @@ export class RedisTool extends Tool {
     this.saveConnections();
     this.renderConnectionList();
     this.hideConnectionModal();
-    toast('连接配置已保存');
+    toast(i18n.t('redis.configSaved'));
     console.log('[Redis] connection saved successfully');
   }
 
@@ -285,7 +286,7 @@ export class RedisTool extends Tool {
   }
 
   private deleteConnection(id: string): void {
-    if (!confirm('确定要删除这个连接配置吗？')) return;
+    if (!confirm(i18n.t('redis.confirmDelete'))) return;
 
     if (this.activeConnections.has(id)) {
       const connectionId = this.activeConnections.get(id)!;
@@ -301,10 +302,10 @@ export class RedisTool extends Tool {
       this.currentConfigId = null;
       const keysPanel = this.querySelector('#keysPanel');
       if (keysPanel) keysPanel.style.display = 'none';
-      this.setStatus('未连接');
+      this.setStatus(i18n.t('redis.notConnected'));
     }
 
-    toast('连接配置已删除');
+    toast(i18n.t('redis.configDeleted'));
   }
 
   private async connectToRedis(configId: string): Promise<void> {
@@ -319,7 +320,7 @@ export class RedisTool extends Tool {
       return;
     }
 
-    this.setStatus(`正在连接 ${config.name}...`, 'loading');
+    this.setStatus(`${i18n.t('redis.connecting')} ${config.name}...`, 'loading');
 
     try {
       const result = await llmHub.redis.connect(config);
@@ -329,15 +330,15 @@ export class RedisTool extends Tool {
         (this.querySelector('#dbSelect') as HTMLSelectElement).value = String(this.currentDB);
         this.renderConnectionList();
         await this.loadKeys();
-        this.setStatus(`已连接: ${config.name}`, 'connected');
-        toast(`已连接到 ${config.name}`);
+        this.setStatus(`${i18n.t('redis.connected')}: ${config.name}`, 'connected');
+        toast(`${i18n.t('redis.connectedTo')} ${config.name}`);
       } else {
-        toast(`连接失败: ${result.error}`);
-        this.setStatus('连接失败', 'error');
+        toast(`${i18n.t('redis.connectionFailed')}: ${result.error}`);
+        this.setStatus(i18n.t('redis.connectionFailed'), 'error');
       }
     } catch (e) {
-      toast(`连接失败: ${e}`);
-      this.setStatus('连接失败', 'error');
+      toast(`${i18n.t('redis.connectionFailed')}: ${e}`);
+      this.setStatus(i18n.t('redis.connectionFailed'), 'error');
     }
   }
 
@@ -346,20 +347,20 @@ export class RedisTool extends Tool {
     const connectionId = this.activeConnections.get(this.currentConfigId);
     if (!connectionId) return;
 
-    this.setStatus(`切换到 DB ${db}...`, 'loading');
+    this.setStatus(`Switching to DB ${db}...`, 'loading');
     try {
       const result = await llmHub.redis.selectDB(connectionId, db);
       if (result.success) {
         this.currentDB = db;
         await this.loadKeys();
-        this.setStatus(`已切换到 DB ${db}`, 'connected');
+        this.setStatus(`Switched to DB ${db}`, 'connected');
       } else {
-        toast(`切换失败: ${result.error}`);
-        this.setStatus('切换失败', 'error');
+        toast(`Switch failed: ${result.error}`);
+        this.setStatus('Switch failed', 'error');
       }
     } catch (e) {
-      toast(`切换失败: ${e}`);
-      this.setStatus('切换失败', 'error');
+      toast(`Switch failed: ${e}`);
+      this.setStatus('Switch failed', 'error');
     }
   }
 
@@ -378,7 +379,7 @@ export class RedisTool extends Tool {
     if (!append) {
       this.keys = [];
       this.scanCursor = '0';
-      keysContainer.innerHTML = '<div class="empty-hint">加载中...</div>';
+      keysContainer.innerHTML = '<div class="empty-hint">Loading...</div>';
     }
 
     try {
@@ -403,10 +404,10 @@ export class RedisTool extends Tool {
         const sizeRes = await llmHub.redis.dbSize(connectionId);
         if (keyCount && sizeRes.success) keyCount.textContent = `${sizeRes.size} keys`;
       } else {
-        keysContainer.innerHTML = `<div class="empty-hint">加载失败: ${result.error}</div>`;
+        keysContainer.innerHTML = `<div class="empty-hint">Load failed: ${result.error}</div>`;
       }
     } catch (e) {
-      keysContainer.innerHTML = `<div class="empty-hint">加载失败: ${e}</div>`;
+      keysContainer.innerHTML = `<div class="empty-hint">Load failed: ${e}</div>`;
     }
   }
 
@@ -415,13 +416,13 @@ export class RedisTool extends Tool {
     if (!keysContainer) return;
 
     if (this.keys.length === 0) {
-      keysContainer.innerHTML = '<div class="empty-hint">没有找到键</div>';
+      keysContainer.innerHTML = '<div class="empty-hint">No keys found</div>';
       return;
     }
 
     keysContainer.innerHTML = this.keys.map(info => {
       const ttlClass = info.ttl > 0 && info.ttl < 60 ? 'expiring' : info.ttl === -2 ? 'expired' : '';
-      const ttlText = info.ttl === -1 ? '' : info.ttl === -2 ? '已过期' : `${info.ttl}s`;
+      const ttlText = info.ttl === -1 ? '' : info.ttl === -2 ? 'Expired' : `${info.ttl}s`;
       return `
         <div class="key-item" data-key="${this.escapeHtml(info.key)}" data-type="${info.type}">
           <span class="key-type ${info.type}">${info.type}</span>
@@ -429,7 +430,7 @@ export class RedisTool extends Tool {
           ${ttlText ? `<span class="key-ttl ${ttlClass}">${ttlText}</span>` : ''}
         </div>
       `;
-    }).join('') + (this.hasMoreKeys ? '<button class="load-more-btn">加载更多...</button>' : '');
+    }).join('') + (this.hasMoreKeys ? '<button class="load-more-btn">Load more...</button>' : '');
 
     keysContainer.querySelectorAll('.key-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -532,12 +533,12 @@ export class RedisTool extends Tool {
     const panel = document.createElement('div');
     panel.className = 'content-panel';
     panel.dataset.panel = tab.id;
-    panel.innerHTML = '<div class="empty-hint">加载中...</div>';
+    panel.innerHTML = '<div class="empty-hint">' + i18n.t('common.loading') + '</div>';
     panels.appendChild(panel);
 
     const [ttlRes] = await Promise.all([llmHub.redis.getTTL(connectionId, tab.keyName)]);
     const ttl = ttlRes.ttl ?? -1;
-    const ttlText = ttl === -1 ? '永不过期' : ttl === -2 ? '已过期' : `${ttl} 秒`;
+    const ttlText = ttl === -1 ? i18n.t('redis.neverExpire') : ttl === -2 ? i18n.t('redis.expired') : `${ttl} ${i18n.t('common.seconds')}`;
 
     let contentHtml = '';
     switch (tab.keyType) {
@@ -546,7 +547,7 @@ export class RedisTool extends Tool {
       case 'list': contentHtml = await this.renderListEditor(connectionId, tab.keyName); break;
       case 'set': contentHtml = await this.renderSetEditor(connectionId, tab.keyName); break;
       case 'zset': contentHtml = await this.renderZSetEditor(connectionId, tab.keyName); break;
-      default: contentHtml = '<div class="empty-hint">不支持的类型</div>';
+      default: contentHtml = '<div class="empty-hint">' + i18n.t('redis.unsupportedType') + '</div>';
     }
 
     panel.innerHTML = `
@@ -555,15 +556,15 @@ export class RedisTool extends Tool {
           <div class="key-info">
             <div class="key-full-name">${this.escapeHtml(tab.keyName)}</div>
             <div class="key-meta">
-              <span>类型: <strong>${tab.keyType}</strong></span>
+              <span>${i18n.t('redis.type')}: <strong>${tab.keyType}</strong></span>
               <span>TTL: <strong>${ttlText}</strong></span>
             </div>
           </div>
           <div class="key-actions">
             <button class="key-action-btn secondary cli-btn">CLI</button>
-            <button class="key-action-btn secondary ttl-btn">设置 TTL</button>
-            <button class="key-action-btn secondary rename-btn">重命名</button>
-            <button class="key-action-btn danger delete-btn">删除</button>
+            <button class="key-action-btn secondary ttl-btn">Set TTL</button>
+            <button class="key-action-btn secondary rename-btn">${i18n.t('redis.rename')}</button>
+            <button class="key-action-btn danger delete-btn">${i18n.t('redis.delete')}</button>
           </div>
         </div>
         <div class="key-content">${contentHtml}</div>
@@ -579,48 +580,48 @@ export class RedisTool extends Tool {
     panel.querySelector('.cli-btn')?.addEventListener('click', () => this.openCLITab());
 
     panel.querySelector('.ttl-btn')?.addEventListener('click', async () => {
-      const newTTL = prompt('输入新的 TTL（秒），-1 表示永不过期:', '-1');
+      const newTTL = prompt(i18n.t('redis.ttl'), '-1');
       if (newTTL === null) return;
       const result = await llmHub.redis.setTTL(connectionId, key, parseInt(newTTL));
-      if (result.success) { toast('TTL 已更新'); this.refreshKeys(); }
-      else toast(`更新失败: ${result.error}`);
+      if (result.success) { toast('TTL updated'); this.refreshKeys(); }
+      else toast(`Update failed: ${result.error}`);
     });
 
     panel.querySelector('.rename-btn')?.addEventListener('click', async () => {
-      const newKey = prompt('输入新的键名:', key);
+      const newKey = prompt('Enter new key name:', key);
       if (!newKey || newKey === key) return;
       const result = await llmHub.redis.renameKey(connectionId, key, newKey);
       if (result.success) {
-        toast('键已重命名');
+        toast('Key renamed');
         this.closeTab(tab.id);
         this.refreshKeys();
         this.openKeyTab(newKey, tab.keyType!);
-      } else toast(`重命名失败: ${result.error}`);
+      } else toast(`Rename failed: ${result.error}`);
     });
 
     panel.querySelector('.delete-btn')?.addEventListener('click', async () => {
-      if (!confirm(`确定要删除键 "${key}" 吗？`)) return;
+      if (!confirm(i18n.t('redis.confirmDeleteKey').replace('{key}', key))) return;
       const result = await llmHub.redis.deleteKey(connectionId, key);
-      if (result.success) { toast('键已删除'); this.closeTab(tab.id); this.refreshKeys(); }
-      else toast(`删除失败: ${result.error}`);
+      if (result.success) { toast(i18n.t('redis.keyDeleted')); this.closeTab(tab.id); this.refreshKeys(); }
+      else toast(`${i18n.t('redis.deleteFailed')}: ${result.error}`);
     });
 
     // String save
     panel.querySelector('.save-string-btn')?.addEventListener('click', async () => {
       const textarea = panel.querySelector('.string-value') as HTMLTextAreaElement;
       const result = await llmHub.redis.setString(connectionId, key, textarea.value);
-      if (result.success) toast('保存成功');
-      else toast(`保存失败: ${result.error}`);
+      if (result.success) toast(i18n.t('redis.saveSuccess'));
+      else toast(`${i18n.t('redis.saveFailed')}: ${result.error}`);
     });
 
     // Hash add field
     panel.querySelector('.add-hash-field-btn')?.addEventListener('click', async () => {
-      const field = prompt('输入字段名:');
+      const field = prompt('Enter field name:');
       if (!field) return;
-      const value = prompt('输入值:') || '';
+      const value = prompt('Enter value:') || '';
       const result = await llmHub.redis.setHashField(connectionId, key, field, value);
-      if (result.success) { toast('字段已添加'); this.refreshKeyPanel(tab); }
-      else toast(`添加失败: ${result.error}`);
+      if (result.success) { toast('Field added'); this.refreshKeyPanel(tab); }
+      else toast(`Add failed: ${result.error}`);
     });
 
     // Hash delete field
@@ -628,37 +629,37 @@ export class RedisTool extends Tool {
       btn.addEventListener('click', async () => {
         const row = (btn as HTMLElement).closest('tr');
         const field = row?.dataset.field;
-        if (!field || !confirm(`确定删除字段 "${field}" 吗？`)) return;
+        if (!field || !confirm(i18n.t('redis.confirmDeleteField').replace('{field}', field))) return;
         const result = await llmHub.redis.deleteHashField(connectionId, key, field);
-        if (result.success) { toast('字段已删除'); row?.remove(); }
-        else toast(`删除失败: ${result.error}`);
+        if (result.success) { toast(i18n.t('redis.fieldDeleted')); row?.remove(); }
+        else toast(`${i18n.t('redis.deleteFailed')}: ${result.error}`);
       });
     });
 
     // List push
     panel.querySelector('.push-left-btn')?.addEventListener('click', async () => {
-      const value = prompt('输入要插入的值:');
+      const value = prompt('Enter value to insert:');
       if (value === null) return;
       const result = await llmHub.redis.pushList(connectionId, key, value, 'left');
-      if (result.success) { toast('已插入到头部'); this.refreshKeyPanel(tab); }
-      else toast(`插入失败: ${result.error}`);
+      if (result.success) { toast('Inserted at head'); this.refreshKeyPanel(tab); }
+      else toast(`Insert failed: ${result.error}`);
     });
 
     panel.querySelector('.push-right-btn')?.addEventListener('click', async () => {
-      const value = prompt('输入要插入的值:');
+      const value = prompt('Enter value to insert:');
       if (value === null) return;
       const result = await llmHub.redis.pushList(connectionId, key, value, 'right');
-      if (result.success) { toast('已插入到尾部'); this.refreshKeyPanel(tab); }
-      else toast(`插入失败: ${result.error}`);
+      if (result.success) { toast('Inserted at tail'); this.refreshKeyPanel(tab); }
+      else toast(`Insert failed: ${result.error}`);
     });
 
     // Set add member
     panel.querySelector('.add-set-member-btn')?.addEventListener('click', async () => {
-      const member = prompt('输入成员:');
+      const member = prompt('Enter member:');
       if (!member) return;
       const result = await llmHub.redis.addSetMember(connectionId, key, member);
-      if (result.success) { toast('成员已添加'); this.refreshKeyPanel(tab); }
-      else toast(`添加失败: ${result.error}`);
+      if (result.success) { toast('Member added'); this.refreshKeyPanel(tab); }
+      else toast(`Add failed: ${result.error}`);
     });
 
     // Set delete member
@@ -666,22 +667,22 @@ export class RedisTool extends Tool {
       btn.addEventListener('click', async () => {
         const row = (btn as HTMLElement).closest('tr');
         const member = row?.dataset.member;
-        if (!member || !confirm(`确定删除成员 "${member}" 吗？`)) return;
+        if (!member || !confirm(i18n.t('redis.confirmDeleteMember').replace('{member}', member))) return;
         const result = await llmHub.redis.removeSetMember(connectionId, key, member);
-        if (result.success) { toast('成员已删除'); row?.remove(); }
-        else toast(`删除失败: ${result.error}`);
+        if (result.success) { toast(i18n.t('redis.memberDeleted')); row?.remove(); }
+        else toast(`${i18n.t('redis.deleteFailed')}: ${result.error}`);
       });
     });
 
     // ZSet add member
     panel.querySelector('.add-zset-member-btn')?.addEventListener('click', async () => {
-      const member = prompt('输入成员:');
+      const member = prompt('Enter member:');
       if (!member) return;
-      const scoreStr = prompt('输入分数:', '0');
+      const scoreStr = prompt('Enter score:', '0');
       if (scoreStr === null) return;
       const result = await llmHub.redis.addZSetMember(connectionId, key, member, parseFloat(scoreStr));
-      if (result.success) { toast('成员已添加'); this.refreshKeyPanel(tab); }
-      else toast(`添加失败: ${result.error}`);
+      if (result.success) { toast('Member added'); this.refreshKeyPanel(tab); }
+      else toast(`Add failed: ${result.error}`);
     });
 
     // ZSet delete member
@@ -689,10 +690,10 @@ export class RedisTool extends Tool {
       btn.addEventListener('click', async () => {
         const row = (btn as HTMLElement).closest('tr');
         const member = row?.dataset.member;
-        if (!member || !confirm(`确定删除成员 "${member}" 吗？`)) return;
+        if (!member || !confirm(i18n.t('redis.confirmDeleteMember').replace('{member}', member))) return;
         const result = await llmHub.redis.removeZSetMember(connectionId, key, member);
-        if (result.success) { toast('成员已删除'); row?.remove(); }
-        else toast(`删除失败: ${result.error}`);
+        if (result.success) { toast(i18n.t('redis.memberDeleted')); row?.remove(); }
+        else toast(`${i18n.t('redis.deleteFailed')}: ${result.error}`);
       });
     });
   }
@@ -709,7 +710,7 @@ export class RedisTool extends Tool {
       <div class="string-editor">
         <textarea class="string-value">${this.escapeHtml(value)}</textarea>
         <div style="margin-top: 12px;">
-          <button class="key-action-btn primary save-string-btn">保存</button>
+          <button class="key-action-btn primary save-string-btn">${i18n.t('redis.save')}</button>
         </div>
       </div>
     `;
@@ -722,19 +723,19 @@ export class RedisTool extends Tool {
     return `
       <div class="data-table-wrap">
         <table class="data-table hash-table">
-          <thead><tr><th>Field</th><th>Value</th><th width="80">操作</th></tr></thead>
+          <thead><tr><th>Field</th><th>Value</th><th width="80">Actions</th></tr></thead>
           <tbody>
             ${entries.map(([field, value]) => `
               <tr data-field="${this.escapeHtml(field)}">
                 <td>${this.escapeHtml(field)}</td>
                 <td>${this.escapeHtml(value)}</td>
-                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-field">删除</button></td>
+                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-field">${i18n.t('redis.delete')}</button></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
-      <button class="add-row-btn add-hash-field-btn">+ 添加字段</button>
+      <button class="add-row-btn add-hash-field-btn">+ Add Field</button>
     `;
   }
 
@@ -753,10 +754,10 @@ export class RedisTool extends Tool {
         </table>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 12px;">
-        <button class="key-action-btn secondary push-left-btn">← 插入头部</button>
-        <button class="key-action-btn secondary push-right-btn">插入尾部 →</button>
+        <button class="key-action-btn secondary push-left-btn">← Push Left</button>
+        <button class="key-action-btn secondary push-right-btn">Push Right →</button>
       </div>
-      ${(result.total || 0) > 100 ? '<div class="empty-hint" style="margin-top: 8px;">显示前 100 条</div>' : ''}
+      ${(result.total || 0) > 100 ? `<div class="empty-hint" style="margin-top: 8px;">${i18n.t('redis.showingFirst100')}</div>` : ''}
     `;
   }
 
@@ -766,18 +767,18 @@ export class RedisTool extends Tool {
     return `
       <div class="data-table-wrap">
         <table class="data-table set-table">
-          <thead><tr><th>Member</th><th width="80">操作</th></tr></thead>
+          <thead><tr><th>Member</th><th width="80">Actions</th></tr></thead>
           <tbody>
             ${members.map(member => `
               <tr data-member="${this.escapeHtml(member)}">
                 <td>${this.escapeHtml(member)}</td>
-                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-set-member">删除</button></td>
+                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-set-member">${i18n.t('redis.delete')}</button></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
-      <button class="add-row-btn add-set-member-btn">+ 添加成员</button>
+      <button class="add-row-btn add-set-member-btn">+ Add Member</button>
     `;
   }
 
@@ -787,20 +788,20 @@ export class RedisTool extends Tool {
     return `
       <div class="data-table-wrap">
         <table class="data-table zset-table">
-          <thead><tr><th width="100">Score</th><th>Member</th><th width="80">操作</th></tr></thead>
+          <thead><tr><th width="100">Score</th><th>Member</th><th width="80">Actions</th></tr></thead>
           <tbody>
             ${members.map(item => `
               <tr data-member="${this.escapeHtml(item.member)}">
                 <td>${item.score}</td>
                 <td>${this.escapeHtml(item.member)}</td>
-                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-zset-member">删除</button></td>
+                <td class="row-actions"><button class="row-action-btn delete" data-action="delete-zset-member">${i18n.t('redis.delete')}</button></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
-      <button class="add-row-btn add-zset-member-btn">+ 添加成员</button>
-      ${(result.total || 0) > 100 ? '<div class="empty-hint" style="margin-top: 8px;">显示前 100 条</div>' : ''}
+      <button class="add-row-btn add-zset-member-btn">+ Add Member</button>
+      ${(result.total || 0) > 100 ? '<div class="empty-hint" style="margin-top: 8px;">Showing first 100</div>' : ''}
     `;
   }
 
@@ -816,10 +817,10 @@ export class RedisTool extends Tool {
     panel.dataset.panel = tab.id;
     panel.innerHTML = `
       <div class="cli-panel">
-        <div class="cli-output"><div class="cli-line info">输入 Redis 命令，按 Enter 执行</div></div>
+        <div class="cli-output"><div class="cli-line info">${i18n.t('redis.cliHint')}</div></div>
         <div class="cli-input-wrap">
-          <input type="text" class="cli-input" placeholder="输入命令，如: GET key">
-          <button class="cli-run-btn">执行</button>
+          <input type="text" class="cli-input" placeholder="${i18n.t('redis.cliPlaceholder')}">
+          <button class="cli-run-btn">${i18n.t('redis.execute')}</button>
         </div>
       </div>
     `;
@@ -889,7 +890,7 @@ export class RedisTool extends Tool {
     const keyValue = (this.querySelector('#newKeyValue') as HTMLTextAreaElement).value;
     const ttl = parseInt((this.querySelector('#newKeyTTL') as HTMLInputElement).value) || -1;
 
-    if (!keyName) { toast('请输入键名'); return; }
+    if (!keyName) { toast(i18n.t('redis.pleaseInputKeyName')); return; }
 
     let result: { success: boolean; error?: string };
     switch (keyType) {
@@ -911,16 +912,16 @@ export class RedisTool extends Tool {
         result = await llmHub.redis.addZSetMember(connectionId, keyName, memberParts.join(':') || keyValue, parseFloat(scoreStr) || 0);
         break;
       default:
-        result = { success: false, error: '不支持的类型' };
+        result = { success: false, error: i18n.t('redis.unsupportedType') };
     }
 
     if (result.success) {
       if (ttl > 0) await llmHub.redis.setTTL(connectionId, keyName, ttl);
-      toast('键创建成功');
+      toast(i18n.t('redis.keyCreated'));
       this.hideAddKeyModal();
       this.refreshKeys();
     } else {
-      toast(`创建失败: ${result.error}`);
+      toast(`${i18n.t('redis.createFailed')}: ${result.error}`);
     }
   }
 

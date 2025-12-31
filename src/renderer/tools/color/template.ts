@@ -1,4 +1,6 @@
-export const template = `
+import { i18n } from '../../core/i18n';
+
+export const getTemplate = () => `
 <div class="color-wrap">
   <div class="color-container">
     <!-- 上方区域：颜色选择 + 转换 -->
@@ -9,7 +11,7 @@ export const template = `
           <div class="color-preview" id="colorPreview"></div>
           <div class="color-info">
             <div class="color-name" id="colorName">#FF6B35</div>
-            <div class="color-desc" id="colorDesc">橙红色</div>
+            <div class="color-desc" id="colorDesc"></div>
           </div>
         </div>
         <div class="color-controls">
@@ -19,7 +21,7 @@ export const template = `
           </div>
           <div class="brightness-slider-container">
             <input type="range" id="brightnessSlider" min="0" max="100" value="100" class="brightness-slider">
-            <div class="slider-label">亮度</div>
+            <div class="slider-label">${i18n.t('color.brightness')}</div>
           </div>
         </div>
       </div>
@@ -35,7 +37,7 @@ export const template = `
         <div class="conversion-inputs">
           <div class="conv-input-group active" data-type="hex">
             <input type="text" id="hexInput" placeholder="#FF6B35" class="color-input">
-            <button class="copy-color-btn" data-type="hex">复制</button>
+            <button class="copy-color-btn" data-type="hex">${i18n.t('color.copy')}</button>
           </div>
           <div class="conv-input-group" data-type="rgb">
             <div class="rgb-inputs">
@@ -43,7 +45,7 @@ export const template = `
               <input type="number" id="rgbG" min="0" max="255" placeholder="107" class="rgb-input">
               <input type="number" id="rgbB" min="0" max="255" placeholder="53" class="rgb-input">
             </div>
-            <button class="copy-color-btn" data-type="rgb">复制</button>
+            <button class="copy-color-btn" data-type="rgb">${i18n.t('color.copy')}</button>
           </div>
           <div class="conv-input-group" data-type="hsl">
             <div class="hsl-inputs">
@@ -51,7 +53,7 @@ export const template = `
               <input type="number" id="hslS" min="0" max="100" placeholder="100" class="hsl-input">
               <input type="number" id="hslL" min="0" max="100" placeholder="60" class="hsl-input">
             </div>
-            <button class="copy-color-btn" data-type="hsl">复制</button>
+            <button class="copy-color-btn" data-type="hsl">${i18n.t('color.copy')}</button>
           </div>
           <div class="conv-input-group" data-type="hsv">
             <div class="hsv-inputs">
@@ -59,7 +61,7 @@ export const template = `
               <input type="number" id="hsvS" min="0" max="100" placeholder="79" class="hsv-input">
               <input type="number" id="hsvV" min="0" max="100" placeholder="100" class="hsv-input">
             </div>
-            <button class="copy-color-btn" data-type="hsv">复制</button>
+            <button class="copy-color-btn" data-type="hsv">${i18n.t('color.copy')}</button>
           </div>
         </div>
       </div>
@@ -70,10 +72,10 @@ export const template = `
       <!-- 调色板区域 -->
       <div class="color-palette-section">
         <div class="palette-header">
-          <h3>调色板</h3>
+          <h3>${i18n.t('color.palette')}</h3>
           <div class="palette-actions">
-            <button id="addToPalette" class="palette-btn">+ 添加</button>
-            <button id="clearPalette" class="palette-btn secondary">清空</button>
+            <button id="addToPalette" class="palette-btn">${i18n.t('color.addToPalette')}</button>
+            <button id="clearPalette" class="palette-btn secondary">${i18n.t('color.clearPalette')}</button>
           </div>
         </div>
         <div class="color-palette" id="colorPalette"></div>
@@ -81,20 +83,20 @@ export const template = `
       
       <!-- 预设颜色区域 -->
       <div class="preset-colors-section">
-        <h3>常用颜色</h3>
+        <h3>${i18n.t('color.presetColors')}</h3>
         <div class="preset-grid">
-          <div class="preset-color" data-color="#FF6B35" style="background: #FF6B35;" title="橙红色"></div>
-          <div class="preset-color" data-color="#8B5CF6" style="background: #8B5CF6;" title="紫色"></div>
-          <div class="preset-color" data-color="#00D2D3" style="background: #00D2D3;" title="青色"></div>
-          <div class="preset-color" data-color="#22C55E" style="background: #22C55E;" title="绿色"></div>
-          <div class="preset-color" data-color="#EF4444" style="background: #EF4444;" title="红色"></div>
-          <div class="preset-color" data-color="#3B82F6" style="background: #3B82F6;" title="蓝色"></div>
-          <div class="preset-color" data-color="#F59E0B" style="background: #F59E0B;" title="黄色"></div>
-          <div class="preset-color" data-color="#EC4899" style="background: #EC4899;" title="粉色"></div>
-          <div class="preset-color" data-color="#10B981" style="background: #10B981;" title="翠绿色"></div>
-          <div class="preset-color" data-color="#F97316" style="background: #F97316;" title="橙色"></div>
-          <div class="preset-color" data-color="#6366F1" style="background: #6366F1;" title="靛蓝色"></div>
-          <div class="preset-color" data-color="#84CC16" style="background: #84CC16;" title="柠檬绿"></div>
+          <div class="preset-color" data-color="#FF6B35" style="background: #FF6B35;"></div>
+          <div class="preset-color" data-color="#8B5CF6" style="background: #8B5CF6;"></div>
+          <div class="preset-color" data-color="#00D2D3" style="background: #00D2D3;"></div>
+          <div class="preset-color" data-color="#22C55E" style="background: #22C55E;"></div>
+          <div class="preset-color" data-color="#EF4444" style="background: #EF4444;"></div>
+          <div class="preset-color" data-color="#3B82F6" style="background: #3B82F6;"></div>
+          <div class="preset-color" data-color="#F59E0B" style="background: #F59E0B;"></div>
+          <div class="preset-color" data-color="#EC4899" style="background: #EC4899;"></div>
+          <div class="preset-color" data-color="#10B981" style="background: #10B981;"></div>
+          <div class="preset-color" data-color="#F97316" style="background: #F97316;"></div>
+          <div class="preset-color" data-color="#6366F1" style="background: #6366F1;"></div>
+          <div class="preset-color" data-color="#84CC16" style="background: #84CC16;"></div>
         </div>
       </div>
     </div>

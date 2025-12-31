@@ -5,7 +5,8 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 
@@ -31,8 +32,8 @@ export class DiffTool extends Tool {
     title: 'Diff',
     category: ToolCategory.DEVELOPER,
     icon: '⚖️',
-    description: '文本对比工具',
-    keywords: ['diff', 'compare', '对比', '比较', '差异', 'merge', '合并'],
+    description: i18n.t('tool.diffDesc'),
+    keywords: ['diff', 'compare', 'merge'],
   };
 
   readonly config = DiffTool.config;
@@ -49,7 +50,7 @@ export class DiffTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -533,13 +534,13 @@ export class DiffTool extends Tool {
     const unifiedContent = this.querySelector('#unifiedContent');
     if (!unifiedContent || !this.diffResult) {
       if (unifiedContent) {
-        unifiedContent.innerHTML = '<div class="unified-placeholder">输入左右两侧文本后，差异将显示在这里</div>';
+        unifiedContent.innerHTML = `<div class="unified-placeholder">${i18n.t('diff.enterText')}</div>`;
       }
       return;
     }
 
     if (this.diffResult.lines.length === 0) {
-      unifiedContent.innerHTML = '<div class="unified-placeholder">没有差异</div>';
+      unifiedContent.innerHTML = `<div class="unified-placeholder">${i18n.t('diff.noDiff')}</div>`;
       return;
     }
 
@@ -646,7 +647,7 @@ export class DiffTool extends Tool {
     }
 
     this.onEditorInput();
-    toast('内容已交换');
+    toast(i18n.t('diff.swapped'));
   }
 
   private clearContent(): void {
@@ -665,7 +666,7 @@ export class DiffTool extends Tool {
     this.diffPositions = [];
 
     this.onEditorInput();
-    toast('内容已清空');
+    toast(i18n.t('diff.cleared'));
   }
 
   private async loadFile(event: Event, side: 'left' | 'right'): Promise<void> {
@@ -688,9 +689,9 @@ export class DiffTool extends Tool {
         filename.textContent = file.name;
       }
 
-      toast(`已加载: ${file.name}`);
+      toast(`${i18n.t('diff.loaded')}: ${file.name}`);
     } catch (error) {
-      toast(`加载失败: ${error}`);
+      toast(`${i18n.t('diff.loadFailed')}: ${error}`);
     }
 
     // 重置 input 以便可以再次选择同一文件
@@ -740,9 +741,9 @@ export class DiffTool extends Tool {
         filename.textContent = file.name;
       }
 
-      toast(`已加载: ${file.name}`);
+      toast(`${i18n.t('diff.loaded')}: ${file.name}`);
     } catch (error) {
-      toast(`加载失败: ${error}`);
+      toast(`${i18n.t('diff.loadFailed')}: ${error}`);
     }
   }
 
@@ -754,10 +755,10 @@ export class DiffTool extends Tool {
       if (editor) {
         editor.value = text;
         this.onEditorInput();
-        toast('已粘贴');
+        toast(i18n.t('common.pasted'));
       }
     } catch (error) {
-      toast('粘贴失败，请检查剪贴板权限');
+      toast(i18n.t('common.pasteFailed'));
     }
   }
 
@@ -767,18 +768,18 @@ export class DiffTool extends Tool {
     if (editor && editor.value) {
       try {
         await navigator.clipboard.writeText(editor.value);
-        toast('已复制');
+        toast(i18n.t('common.copied'));
       } catch (error) {
-        toast('复制失败');
+        toast(i18n.t('common.copyFailed'));
       }
     } else {
-      toast('没有内容可复制');
+      toast(i18n.t('common.noCopyContent'));
     }
   }
 
   private async copyDiff(): Promise<void> {
     if (!this.diffResult || this.diffResult.lines.length === 0) {
-      toast('没有差异可复制');
+      toast(i18n.t('diff.noDiffToCopy'));
       return;
     }
 
@@ -799,9 +800,9 @@ export class DiffTool extends Tool {
 
     try {
       await navigator.clipboard.writeText(diffText);
-      toast('差异已复制');
+      toast(i18n.t('diff.diffCopied'));
     } catch (error) {
-      toast('复制失败');
+      toast(i18n.t('diff.copyFailed'));
     }
   }
 

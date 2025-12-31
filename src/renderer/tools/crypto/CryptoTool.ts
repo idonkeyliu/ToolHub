@@ -6,7 +6,8 @@ import { Tool } from '../../core/Tool';
 import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
-import { cryptoTemplate } from './template';
+import { getCryptoTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
@@ -14,11 +15,11 @@ declare function copyText(text: string): void;
 export class CryptoTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'crypto',
-    title: '加密工具',
+    title: i18n.t('tool.crypto'),
     category: ToolCategory.DEVELOPER,
     icon: '🔐',
-    description: 'MD5/SHA/AES/DES 哈希与加解密工具',
-    keywords: ['crypto', '加密', '解密', 'md5', 'sha', 'aes', 'des', 'hash', '哈希'],
+    description: i18n.t('tool.cryptoDesc'),
+    keywords: ['crypto', 'md5', 'sha', 'aes', 'des', 'hash'],
   };
 
   config = CryptoTool.config;
@@ -26,7 +27,7 @@ export class CryptoTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'crypto-view',
-      innerHTML: cryptoTemplate,
+      innerHTML: getCryptoTemplate(),
     });
   }
 
@@ -78,7 +79,7 @@ export class CryptoTool extends Tool {
           const text = input?.value || '';
           if (!text) {
             if (error) {
-              error.textContent = '请输入要计算MD5的文本';
+              error.textContent = i18n.t('crypto.pleaseInputMd5');
               error.style.display = 'block';
             }
             return;
@@ -94,7 +95,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '生成失败：' + e.message;
+            error.textContent = i18n.t('crypto.generateFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -136,7 +137,7 @@ export class CryptoTool extends Tool {
           const text = input?.value || '';
           if (!text) {
             if (error) {
-              error.textContent = '请输入要计算SHA的文本';
+              error.textContent = i18n.t('crypto.pleaseInputSha');
               error.style.display = 'block';
             }
             return;
@@ -154,7 +155,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '生成失败：' + e.message;
+            error.textContent = i18n.t('crypto.generateFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -195,7 +196,7 @@ export class CryptoTool extends Tool {
           const keyVal = key?.value || '';
           if (!text || !keyVal) {
             if (error) {
-              error.textContent = '请输入文本和密钥';
+              error.textContent = i18n.t('crypto.pleaseInputTextAndKey');
               error.style.display = 'block';
             }
             return;
@@ -205,7 +206,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '加密失败：' + e.message;
+            error.textContent = i18n.t('crypto.encryptFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -219,7 +220,7 @@ export class CryptoTool extends Tool {
           const keyVal = key?.value || '';
           if (!text || !keyVal) {
             if (error) {
-              error.textContent = '请输入文本和密钥';
+              error.textContent = i18n.t('crypto.pleaseInputTextAndKey');
               error.style.display = 'block';
             }
             return;
@@ -229,7 +230,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解密失败：' + e.message;
+            error.textContent = i18n.t('crypto.decryptFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -249,7 +250,7 @@ export class CryptoTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = output?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -273,14 +274,14 @@ export class CryptoTool extends Tool {
           const keyVal = key?.value || '';
           if (!text || !keyVal) {
             if (error) {
-              error.textContent = '请输入文本和密钥';
+              error.textContent = i18n.t('crypto.pleaseInputTextAndKey');
               error.style.display = 'block';
             }
             return;
           }
           if (keyVal.length !== 8) {
             if (error) {
-              error.textContent = 'DES密钥必须是8个字符';
+              error.textContent = i18n.t('crypto.desKeyMustBe8');
               error.style.display = 'block';
             }
             return;
@@ -290,7 +291,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '加密失败：' + e.message;
+            error.textContent = i18n.t('crypto.encryptFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -304,14 +305,14 @@ export class CryptoTool extends Tool {
           const keyVal = key?.value || '';
           if (!text || !keyVal) {
             if (error) {
-              error.textContent = '请输入文本和密钥';
+              error.textContent = i18n.t('crypto.pleaseInputTextAndKey');
               error.style.display = 'block';
             }
             return;
           }
           if (keyVal.length !== 8) {
             if (error) {
-              error.textContent = 'DES密钥必须是8个字符';
+              error.textContent = i18n.t('crypto.desKeyMustBe8');
               error.style.display = 'block';
             }
             return;
@@ -321,7 +322,7 @@ export class CryptoTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解密失败：' + e.message;
+            error.textContent = i18n.t('crypto.decryptFailed') + e.message;
             error.style.display = 'block';
           }
         }
@@ -341,7 +342,7 @@ export class CryptoTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = output?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -353,7 +354,7 @@ export class CryptoTool extends Tool {
       this.addEventListener(btn, 'click', () => {
         const text = output?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }

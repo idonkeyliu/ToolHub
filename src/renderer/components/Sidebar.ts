@@ -85,9 +85,10 @@ export class Sidebar {
 
     if (this.editingCategoryId === category.id) {
       // 编辑模式
+      const displayTitle = i18n.getCategoryTitle(category.id, category.title);
       header.innerHTML = `
         <span class="sidebar-category-icon">${this.renderCategoryIcon(category)}</span>
-        <input type="text" class="category-edit-input" value="${category.title}" />
+        <input type="text" class="category-edit-input" value="${displayTitle}" />
         <button class="category-edit-save">✓</button>
         <button class="category-edit-cancel">✕</button>
       `;
@@ -245,29 +246,46 @@ export class Sidebar {
       <span class="sidebar-item-title">${this.collapsed ? '' : displayTitle}</span>
     `;
 
-    // 链接类型显示外部链接按钮
-    if (isLink && !this.collapsed) {
-      html += `
-        <button class="item-external-btn" title="在浏览器中打开">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/>
-            <line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-        </button>
-      `;
-    }
+    // 操作按钮区域
+    if (!this.collapsed) {
+      html += `<div class="item-actions">`;
+      
+      // 链接类型显示外部链接按钮
+      if (isLink) {
+        html += `
+          <button class="item-action-btn item-external-btn" title="${i18n.t('sidebar.openInBrowser')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </button>
+        `;
+      }
 
-    // 自定义网站显示编辑按钮
-    if (item.type === 'custom-site' && !this.collapsed) {
+      // 自定义网站显示编辑按钮
+      if (item.type === 'custom-site') {
+        html += `
+          <button class="item-action-btn item-edit-btn" title="${i18n.t('common.edit')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        `;
+      }
+
+      // 所有项目都可以删除
       html += `
-        <button class="item-edit-btn" title="编辑">
+        <button class="item-action-btn item-delete-btn" title="${i18n.t('common.delete')}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
         </button>
       `;
+      
+      html += `</div>`;
     }
 
     el.innerHTML = html;
@@ -275,8 +293,7 @@ export class Sidebar {
 
     // 点击项目
     el.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).closest('.item-edit-btn')) return;
-      if ((e.target as HTMLElement).closest('.item-external-btn')) return;
+      if ((e.target as HTMLElement).closest('.item-action-btn')) return;
       this.options.onItemClick(item.key, item.type);
     });
 
@@ -297,6 +314,15 @@ export class Sidebar {
         this.options.onItemEdit?.(item.key);
       });
     }
+
+    // 删除按钮
+    const deleteBtn = el.querySelector('.item-delete-btn');
+    deleteBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm(i18n.t('sidebar.confirmDeleteItem', '', { name: displayTitle }))) {
+        categoryManager.deleteItem(item.key);
+      }
+    });
 
     // 拖拽开始
     el.addEventListener('dragstart', (e) => {
@@ -410,15 +436,15 @@ export class Sidebar {
     
     // 获取 emoji 分类
     const emojiCategories = [
-      { id: 'smileys', name: '笑脸', icon: '😀', dir: '笑脸与情感' },
-      { id: 'people', name: '人物', icon: '👋', dir: '人物与身体' },
-      { id: 'animals', name: '动物', icon: '🐱', dir: '动物与自然' },
-      { id: 'food', name: '食物', icon: '🍎', dir: '食物与饮料' },
-      { id: 'travel', name: '旅行', icon: '🚗', dir: '旅行与地点' },
-      { id: 'activities', name: '活动', icon: '⚽', dir: '活动' },
-      { id: 'objects', name: '物品', icon: '💡', dir: '物品' },
-      { id: 'symbols', name: '符号', icon: '❤️', dir: '符号' },
-      { id: 'flags', name: '旗帜', icon: '🏁', dir: '旗帜' },
+      { id: 'smileys', name: i18n.t('emoji.smileys'), icon: '😀', dir: '笑脸与情感' },
+      { id: 'people', name: i18n.t('emoji.people'), icon: '👋', dir: '人物与身体' },
+      { id: 'animals', name: i18n.t('emoji.animals'), icon: '🐱', dir: '动物与自然' },
+      { id: 'food', name: i18n.t('emoji.food'), icon: '🍎', dir: '食物与饮料' },
+      { id: 'travel', name: i18n.t('emoji.travel'), icon: '🚗', dir: '旅行与地点' },
+      { id: 'activities', name: i18n.t('emoji.activities'), icon: '⚽', dir: '活动' },
+      { id: 'objects', name: i18n.t('emoji.objects'), icon: '💡', dir: '物品' },
+      { id: 'symbols', name: i18n.t('emoji.symbols'), icon: '❤️', dir: '符号' },
+      { id: 'flags', name: i18n.t('emoji.flags'), icon: '🏁', dir: '旗帜' },
     ];
 
     const categoryTabs = emojiCategories.map((cat, idx) => 
@@ -447,7 +473,7 @@ export class Sidebar {
               </div>
             </div>
             <div class="add-cat-name-field">
-              <input type="text" class="add-cat-name-input" placeholder="输入目录名称" autofocus />
+              <input type="text" class="add-cat-name-input" placeholder="${i18n.t('sidebar.enterCategoryName')}" autofocus />
             </div>
           </div>
           
@@ -458,7 +484,7 @@ export class Sidebar {
                 <circle cx="11" cy="11" r="8"/>
                 <path d="M21 21l-4.35-4.35"/>
               </svg>
-              <input type="text" class="add-cat-search-input" placeholder="搜索图标..." />
+              <input type="text" class="add-cat-search-input" placeholder="${i18n.t('sidebar.searchIcon')}" />
             </div>
             <div class="add-cat-tabs">${categoryTabs}</div>
             <div class="add-cat-emoji-grid"></div>
@@ -665,10 +691,7 @@ export class Sidebar {
     menu.querySelector('.delete-item')?.addEventListener('click', () => {
       menu.remove();
       const displayTitle = i18n.getCategoryTitle(category.id, category.title);
-      const confirmMsg = i18n.getLanguage() === 'zh' 
-        ? `确定删除目录「${displayTitle}」吗？目录内的项目将被移除。`
-        : `Are you sure you want to delete "${displayTitle}"? Items in this category will be removed.`;
-      if (confirm(confirmMsg)) {
+      if (confirm(i18n.t('sidebar.confirmDeleteCategory', '', { name: displayTitle }))) {
         categoryManager.deleteCategory(category.id);
       }
     });

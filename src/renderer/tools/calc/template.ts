@@ -2,12 +2,14 @@
  * 计算器工具模板
  */
 
-export function template(): string {
+import { i18n } from '../../core/i18n';
+
+export function getTemplate(): string {
   return `
     <div class="calc-wrap">
       <div class="calc-result" id="calcOut"></div>
       <div class="calc-display">
-        <input class="calc-input" id="calcExpr" placeholder="输入表达式，例如: (1+2)*3/4 或 2^10" />
+        <input class="calc-input" id="calcExpr" placeholder="${i18n.t('calc.placeholder')}" />
       </div>
       <div class="calc-grid">
         <div class="btn num" data-k="7">7</div>

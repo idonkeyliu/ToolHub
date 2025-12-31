@@ -98,10 +98,10 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: 'video', title: 'Video', icon: '🎬', items: ['youtube'], isSystem: true },
   { id: 'utility', title: '实用工具', icon: '🧰', items: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'], isSystem: true },
   { id: 'encoding', title: '编解码工具', icon: '🔐', items: ['codec', 'crypto', 'jwt'], isSystem: true },
-  { id: 'format', title: '格式化工具', icon: '📝', items: ['json', 'text', 'diff', 'regex'], isSystem: true },
+  { id: 'format', title: '格式化工具', icon: '📝', items: ['json', 'text'], isSystem: true },
   { id: 'storage', title: '存储工具', icon: '💾', items: ['database', 'redis', 'mongo'], isSystem: true },
   { id: 'network', title: '网络工具', icon: '🌐', items: ['dns', 'curl'], isSystem: true },
-  { id: 'terminal', title: '终端工具', icon: '🖥️', items: ['terminal', 'sync'], isSystem: true },
+  // { id: 'terminal', title: '终端工具', icon: '🖥️', items: ['terminal', 'sync'], isSystem: true },
 ];
 
 class CategoryManager {
@@ -326,6 +326,19 @@ class CategoryManager {
   deleteCustomSite(key: string): void {
     const item = this.data.itemMap[key];
     if (item && item.type === 'custom-site') {
+      // 从所有目录中移除
+      this.data.categories.forEach(cat => {
+        cat.items = cat.items.filter(k => k !== key);
+      });
+      delete this.data.itemMap[key];
+      this.save();
+    }
+  }
+
+  // 删除任意项目（包括内置的 LLM、工具、自定义网站）
+  deleteItem(key: string): void {
+    const item = this.data.itemMap[key];
+    if (item) {
       // 从所有目录中移除
       this.data.categories.forEach(cat => {
         cat.items = cat.items.filter(k => k !== key);

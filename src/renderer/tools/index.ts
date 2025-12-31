@@ -18,11 +18,11 @@ import { ImageTool } from './image/ImageTool';
 import { DatabaseTool } from './database/DatabaseTool';
 import { RedisTool } from './redis/RedisTool';
 import { MongoTool } from './mongo/MongoTool';
-import { DiffTool } from './diff/DiffTool';
+// import { DiffTool } from './diff/DiffTool';
 import { JwtTool } from './jwt/JwtTool';
-import { RegexTool } from './regex/RegexTool';
-import { TerminalTool } from './terminal/TerminalTool';
-import { SyncTool } from './sync/SyncTool';
+// import { RegexTool } from './regex/RegexTool';
+// import { TerminalTool } from './terminal/TerminalTool';
+// import { SyncTool } from './sync/SyncTool';
 import { UsageTracker } from './stats/StatsTool';
 
 export const tools = [
@@ -42,11 +42,11 @@ export const tools = [
   DatabaseTool,
   RedisTool,
   MongoTool,
-  DiffTool,
+  // DiffTool,
   JwtTool,
-  RegexTool,
-  TerminalTool,
-  SyncTool,
+  // RegexTool,
+  // TerminalTool,
+  // SyncTool,
 ];
 
 // 导出使用追踪器
