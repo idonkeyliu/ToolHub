@@ -7,27 +7,7 @@ import { ToolConfig, ToolCategory } from '../../types/index';
 import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
 import { i18n } from '../../core/i18n';
-
-// Terminal IPC 接口
-declare const llmHub: {
-  terminal: {
-    testConnection: (config: ServerConfig) => Promise<{ success: boolean; error?: string }>;
-    connect: (config: ServerConfig) => Promise<{ success: boolean; sessionId?: string; error?: string }>;
-    disconnect: (sessionId: string) => Promise<{ success: boolean; error?: string }>;
-    execute: (sessionId: string, command: string) => Promise<{ success: boolean; output?: string; error?: string }>;
-  };
-};
-
-interface ServerConfig {
-  id?: string;
-  name: string;
-  host: string;
-  port: number;
-  username: string;
-  authType: 'password' | 'key';
-  password?: string;
-  privateKey?: string;
-}
+import type { ServerConfig } from '../../types';
 
 interface TabInfo {
   id: string;

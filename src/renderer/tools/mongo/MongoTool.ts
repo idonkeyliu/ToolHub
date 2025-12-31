@@ -7,38 +7,7 @@ import { ToolConfig, ToolCategory } from '../../types/index';
 import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
 import { i18n } from '../../core/i18n';
-
-declare const llmHub: {
-  mongo: {
-    testConnection: (config: MongoConnectionConfig) => Promise<{ success: boolean; error?: string }>;
-    connect: (config: MongoConnectionConfig) => Promise<{ success: boolean; connectionId?: string; error?: string }>;
-    disconnect: (connectionId: string) => Promise<{ success: boolean; error?: string }>;
-    listDatabases: (connectionId: string) => Promise<{ success: boolean; databases?: string[]; error?: string }>;
-    listCollections: (connectionId: string, database: string) => Promise<{ success: boolean; collections?: string[]; error?: string }>;
-    getCollectionStats: (connectionId: string, database: string, collection: string) => Promise<{ success: boolean; stats?: { count: number; size: number; avgObjSize: number }; error?: string }>;
-    findDocuments: (connectionId: string, database: string, collection: string, filter: string, sort: string, skip: number, limit: number) => Promise<{ success: boolean; documents?: any[]; total?: number; error?: string }>;
-    insertDocument: (connectionId: string, database: string, collection: string, document: string) => Promise<{ success: boolean; insertedId?: string; error?: string }>;
-    updateDocument: (connectionId: string, database: string, collection: string, id: string, document: string) => Promise<{ success: boolean; error?: string }>;
-    deleteDocument: (connectionId: string, database: string, collection: string, id: string) => Promise<{ success: boolean; error?: string }>;
-    getIndexes: (connectionId: string, database: string, collection: string) => Promise<{ success: boolean; indexes?: Array<{ name: string; key: Record<string, number> }>; error?: string }>;
-    runCommand: (connectionId: string, database: string, command: string) => Promise<{ success: boolean; result?: any; error?: string }>;
-    dropCollection: (connectionId: string, database: string, collection: string) => Promise<{ success: boolean; error?: string }>;
-    createCollection: (connectionId: string, database: string, collection: string) => Promise<{ success: boolean; error?: string }>;
-  };
-};
-
-interface MongoConnectionConfig {
-  id?: string;
-  name: string;
-  mode: 'standard' | 'uri';
-  host?: string;
-  port?: number;
-  user?: string;
-  password?: string;
-  authDB?: string;
-  uri?: string;
-  tls?: boolean;
-}
+import type { MongoConnectionConfig } from '../../types';
 
 interface DatabaseInfo {
   name: string;
