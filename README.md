@@ -1,7 +1,7 @@
 # ToolHub - All-in-One Developer Toolkit
 
 <p align="center">
-  <img src="docs/images/toolhub1.png" alt="ToolHub Logo">
+  <img src="docs/images/toolhub6.png" alt="ToolHub Logo">
 </p>
 
 > A powerful Electron-based desktop app that brings together AI chat platforms and 20+ essential developer tools in one unified workspace.
@@ -13,6 +13,10 @@
 ## Screenshots
 
 <p align="center">
+  <img src="docs/images/toolhub5.png" width="800" alt="ToolHub Database">
+</p>
+
+<p align="center">
   <img src="docs/images/toolhub2.png" width="800" alt="ToolHub Main Interface">
 </p>
 
@@ -22,10 +26,6 @@
 
 <p align="center">
   <img src="docs/images/toolhub4.png" width="800" alt="ToolHub Features">
-</p>
-
-<p align="center">
-  <img src="docs/images/toolhub5.png" width="800" alt="ToolHub Database">
 </p>
 
 ## Why ToolHub?
@@ -73,14 +73,9 @@
 
 ## Download
 
-| Platform | Download |
-|----------|----------|
-| macOS (Apple Silicon) | [ToolHub-0.1.0-arm64.dmg](#) |
-| macOS (Intel) | [ToolHub-0.1.0-x64.dmg](#) |
-| Windows | [ToolHub-0.1.0-Setup.exe](#) |
-| Linux | [ToolHub-0.1.0.AppImage](#) |
+Download the latest version of ToolHub for macOS. Currently only macOS is supported, Windows and Linux versions coming soon.
 
-> **macOS 用户注意**: 如果下载的应用提示"已损坏"或"无法打开"，请在终端执行：
+> **macOS Users**: If you see "damaged" or "can't be opened" error, run this in Terminal:
 > ```bash
 > xattr -cr /Applications/ToolHub.app
 > ```
