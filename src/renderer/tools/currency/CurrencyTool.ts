@@ -1,15 +1,16 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class CurrencyTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'currency',
-    title: '货币转换',
+    title: i18n.t('tool.currency'),
     category: ToolCategory.CONVERTER,
     icon: '💱',
-    description: '实时汇率查询与货币换算',
-    keywords: ['货币', 'currency', '汇率', '换算', '美元', '人民币'],
+    description: i18n.t('tool.currencyDesc'),
+    keywords: ['currency', 'exchange', 'rate', 'usd', 'cny'],
   };
 
   readonly config = CurrencyTool.config;
@@ -35,7 +36,7 @@ export class CurrencyTool extends Tool {
   render(): HTMLElement {
     const container = document.createElement('div');
     container.className = 'tool-view currency-tool';
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container;
   }
 
@@ -144,13 +145,13 @@ export class CurrencyTool extends Tool {
     if (!amountInput.value.trim()) {
       resultInput.value = '';
       if (exchangeRateInfo) {
-        exchangeRateInfo.innerHTML = '输入金额开始转换';
+        exchangeRateInfo.innerHTML = i18n.t('currency.enterAmount');
       }
       return;
     }
 
     if (isNaN(amount)) {
-      errorMsg.textContent = '请输入有效的金额';
+      errorMsg.textContent = i18n.t('currency.invalidAmount');
       errorMsg.style.display = 'block';
       return;
     }

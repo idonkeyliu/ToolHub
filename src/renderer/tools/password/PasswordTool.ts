@@ -8,16 +8,17 @@ import { ToolCategory, EventType } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { copyText } from '../../utils/clipboard';
 import { eventBus } from '../../core/EventBus';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class PasswordTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'pwd',
-    title: '密码生成',
+    title: i18n.t('tool.password'),
     category: ToolCategory.UTILITY,
     icon: '🔐',
-    description: '安全随机密码生成器',
-    keywords: ['密码', 'password'],
+    description: i18n.t('tool.passwordDesc'),
+    keywords: ['password', 'generator'],
   };
 
   config = PasswordTool.config;
@@ -35,7 +36,7 @@ export class PasswordTool extends Tool {
   private optSymbols: HTMLInputElement | null = null;
 
   render(): HTMLElement {
-    return createElement('div', { className: 'pwd-view', innerHTML: template() });
+    return createElement('div', { className: 'pwd-view', innerHTML: getTemplate() });
   }
 
   protected bindEvents(): void {
@@ -123,9 +124,9 @@ export class PasswordTool extends Tool {
       }
     }
     if (this.strengthTxt) {
-      if (pct < 35) { this.strengthTxt.textContent = '🔴 弱'; this.strengthTxt.style.color = '#ef4444'; }
-      else if (pct < 70) { this.strengthTxt.textContent = '🟡 中'; this.strengthTxt.style.color = '#f59e0b'; }
-      else { this.strengthTxt.textContent = '🟢 强'; this.strengthTxt.style.color = '#22c55e'; }
+      if (pct < 35) { this.strengthTxt.textContent = i18n.t('password.weak'); this.strengthTxt.style.color = '#ef4444'; }
+      else if (pct < 70) { this.strengthTxt.textContent = i18n.t('password.medium'); this.strengthTxt.style.color = '#f59e0b'; }
+      else { this.strengthTxt.textContent = i18n.t('password.strong'); this.strengthTxt.style.color = '#22c55e'; }
     }
   }
 
@@ -164,12 +165,12 @@ export class PasswordTool extends Tool {
   private handleCopy(): void {
     if (!this.outputEl?.value || !this.copyBtn) return;
     copyText(this.outputEl.value).then(() => {
-      eventBus.emit(EventType.TOAST_SHOW, { message: '已复制', duration: 1300 });
+      eventBus.emit(EventType.TOAST_SHOW, { message: i18n.t('timestamp.copied'), duration: 1300 });
       if (this.copyBtn) {
         this.copyBtn.style.animation = 'pulse 0.3s ease-in-out';
-        this.copyBtn.textContent = '✅ 已复制';
+        this.copyBtn.textContent = i18n.t('password.copied');
         setTimeout(() => {
-          if (this.copyBtn) { this.copyBtn.textContent = '📋 复制'; this.copyBtn.style.animation = ''; }
+          if (this.copyBtn) { this.copyBtn.textContent = i18n.t('password.copy'); this.copyBtn.style.animation = ''; }
         }, 1500);
       }
     });

@@ -6,3 +6,7 @@ node_modules/
 
 # 忽略构建输出目录
 dist/
+
+# 忽略备份文件
+src/main-backup.ts
+*.backup.*

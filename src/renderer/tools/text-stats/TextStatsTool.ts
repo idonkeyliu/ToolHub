@@ -6,16 +6,17 @@ import { Tool } from '../../core/Tool';
 import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class TextStatsTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'text',
-    title: '文本统计',
+    title: i18n.t('tool.textStats'),
     category: ToolCategory.UTILITY,
     icon: '📝',
-    description: '实时统计文本字符数、行数、单词数等',
-    keywords: ['文本', 'text', '统计', '字数', '字符', 'count'],
+    description: i18n.t('tool.textStatsDesc'),
+    keywords: ['text', 'count', 'statistics'],
   };
 
   config = TextStatsTool.config;
@@ -33,7 +34,7 @@ export class TextStatsTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'text-view',
-      innerHTML: template(),
+      innerHTML: getTemplate(),
     });
   }
 

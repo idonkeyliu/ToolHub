@@ -6,16 +6,17 @@ import { Tool } from '../../core/Tool';
 import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class CalcTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'calc',
-    title: '计算器',
+    title: i18n.t('tool.calc'),
     category: ToolCategory.UTILITY,
     icon: '🧮',
-    description: '支持四则运算、幂运算的科学计算器',
-    keywords: ['计算器', 'calculator', '计算', '数学', 'math'],
+    description: i18n.t('tool.calcDesc'),
+    keywords: ['calculator', 'math'],
   };
 
   config = CalcTool.config;
@@ -26,7 +27,7 @@ export class CalcTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'calc-view',
-      innerHTML: template(),
+      innerHTML: getTemplate(),
     });
   }
 
@@ -164,7 +165,7 @@ export class CalcTool extends Tool {
       const val = fn();
 
       if (typeof val !== 'number' || Number.isNaN(val)) {
-        throw new Error('表达式无效');
+        throw new Error(i18n.t('calc.invalidExpr'));
       }
 
       const str = this.formatNumber(val);
@@ -193,7 +194,7 @@ export class CalcTool extends Tool {
 
     // 白名单字符检查（仅数字与基本运算符）
     if (!/^[0-9+\-*/%^().\s]+$/.test(s)) {
-      throw new Error('含非法字符');
+      throw new Error(i18n.t('calc.illegalChar'));
     }
 
     return s;
@@ -201,7 +202,7 @@ export class CalcTool extends Tool {
 
   private formatNumber(n: number): string {
     if (typeof n !== 'number' || !Number.isFinite(n)) {
-      return '无穷/非法';
+      return i18n.t('calc.infinity');
     }
 
     // 始终使用普通小数表示，最多保留 12 位小数，并去除尾随 0

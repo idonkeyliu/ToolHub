@@ -581,6 +581,11 @@
 
 .theme-light .about-name {
   color: var(--text-primary) !important;
+  -webkit-text-fill-color: initial !important;
+  background: linear-gradient(135deg, #0099cc, #6d28d9, #db2777) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 .theme-light .about-version {
@@ -589,6 +594,10 @@
 
 .theme-light .about-desc {
   color: var(--text-secondary) !important;
+}
+
+.theme-light .about-slogan {
+  color: #0099cc !important;
 }
 
 /* 工具内容区浅色主题 */

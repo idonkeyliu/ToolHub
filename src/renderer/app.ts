@@ -8,6 +8,7 @@ import { themeManager } from './core/ThemeManager';
 import { favoriteManager } from './core/FavoriteManager';
 import { categoryManager, CategoryItem } from './core/CategoryManager';
 import { i18n } from './core/i18n';
+import { wsService } from './core/WebSocketService';
 import { EventType } from './types/index';
 import { tools, UsageTracker } from './tools/index';
 import { StatsPanel } from './tools/stats/StatsPanel';
@@ -53,6 +54,15 @@ class App {
   private rainActive: boolean = false;
   private snowActive: boolean = false;
 
+  // 健康提醒 - 活动检测计时
+  private activeTime: number = 0; // 累计活跃时间（秒）
+  private activityTimer: ReturnType<typeof setInterval> | null = null;
+  private lastActivityTime: number = Date.now();
+  private isWindowFocused: boolean = true;
+  private readonly HEALTH_REMINDER_THRESHOLD = 25 * 60; // 25分钟（秒）
+  private readonly ACTIVITY_TIMEOUT = 60 * 1000; // 60秒无活动视为不活跃
+  private isBreakActive: boolean = false; // 是否正在休息中
+
   constructor() {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.init());
@@ -82,6 +92,9 @@ class App {
 
     // 初始化 Toast 组件
     Toast.getInstance();
+
+    // 初始化页面翻译
+    i18n.initPageTranslations();
 
     // 初始化主题
     console.log(`[App] Theme: ${themeManager.getResolvedTheme()}`);
@@ -113,6 +126,9 @@ class App {
     // 设置 AI 对比功能
     this.setupAICompareEvents();
 
+    // 初始化健康提醒（活动检测）
+    this.initHealthReminder();
+
     // 设置页面卸载时保存使用数据
     this.setupUnloadHandler();
 
@@ -123,10 +139,202 @@ class App {
       loading.remove(); // 彻底移除 loading 元素
     }
 
+    // 初始化 WebSocket 连接（用于世界地图在线数据）
+    console.log(`[App] WebSocket connected: ${wsService.isConnected()}`);
+
     // 默认打开第一个可用项目
     this.openDefaultItem();
 
     console.log('[App] Initialization complete');
+  }
+
+  /** 初始化健康提醒 - 活动检测计时 */
+  private initHealthReminder(): void {
+    // 检查是否启用健康提醒
+    const enabled = localStorage.getItem('healthReminderEnabled') !== 'false';
+    if (!enabled) return;
+
+    // 监听用户活动
+    const updateActivity = () => {
+      this.lastActivityTime = Date.now();
+    };
+
+    document.addEventListener('mousemove', updateActivity);
+    document.addEventListener('mousedown', updateActivity);
+    document.addEventListener('keydown', updateActivity);
+    document.addEventListener('scroll', updateActivity, true);
+    document.addEventListener('wheel', updateActivity, true);
+
+    // 监听窗口焦点
+    window.addEventListener('focus', () => {
+      this.isWindowFocused = true;
+      this.lastActivityTime = Date.now();
+    });
+
+    window.addEventListener('blur', () => {
+      this.isWindowFocused = false;
+    });
+
+    // 每秒检查一次活动状态
+    this.activityTimer = setInterval(() => {
+      // 如果正在休息中，不计时
+      if (this.isBreakActive) return;
+
+      const now = Date.now();
+      const isActive = this.isWindowFocused && (now - this.lastActivityTime < this.ACTIVITY_TIMEOUT);
+
+      if (isActive) {
+        this.activeTime++;
+        
+        // 达到阈值，触发休息提醒
+        if (this.activeTime >= this.HEALTH_REMINDER_THRESHOLD) {
+          this.triggerHealthBreak();
+        }
+      }
+    }, 1000);
+
+    console.log('[App] 🏥 Health reminder initialized');
+  }
+
+  /** 触发健康休息 */
+  private triggerHealthBreak(): void {
+    // 检查开关状态
+    const enabled = localStorage.getItem('healthReminderEnabled') !== 'false';
+    if (!enabled || this.isBreakActive) return;
+
+    this.isBreakActive = true;
+    console.log('[App] 🏥 Triggering health break!');
+
+    // 随机选择效果
+    const effects = ['rain', 'snow'];
+    const effect = effects[Math.floor(Math.random() * effects.length)];
+
+    // 创建休息遮罩
+    const overlay = document.createElement('div');
+    overlay.id = 'healthBreakOverlay';
+    overlay.innerHTML = `
+      <div class="health-break-content">
+        <div class="health-break-icon">${effect === 'rain' ? '🌧️' : '❄️'}</div>
+        <div class="health-break-title">${i18n.t('health.breakTitle')}</div>
+        <div class="health-break-desc">${i18n.t('health.breakDesc')}</div>
+        <div class="health-break-timer">10</div>
+        <button class="health-break-skip">${i18n.t('health.skip')}</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // 添加样式
+    const style = document.createElement('style');
+    style.id = 'healthBreakStyle';
+    style.textContent = `
+      #healthBreakOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .health-break-content {
+        text-align: center;
+        color: white;
+        padding: 40px;
+      }
+      .health-break-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        animation: bounce 1s ease infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .health-break-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      .health-break-desc {
+        font-size: 16px;
+        color: #9ca3af;
+        margin-bottom: 30px;
+      }
+      .health-break-timer {
+        font-size: 48px;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 20px;
+      }
+      .health-break-skip {
+        padding: 8px 24px;
+        background: transparent;
+        border: 1px solid #4b5563;
+        color: #9ca3af;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+      .health-break-skip:hover {
+        border-color: #6b7280;
+        color: #e5e7eb;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 启动天气效果
+    if (effect === 'rain') {
+      this.startRainEffect();
+    } else {
+      this.startSnowEffect();
+    }
+
+    // 倒计时
+    let countdown = 10;
+    const timerEl = overlay.querySelector('.health-break-timer');
+    const countdownInterval = setInterval(() => {
+      countdown--;
+      if (timerEl) timerEl.textContent = String(countdown);
+      
+      if (countdown <= 0) {
+        clearInterval(countdownInterval);
+        this.endHealthBreak();
+      }
+    }, 1000);
+
+    // 跳过按钮
+    const skipBtn = overlay.querySelector('.health-break-skip');
+    skipBtn?.addEventListener('click', () => {
+      clearInterval(countdownInterval);
+      this.endHealthBreak();
+    });
+  }
+
+  /** 结束健康休息 */
+  private endHealthBreak(): void {
+    // 移除遮罩
+    const overlay = document.getElementById('healthBreakOverlay');
+    const style = document.getElementById('healthBreakStyle');
+    overlay?.remove();
+    style?.remove();
+
+    // 停止天气效果
+    this.stopAllWeatherEffects();
+
+    // 重置计时
+    this.activeTime = 0;
+    this.isBreakActive = false;
+
+    console.log('[App] 🏥 Health break ended, timer reset');
   }
 
   /** 停止所有天气效果 */
@@ -524,7 +732,7 @@ class App {
     
     this.commandPalette = new CommandPalette({
       items,
-      placeholder: '搜索工具或 AI 助手...',
+      placeholder: i18n.t('app.searchPlaceholder'),
       onSelect: (key) => {
         this.switchToItem(key);
       },
@@ -566,7 +774,7 @@ class App {
     this.addItemDialog.innerHTML = `
       <div class="add-site-dialog">
         <div class="add-site-header">
-          <div class="add-site-title">添加网站</div>
+          <div class="add-site-title">${i18n.t('app.addSite')}</div>
           <button class="add-site-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -578,19 +786,19 @@ class App {
             <div class="add-site-preview-icon" style="background: #3b82f6"></div>
           </div>
           <div class="add-site-field">
-            <label>网站名称</label>
-            <input type="text" class="add-site-name-input" placeholder="例如：GitHub" />
+            <label>${i18n.t('app.siteName')}</label>
+            <input type="text" class="add-site-name-input" placeholder="${i18n.t('app.siteNamePlaceholder')}" />
           </div>
           <div class="add-site-field">
-            <label>网站地址</label>
+            <label>${i18n.t('app.siteUrl')}</label>
             <input type="text" class="add-site-url-input" placeholder="https://github.com" />
           </div>
           <div class="add-site-field">
-            <label>所属目录</label>
+            <label>${i18n.t('app.category')}</label>
             <select class="add-site-category-select"></select>
           </div>
           <div class="add-site-field">
-            <label>图标颜色</label>
+            <label>${i18n.t('app.iconColor')}</label>
             <div class="add-site-color-row">
               <div class="add-site-color-presets">
                 <div class="color-preset active" data-color="#3b82f6" style="background: #3b82f6"></div>
@@ -615,8 +823,8 @@ class App {
           </div>
         </div>
         <div class="add-site-footer">
-          <button class="add-site-cancel">取消</button>
-          <button class="add-site-confirm">确定</button>
+          <button class="add-site-cancel">${i18n.t('common.cancel')}</button>
+          <button class="add-site-confirm">${i18n.t('common.confirm')}</button>
         </div>
       </div>
     `;
@@ -747,9 +955,10 @@ class App {
     // 填充目录下拉选择
     if (categorySelect) {
       const categories = categoryManager.getCategories();
-      categorySelect.innerHTML = categories.map(cat => 
-        `<option value="${cat.id}" ${cat.id === categoryId ? 'selected' : ''}>${cat.icon} ${cat.title}</option>`
-      ).join('');
+      categorySelect.innerHTML = categories.map(cat => {
+        const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
+        return `<option value="${cat.id}" ${cat.id === categoryId ? 'selected' : ''}>${cat.icon} ${displayTitle}</option>`;
+      }).join('');
     }
     
     // 重置颜色预设选中状态
@@ -815,7 +1024,7 @@ class App {
     const icon = this.generateSiteAbbr(name);
 
     const item = categoryManager.addCustomSite(name, url, icon, color, targetCategory);
-    toast({ message: `已添加「${name}」`, duration: 2000 });
+    toast({ message: i18n.t('app.siteAdded', '', { name }), duration: 2000 });
     this.hideAddItemDialog();
     this.switchToItem(item.key);
   }
@@ -826,16 +1035,17 @@ class App {
 
     const currentCategory = categoryManager.getItemCategory(key);
     const categories = categoryManager.getCategories();
-    const categoryOptions = categories.map(cat => 
-      `<option value="${cat.id}" ${cat.id === currentCategory?.id ? 'selected' : ''}>${cat.icon} ${cat.title}</option>`
-    ).join('');
+    const categoryOptions = categories.map(cat => {
+      const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
+      return `<option value="${cat.id}" ${cat.id === currentCategory?.id ? 'selected' : ''}>${cat.icon} ${displayTitle}</option>`;
+    }).join('');
 
     const dialog = document.createElement('div');
     dialog.className = 'add-site-overlay';
     dialog.innerHTML = `
       <div class="add-site-dialog">
         <div class="add-site-header">
-          <div class="add-site-title">编辑网站</div>
+          <div class="add-site-title">${i18n.t('app.editSite')}</div>
           <button class="add-site-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -847,19 +1057,19 @@ class App {
             <div class="add-site-preview-icon" style="background: ${item.color}">${item.icon}</div>
           </div>
           <div class="add-site-field">
-            <label>网站名称</label>
+            <label>${i18n.t('app.siteName')}</label>
             <input type="text" class="add-site-name-input" value="${item.title}" />
           </div>
           <div class="add-site-field">
-            <label>网站地址</label>
+            <label>${i18n.t('app.siteUrl')}</label>
             <input type="text" class="add-site-url-input" value="${item.url || ''}" />
           </div>
           <div class="add-site-field">
-            <label>所属目录</label>
+            <label>${i18n.t('app.category')}</label>
             <select class="add-site-category-select">${categoryOptions}</select>
           </div>
           <div class="add-site-field">
-            <label>图标颜色</label>
+            <label>${i18n.t('app.iconColor')}</label>
             <div class="add-site-color-row">
               <div class="add-site-color-presets">
                 <div class="color-preset ${item.color === '#3b82f6' ? 'active' : ''}" data-color="#3b82f6" style="background: #3b82f6"></div>
@@ -884,10 +1094,10 @@ class App {
           </div>
         </div>
         <div class="add-site-footer">
-          <button class="edit-site-delete">删除</button>
+          <button class="edit-site-delete">${i18n.t('common.delete')}</button>
           <div style="flex:1"></div>
-          <button class="add-site-cancel">取消</button>
-          <button class="add-site-confirm">保存</button>
+          <button class="add-site-cancel">${i18n.t('common.cancel')}</button>
+          <button class="add-site-confirm">${i18n.t('common.save')}</button>
         </div>
       </div>
     `;
@@ -935,7 +1145,7 @@ class App {
     });
 
     dialog.querySelector('.edit-site-delete')?.addEventListener('click', () => {
-      if (confirm(`确定删除「${item.title}」吗？`)) {
+      if (confirm(i18n.t('app.confirmDelete', '', { name: item.title }))) {
         // 如果删除的是当前显示的网站，切换到其他
         if (this.currentKey === key) {
           const categories = categoryManager.getCategories();
@@ -951,7 +1161,7 @@ class App {
           this.webviews.delete(key);
         }
         categoryManager.deleteCustomSite(key);
-        toast({ message: '已删除', duration: 2000 });
+        toast({ message: i18n.t('app.deleted'), duration: 2000 });
         dialog.remove();
       }
     });
@@ -963,7 +1173,7 @@ class App {
       const newCategoryId = categorySelect?.value;
 
       if (!name || !url) {
-        toast({ message: '请填写名称和网址', duration: 2000 });
+        toast({ message: i18n.t('app.fillNameAndUrl'), duration: 2000 });
         return;
       }
 
@@ -989,7 +1199,7 @@ class App {
         }
       }
 
-      toast({ message: '已保存', duration: 2000 });
+      toast({ message: i18n.t('app.saved'), duration: 2000 });
       dialog.remove();
     });
 
@@ -1151,7 +1361,7 @@ class App {
     });
 
     eventBus.on(EventType.FAVORITE_CHANGE, (data) => {
-      const action = data.action === 'add' ? '已收藏' : '已取消收藏';
+      const action = data.action === 'add' ? i18n.t('app.favorited') : i18n.t('app.unfavorited');
       const tool = toolRegistry.getInstance(data.key);
       if (tool) {
         toast({ message: `${tool.config.title} ${action}`, duration: 1500 });
@@ -1172,14 +1382,15 @@ class App {
         if (toolKey && toolRegistry.has(toolKey) && !isInputFocused) {
           e.preventDefault();
           this.switchTool(toolKey);
-          toast({ message: `切换到 ${toolRegistry.getInstance(toolKey)?.config.title}`, duration: 1500 });
+          toast({ message: i18n.t('app.switchedTo', '', { name: toolRegistry.getInstance(toolKey)?.config.title || '' }), duration: 1500 });
         }
       }
 
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'd' && !isInputFocused) {
         e.preventDefault();
         themeManager.toggle();
-        toast({ message: `已切换到${themeManager.getResolvedTheme() === 'dark' ? '深色' : '浅色'}主题`, duration: 1500 });
+        const themeName = themeManager.getResolvedTheme() === 'dark' ? i18n.t('app.darkTheme') : i18n.t('app.lightTheme');
+        toast({ message: i18n.t('app.switchedToTheme', '', { theme: themeName }), duration: 1500 });
       }
 
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'd' && this.currentKey && !isInputFocused) {
@@ -1425,8 +1636,8 @@ class App {
     themeBtnGlobal?.addEventListener('click', () => {
       themeManager.toggle();
       updateThemeIcon();
-      const themeName = themeManager.getResolvedTheme() === 'dark' ? '深色' : '浅色';
-      toast({ message: `已切换到${themeName}主题`, duration: 1500 });
+      const themeName = themeManager.getResolvedTheme() === 'dark' ? i18n.t('app.darkTheme') : i18n.t('app.lightTheme');
+      toast({ message: i18n.t('app.switchedToTheme', '', { theme: themeName }), duration: 1500 });
     });
 
     // 初始化主题图标状态
@@ -1501,14 +1712,14 @@ class App {
       const webview = this.webviews.get(this.currentKey) as any;
       if (webview && typeof webview.reload === 'function') {
         webview.reload();
-        toast({ message: '页面已刷新', duration: 1500 });
+        toast({ message: i18n.t('app.pageRefreshed'), duration: 1500 });
       }
     } else if (this.currentKey) {
       const tool = toolRegistry.getInstance(this.currentKey);
       if (tool) {
         tool.deactivate();
         tool.activate();
-        toast({ message: '工具已刷新', duration: 1500 });
+        toast({ message: i18n.t('app.toolRefreshed'), duration: 1500 });
       }
     }
   }
@@ -2031,33 +2242,7 @@ class App {
           </div>
         </div>
 
-        <div class="settings-section settings-section-danger">
-          <div class="settings-section-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-              <path d="M3 6h18"></path>
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-            </svg>
-            <span>${i18n.t('settings.dataManagement')}</span>
-          </div>
-          <div class="settings-section-body">
-            <div class="settings-danger-item">
-              <div class="settings-danger-info">
-                <div class="settings-danger-title">${i18n.t('settings.resetData')}</div>
-                <div class="settings-danger-desc">${i18n.t('settings.resetDataDesc')}</div>
-              </div>
-              <button class="settings-danger-btn" id="resetCategoryBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                  <path d="M21 3v5h-5"></path>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                  <path d="M3 21v-5h5"></path>
-                </svg>
-                ${i18n.t('common.reset')}
-              </button>
-            </div>
-          </div>
-        </div>
+
       `;
 
       // 语言选择事件
@@ -2076,14 +2261,6 @@ class App {
             }, 100);
           }
         });
-      });
-
-      // 重置按钮事件
-      document.getElementById('resetCategoryBtn')?.addEventListener('click', () => {
-        if (confirm(i18n.t('settings.resetConfirm'))) {
-          categoryManager.reset();
-          toast({ message: i18n.t('settings.resetSuccess'), duration: 2000 });
-        }
       });
 
     } else if (tab === 'theme') {
@@ -2122,8 +2299,8 @@ class App {
       // 获取当前小车设置
       const carEnabled = localStorage.getItem('funCarEnabled') !== 'false';
       
-      const rainEnabled = localStorage.getItem('funRainEnabled') !== 'false'; // 默认开启
-      const snowEnabled = localStorage.getItem('funSnowEnabled') !== 'false'; // 默认开启
+      // 获取健康提醒设置
+      const healthEnabled = localStorage.getItem('healthReminderEnabled') !== 'false';
 
       container.innerHTML = `
         <div class="settings-section">
@@ -2150,32 +2327,15 @@ class App {
 
         <div class="settings-section">
           <div class="settings-section-header">
-            <span style="font-size: 18px;">🌧️</span>
-            <span>下雨效果</span>
+            <span style="font-size: 18px;">👀</span>
+            <span>${i18n.t('settings.healthReminder')}</span>
           </div>
           <div class="settings-section-body">
             <div class="settings-toggle-item">
               <div class="settings-toggle-info">
-                <div class="settings-toggle-desc">切换到时间戳工具时显示下雨动画（深色主题）</div>
+                <div class="settings-toggle-desc">${i18n.t('settings.healthReminderDesc')}</div>
               </div>
-              <div class="settings-toggle ${rainEnabled ? 'active' : ''}" id="funRainToggle">
-                <div class="settings-toggle-knob"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <div class="settings-section-header">
-            <span style="font-size: 18px;">❄️</span>
-            <span>飘雪效果</span>
-          </div>
-          <div class="settings-section-body">
-            <div class="settings-toggle-item">
-              <div class="settings-toggle-info">
-                <div class="settings-toggle-desc">切换到计算器工具时显示飘雪动画（深色主题）</div>
-              </div>
-              <div class="settings-toggle ${snowEnabled ? 'active' : ''}" id="funSnowToggle">
+              <div class="settings-toggle ${healthEnabled ? 'active' : ''}" id="healthReminderToggle">
                 <div class="settings-toggle-knob"></div>
               </div>
             </div>
@@ -2195,31 +2355,51 @@ class App {
         toast({ message: isActive ? '小车已启动 🚗' : '小车已停止', duration: 1500 });
       });
 
-      // 绑定雨水开关事件
-      const rainToggle = document.getElementById('funRainToggle');
-      rainToggle?.addEventListener('click', () => {
-        const isActive = rainToggle.classList.toggle('active');
-        localStorage.setItem('funRainEnabled', isActive ? 'true' : 'false');
-        toast({ message: isActive ? '下雨效果已开启 🌧️' : '下雨效果已关闭', duration: 1500 });
-      });
-
-      // 绑定雪花开关事件
-      const snowToggle = document.getElementById('funSnowToggle');
-      snowToggle?.addEventListener('click', () => {
-        const isActive = snowToggle.classList.toggle('active');
-        localStorage.setItem('funSnowEnabled', isActive ? 'true' : 'false');
-        toast({ message: isActive ? '飘雪效果已开启 ❄️' : '飘雪效果已关闭', duration: 1500 });
+      // 绑定健康提醒开关事件
+      const healthToggle = document.getElementById('healthReminderToggle');
+      healthToggle?.addEventListener('click', () => {
+        const isActive = healthToggle.classList.toggle('active');
+        localStorage.setItem('healthReminderEnabled', isActive ? 'true' : 'false');
+        toast({ message: i18n.t(isActive ? 'settings.healthReminderOn' : 'settings.healthReminderOff'), duration: 1500 });
+        // 提示需要刷新
+        if (isActive) {
+          toast({ message: i18n.t('settings.healthReminderRefresh'), duration: 3000 });
+        }
       });
 
     } else if (tab === 'about') {
       container.innerHTML = `
         <div class="about-content">
-          <div class="about-logo">🛠️</div>
+          <div class="about-logo">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="aboutLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                  <stop offset="50%" style="stop-color:#7c3aed;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" />
+                </linearGradient>
+                <filter id="aboutLogoGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <rect x="8" y="8" width="64" height="64" rx="16" fill="url(#aboutLogoGradient)" filter="url(#aboutLogoGlow)" opacity="0.15"/>
+              <rect x="12" y="12" width="56" height="56" rx="14" stroke="url(#aboutLogoGradient)" stroke-width="2" fill="none"/>
+              <!-- Wrench -->
+              <path d="M28 52L38 42M38 42L42 38M42 38L52 28" stroke="url(#aboutLogoGradient)" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="25" cy="55" r="6" stroke="url(#aboutLogoGradient)" stroke-width="3" fill="none"/>
+              <circle cx="55" cy="25" r="6" stroke="url(#aboutLogoGradient)" stroke-width="3" fill="none"/>
+              <!-- Gear teeth -->
+              <path d="M55 19V17M55 33V31M61 25H63M47 25H49M59.2 20.8L60.6 19.4M49.4 30.6L50.8 29.2M59.2 29.2L60.6 30.6M49.4 19.4L50.8 20.8" stroke="url(#aboutLogoGradient)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
           <div class="about-name">ToolHub Pro</div>
           <div class="about-version">v1.0.0</div>
-          <div class="about-desc">
-            一站式开发工具集合，集成 AI 助手和常用开发工具，提升开发效率。
-          </div>
+          <div class="about-desc">${i18n.t('about.description')}</div>
+          <div class="about-slogan">${i18n.t('about.slogan')}</div>
         </div>
       `;
     }
@@ -2243,21 +2423,9 @@ class App {
       return;
     }
 
-    // 切换工具时，先停止所有天气效果
-    this.stopAllWeatherEffects();
-
-    // 切换到时间戳工具时，深色主题下触发下雨效果（检查开关状态）
-    const rainEnabled = localStorage.getItem('funRainEnabled') !== 'false';
-    if (key === 'time' && themeManager.getResolvedTheme() === 'dark' && rainEnabled) {
-      console.log('[App] 🌧️ Triggering rain effect!');
-      this.startRainEffect();
-    }
-
-    // 切换到计算器工具时，深色主题下触发飘雪效果（检查开关状态）
-    const snowEnabled = localStorage.getItem('funSnowEnabled') !== 'false';
-    if (key === 'calc' && themeManager.getResolvedTheme() === 'dark' && snowEnabled) {
-      console.log('[App] ❄️ Triggering snow effect!');
-      this.startSnowEffect();
+    // 切换工具时，如果不是在健康休息中，停止天气效果
+    if (!this.isBreakActive) {
+      this.stopAllWeatherEffects();
     }
 
     // 隐藏关于页面

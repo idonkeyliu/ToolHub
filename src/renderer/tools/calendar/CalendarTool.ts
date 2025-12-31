@@ -1,6 +1,7 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 // 农历数据 (1900-2100)
 const LUNAR_INFO = [
@@ -27,28 +28,6 @@ const LUNAR_INFO = [
   0x0d520
 ];
 
-// 24节气
-const SOLAR_TERMS = [
-  '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨',
-  '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑',
-  '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'
-];
-
-// 传统节日
-const TRADITIONAL_FESTIVALS = {
-  lunar: {
-    '1-1': '春节', '1-15': '元宵节', '5-5': '端午节', '7-7': '七夕节',
-    '7-15': '中元节', '8-15': '中秋节', '9-9': '重阳节', '12-8': '腊八节',
-    '12-23': '小年', '12-30': '除夕'
-  } as Record<string, string>,
-  solar: {
-    '1-1': '元旦', '2-14': '情人节', '3-8': '妇女节', '3-12': '植树节',
-    '4-1': '愚人节', '5-1': '劳动节', '5-4': '青年节', '6-1': '儿童节',
-    '7-1': '建党节', '8-1': '建军节', '9-10': '教师节', '10-1': '国庆节',
-    '12-25': '圣诞节'
-  } as Record<string, string>
-};
-
 interface LunarInfo {
   year: number;
   month: number;
@@ -56,14 +35,26 @@ interface LunarInfo {
   isLeap: boolean;
 }
 
+// 解析节日配置
+function parseFestivals(str: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  str.split(',').forEach(item => {
+    const [key, value] = item.split(':');
+    if (key && value) {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+
 export class CalendarTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'calendar',
-    title: '万年历',
+    title: i18n.t('tool.calendar'),
     category: ToolCategory.UTILITY,
     icon: '📅',
-    description: '农历、节气、节日查询',
-    keywords: ['日历', 'calendar', '农历', '节气', '节日', '黄历'],
+    description: i18n.t('tool.calendarDesc'),
+    keywords: ['calendar', 'lunar', 'festival'],
   };
 
   readonly config = CalendarTool.config;
@@ -80,7 +71,7 @@ export class CalendarTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -124,7 +115,7 @@ export class CalendarTool extends Tool {
     const calendarGrid = this.querySelector('#calendarGrid');
 
     if (monthYearEl) {
-      monthYearEl.textContent = `${this.displayYear}年${this.displayMonth}月`;
+      monthYearEl.textContent = i18n.t('calendar.yearMonth', '', { year: this.displayYear, month: this.displayMonth });
     }
 
     if (!calendarGrid) return;
@@ -183,9 +174,10 @@ export class CalendarTool extends Tool {
     const solarTerm = this.getSolarTerm(year, month, day);
     const festivals = this.getFestival(lunarInfo, month, day);
 
+    const leapStr = lunarInfo.isLeap ? i18n.t('calendar.leap') : '';
     cell.innerHTML = `
       <div class="solar-date">${day}</div>
-      <div class="lunar-date">${lunarInfo.isLeap ? '闰' : ''}${lunarDisplay}</div>
+      <div class="lunar-date">${leapStr}${lunarDisplay}</div>
       ${festivals.map(f => `<div class="festival">${f}</div>`).join('')}
       ${solarTerm ? `<div class="solar-term">${solarTerm}</div>` : ''}
     `;
@@ -195,8 +187,8 @@ export class CalendarTool extends Tool {
       cell.classList.add('selected');
       
       const weekday = this.getWeekdayZeller(year, month, day);
-      const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-      this.showDateInfo(year, month, day, lunarInfo, weekdays[weekday], festivals, solarTerm);
+      const weekdayNames = i18n.t('calendar.weekdayNames').split(',');
+      this.showDateInfo(year, month, day, lunarInfo, weekdayNames[weekday], festivals, solarTerm);
     });
 
     return cell;
@@ -206,7 +198,7 @@ export class CalendarTool extends Tool {
     const today = new Date();
     const lunarInfo = this.solarToLunar(today.getFullYear(), today.getMonth() + 1, today.getDate());
     const weekday = this.getWeekdayZeller(today.getFullYear(), today.getMonth() + 1, today.getDate());
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekdayNames = i18n.t('calendar.weekdayNames').split(',');
     const festivals = this.getFestival(lunarInfo, today.getMonth() + 1, today.getDate());
     const solarTerm = this.getSolarTerm(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
@@ -215,7 +207,7 @@ export class CalendarTool extends Tool {
       today.getMonth() + 1,
       today.getDate(),
       lunarInfo,
-      weekdays[weekday],
+      weekdayNames[weekday],
       festivals,
       solarTerm
     );
@@ -228,29 +220,35 @@ export class CalendarTool extends Tool {
   ): void {
     const lunarMonthStr = this.getLunarMonthString(lunarInfo.month);
     const lunarDayStr = this.getLunarDayString(lunarInfo.day);
-    const lunarFullStr = `${lunarInfo.isLeap ? '闰' : ''}${lunarMonthStr}${lunarDayStr}`;
+    const leapStr = lunarInfo.isLeap ? i18n.t('calendar.leap') : '';
+    const separator = i18n.t('calendar.lunarSeparator');
+    const lunarFullStr = `${leapStr}${lunarMonthStr}${separator}${lunarDayStr}`;
 
     const dateDetailCard = this.querySelector('#dateDetailCard');
     if (!dateDetailCard) return;
 
+    const weekdayPrefix = i18n.t('calendar.weekdayPrefix');
+    const yearMonthStr = i18n.t('calendar.yearMonth', '', { year, month });
+    const lunarYearStr = i18n.t('calendar.lunarYear', '', { year: lunarInfo.year });
+
     let contentHTML = `
       <div class="date-number-display">
-        <div class="date-year-month">${year}年${month}月</div>
+        <div class="date-year-month">${yearMonthStr}</div>
         <div class="date-main-number">${day}</div>
-        <div class="date-weekday">星期${weekday}</div>
+        <div class="date-weekday">${weekdayPrefix}${weekday}</div>
       </div>
       
       <div class="lunar-info-section">
-        <div class="lunar-title">🌙 农历信息</div>
+        <div class="lunar-title">${i18n.t('calendar.lunarInfo')}</div>
         <div class="lunar-date-large">${lunarFullStr}</div>
-        <div class="lunar-year-info">农历${lunarInfo.year}年</div>
+        <div class="lunar-year-info">${lunarYearStr}</div>
       </div>
     `;
 
     if (festivals.length > 0) {
       contentHTML += `
       <div class="festival-section">
-        <div class="festival-title">🎉 传统节日</div>
+        <div class="festival-title">${i18n.t('calendar.festival')}</div>
         <div class="festival-list">
           ${festivals.map(f => `<div class="festival-item">${f}</div>`).join('')}
         </div>
@@ -260,7 +258,7 @@ export class CalendarTool extends Tool {
     if (solarTerm) {
       contentHTML += `
       <div class="solar-term-section">
-        <div class="solar-term-title">🌱 节气</div>
+        <div class="solar-term-title">${i18n.t('calendar.solarTerm')}</div>
         <div class="solar-term-large">${solarTerm}</div>
       </div>`;
     }
@@ -270,13 +268,15 @@ export class CalendarTool extends Tool {
 
   // Zeller公式计算星期几
   private getWeekdayZeller(year: number, month: number, day: number): number {
-    if (month < 3) {
-      month += 12;
-      year--;
+    let m = month;
+    let y = year;
+    if (m < 3) {
+      m += 12;
+      y--;
     }
-    const c = Math.floor(year / 100);
-    const y = year % 100;
-    const w = (y + Math.floor(y / 4) + Math.floor(c / 4) - 2 * c + Math.floor(26 * (month + 1) / 10) + day - 1) % 7;
+    const c = Math.floor(y / 100);
+    const yy = y % 100;
+    const w = (yy + Math.floor(yy / 4) + Math.floor(c / 4) - 2 * c + Math.floor(26 * (m + 1) / 10) + day - 1) % 7;
     return (w + 7) % 7;
   }
 
@@ -349,15 +349,12 @@ export class CalendarTool extends Tool {
 
   // 农历日期转中文
   private getLunarDayString(day: number): string {
-    const days = ['', '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-      '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-      '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+    const days = i18n.t('calendar.lunarDays').split(',');
     return days[day] || '';
   }
 
   private getLunarMonthString(month: number): string {
-    const months = ['', '正月', '二月', '三月', '四月', '五月', '六月',
-      '七月', '八月', '九月', '十月', '冬月', '腊月'];
+    const months = i18n.t('calendar.lunarMonths').split(',');
     return months[month] || '';
   }
 
@@ -370,12 +367,13 @@ export class CalendarTool extends Tool {
       [8, 23], [23, 10], [8, 22], [22, 11], [7, 22], [21, 12]
     ];
 
+    const solarTerms = i18n.t('calendar.solarTerms').split(',');
     const monthIndex = month - 1;
     const term1 = termDates[monthIndex * 2];
     const term2 = termDates[monthIndex * 2 + 1];
 
-    if (day === term1[0]) return SOLAR_TERMS[monthIndex * 2];
-    if (day === term2[0]) return SOLAR_TERMS[monthIndex * 2 + 1];
+    if (day === term1[0]) return solarTerms[monthIndex * 2];
+    if (day === term2[0]) return solarTerms[monthIndex * 2 + 1];
     return '';
   }
 
@@ -383,14 +381,17 @@ export class CalendarTool extends Tool {
   private getFestival(lunarInfo: LunarInfo, month: number, day: number): string[] {
     const festivals: string[] = [];
 
+    const solarFestivals = parseFestivals(i18n.t('calendar.solarFestivals'));
+    const lunarFestivals = parseFestivals(i18n.t('calendar.lunarFestivals'));
+
     const solarKey = `${month}-${day}`;
-    if (TRADITIONAL_FESTIVALS.solar[solarKey]) {
-      festivals.push(TRADITIONAL_FESTIVALS.solar[solarKey]);
+    if (solarFestivals[solarKey]) {
+      festivals.push(solarFestivals[solarKey]);
     }
 
     const lunarKey = `${lunarInfo.month}-${lunarInfo.day}`;
-    if (TRADITIONAL_FESTIVALS.lunar[lunarKey]) {
-      festivals.push(TRADITIONAL_FESTIVALS.lunar[lunarKey]);
+    if (lunarFestivals[lunarKey]) {
+      festivals.push(lunarFestivals[lunarKey]);
     }
 
     return festivals;

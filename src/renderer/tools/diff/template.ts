@@ -2,33 +2,35 @@
  * Diff 工具模板
  */
 
-export const template = `
+import { i18n } from '../../core/i18n';
+
+export const getTemplate = () => `
 <div class="diff-wrap">
   <div class="diff-toolbar">
     <div class="toolbar-left">
       <div class="view-mode-group">
-        <button class="view-mode-btn active" data-mode="split" title="分栏视图">
+        <button class="view-mode-btn active" data-mode="split" title="${i18n.t('diff.splitView')}">
           <span class="mode-icon">◫</span>
-          <span>分栏</span>
+          <span>${i18n.t('diff.splitView')}</span>
         </button>
-        <button class="view-mode-btn" data-mode="unified" title="统一视图">
+        <button class="view-mode-btn" data-mode="unified" title="${i18n.t('diff.unifiedView')}">
           <span class="mode-icon">☰</span>
-          <span>统一</span>
+          <span>${i18n.t('diff.unifiedView')}</span>
         </button>
       </div>
       <div class="toolbar-divider"></div>
       <div class="diff-options">
         <label class="option-item">
           <input type="checkbox" id="ignoreWhitespace">
-          <span>忽略空白</span>
+          <span>${i18n.t('diff.ignoreWhitespace')}</span>
         </label>
         <label class="option-item">
           <input type="checkbox" id="ignoreCase">
-          <span>忽略大小写</span>
+          <span>${i18n.t('diff.ignoreCase')}</span>
         </label>
         <label class="option-item">
           <input type="checkbox" id="wordWrap" checked>
-          <span>自动换行</span>
+          <span>${i18n.t('diff.wordWrap')}</span>
         </label>
       </div>
     </div>
@@ -38,13 +40,13 @@ export const template = `
         <span class="stat-item removed"><span class="stat-icon">−</span><span id="removedCount">0</span></span>
         <span class="stat-item changed"><span class="stat-icon">~</span><span id="changedCount">0</span></span>
       </div>
-      <button class="toolbar-btn" id="swapBtn" title="交换左右内容">
+      <button class="toolbar-btn" id="swapBtn" title="${i18n.t('diff.swap')}">
         <span>⇄</span>
-        <span>交换</span>
+        <span>${i18n.t('diff.swap')}</span>
       </button>
-      <button class="toolbar-btn" id="clearBtn" title="清空内容">
+      <button class="toolbar-btn" id="clearBtn" title="${i18n.t('diff.clear')}">
         <span>🗑️</span>
-        <span>清空</span>
+        <span>${i18n.t('diff.clear')}</span>
       </button>
     </div>
   </div>
@@ -56,24 +58,24 @@ export const template = `
         <div class="panel-header">
           <div class="panel-title">
             <span class="panel-icon">📄</span>
-            <span class="panel-label">原始文本</span>
+            <span class="panel-label">${i18n.t('diff.original')}</span>
             <span class="panel-filename" id="leftFilename"></span>
           </div>
           <div class="panel-actions">
-            <button class="panel-btn" id="loadLeftFileBtn" title="从文件加载">
+            <button class="panel-btn" id="loadLeftFileBtn" title="${i18n.t('diff.loadFile')}">
               <span>📁</span>
             </button>
-            <button class="panel-btn" id="pasteLeftBtn" title="粘贴">
+            <button class="panel-btn" id="pasteLeftBtn" title="${i18n.t('diff.paste')}">
               <span>📋</span>
             </button>
-            <button class="panel-btn" id="copyLeftBtn" title="复制">
+            <button class="panel-btn" id="copyLeftBtn" title="${i18n.t('diff.copy')}">
               <span>📑</span>
             </button>
           </div>
         </div>
         <div class="editor-wrapper">
           <div class="line-numbers" id="leftLineNumbers"></div>
-          <textarea class="diff-editor" id="leftEditor" placeholder="粘贴或输入原始文本，或点击 📁 选择文件..." spellcheck="false"></textarea>
+          <textarea class="diff-editor" id="leftEditor" placeholder="${i18n.t('diff.originalPlaceholder')}" spellcheck="false"></textarea>
         </div>
       </div>
       
@@ -85,24 +87,24 @@ export const template = `
         <div class="panel-header">
           <div class="panel-title">
             <span class="panel-icon">📄</span>
-            <span class="panel-label">修改后文本</span>
+            <span class="panel-label">${i18n.t('diff.modified')}</span>
             <span class="panel-filename" id="rightFilename"></span>
           </div>
           <div class="panel-actions">
-            <button class="panel-btn" id="loadRightFileBtn" title="从文件加载">
+            <button class="panel-btn" id="loadRightFileBtn" title="${i18n.t('diff.loadFile')}">
               <span>📁</span>
             </button>
-            <button class="panel-btn" id="pasteRightBtn" title="粘贴">
+            <button class="panel-btn" id="pasteRightBtn" title="${i18n.t('diff.paste')}">
               <span>📋</span>
             </button>
-            <button class="panel-btn" id="copyRightBtn" title="复制">
+            <button class="panel-btn" id="copyRightBtn" title="${i18n.t('diff.copy')}">
               <span>📑</span>
             </button>
           </div>
         </div>
         <div class="editor-wrapper">
           <div class="line-numbers" id="rightLineNumbers"></div>
-          <textarea class="diff-editor" id="rightEditor" placeholder="粘贴或输入修改后文本，或点击 📁 选择文件..." spellcheck="false"></textarea>
+          <textarea class="diff-editor" id="rightEditor" placeholder="${i18n.t('diff.modifiedPlaceholder')}" spellcheck="false"></textarea>
         </div>
       </div>
     </div>
@@ -110,16 +112,16 @@ export const template = `
     <!-- 统一视图 -->
     <div class="unified-view" id="unifiedView">
       <div class="unified-header">
-        <div class="unified-title">差异对比结果</div>
+        <div class="unified-title">${i18n.t('diff.diffResult')}</div>
         <div class="unified-actions">
-          <button class="panel-btn" id="copyDiffBtn" title="复制差异">
+          <button class="panel-btn" id="copyDiffBtn" title="${i18n.t('diff.copyDiff')}">
             <span>📑</span>
-            <span>复制差异</span>
+            <span>${i18n.t('diff.copyDiff')}</span>
           </button>
         </div>
       </div>
       <div class="unified-content" id="unifiedContent">
-        <div class="unified-placeholder">输入左右两侧文本后，差异将显示在这里</div>
+        <div class="unified-placeholder">${i18n.t('diff.placeholder')}</div>
       </div>
     </div>
     
@@ -130,11 +132,11 @@ export const template = `
   
   <!-- 差异导航 -->
   <div class="diff-navigation" id="diffNavigation">
-    <button class="nav-btn" id="prevDiffBtn" title="上一个差异 (↑)" disabled>
+    <button class="nav-btn" id="prevDiffBtn" title="${i18n.t('diff.prevDiff')} (↑)" disabled>
       <span>↑</span>
     </button>
     <span class="nav-info" id="navInfo">0 / 0</span>
-    <button class="nav-btn" id="nextDiffBtn" title="下一个差异 (↓)" disabled>
+    <button class="nav-btn" id="nextDiffBtn" title="${i18n.t('diff.nextDiff')} (↓)" disabled>
       <span>↓</span>
     </button>
   </div>

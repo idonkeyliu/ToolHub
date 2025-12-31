@@ -4,8 +4,9 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
+import { i18n } from '../../core/i18n';
 
 // 数据库 IPC 接口
 declare const llmHub: {
@@ -55,24 +56,24 @@ interface TabInfo {
 export class DatabaseTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'database',
-    title: '数据库',
+    title: i18n.t('tool.database'),
     category: ToolCategory.DEVELOPER,
     icon: '🗄️',
-    description: '数据库管理工具，支持 MySQL、PostgreSQL、SQLite',
-    keywords: ['数据库', 'database', 'mysql', 'postgresql', 'sqlite', 'sql', '查询'],
+    description: i18n.t('tool.databaseDesc'),
+    keywords: ['database', 'mysql', 'postgresql', 'sqlite', 'sql', 'query'],
   };
 
   readonly config = DatabaseTool.config;
 
   private connections: DBConnectionConfig[] = [];
   private activeConnections: Map<string, string> = new Map(); // configId -> connectionId
-  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: '欢迎' }];
+  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: i18n.t('db.welcome') }];
   private activeTabId = 'welcome';
   private editingConfigId: string | null = null;
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -134,7 +135,7 @@ export class DatabaseTool extends Tool {
     if (!list) return;
 
     if (this.connections.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无连接配置</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('db.noConnections')}</div>`;
       return;
     }
 
@@ -151,8 +152,8 @@ export class DatabaseTool extends Tool {
             <div class="conn-detail">${this.escapeHtml(detail || '')}</div>
           </div>
           <div class="conn-actions">
-            <button class="conn-action-btn edit" data-action="edit" title="编辑">✏️</button>
-            <button class="conn-action-btn delete" data-action="delete" title="删除">🗑️</button>
+            <button class="conn-action-btn edit" data-action="edit" title="${i18n.t('common.edit')}">✏️</button>
+            <button class="conn-action-btn delete" data-action="delete" title="${i18n.t('common.delete')}">🗑️</button>
           </div>
         </div>
       `;
@@ -184,7 +185,7 @@ export class DatabaseTool extends Tool {
     if (!modal || !title) return;
 
     this.editingConfigId = config?.id || null;
-    title.textContent = config ? '编辑数据库连接' : '添加数据库连接';
+    title.textContent = config ? i18n.t('db.editConnection') : i18n.t('db.addDbConnection');
 
     // 填充表单
     (this.querySelector('#connName') as HTMLInputElement).value = config?.name || '';
@@ -253,17 +254,17 @@ export class DatabaseTool extends Tool {
     const config = this.getFormConfig();
     
     if (!config.name) {
-      toast('请输入连接名称');
+      toast(i18n.t('db.enterConnName'));
       return;
     }
 
     if (config.type === 'sqlite' && !config.sqlitePath) {
-      toast('请输入数据库文件路径');
+      toast(i18n.t('db.sqlitePath'));
       return;
     }
 
     if (config.type !== 'sqlite' && !config.host) {
-      toast('请输入主机地址');
+      toast(i18n.t('db.host'));
       return;
     }
 
@@ -271,7 +272,7 @@ export class DatabaseTool extends Tool {
     const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
     
     if (statusEl) {
-      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.textContent = i18n.t('db.testing');
       statusEl.style.color = '#f59e0b';
     }
     if (testBtn) testBtn.disabled = true;
@@ -280,23 +281,23 @@ export class DatabaseTool extends Tool {
       const result = await llmHub.db.testConnection(config);
       if (result.success) {
         if (statusEl) {
-          statusEl.textContent = '✅ 连接成功！';
+          statusEl.textContent = i18n.t('db.testSuccess');
           statusEl.style.color = '#22c55e';
         }
-        toast('连接成功！');
+        toast(i18n.t('db.connectionSuccess'));
       } else {
         if (statusEl) {
           statusEl.textContent = `❌ ${result.error}`;
           statusEl.style.color = '#ef4444';
         }
-        toast(`连接失败: ${result.error}`);
+        toast(`${i18n.t('db.connectionFailed')}: ${result.error}`);
       }
     } catch (e) {
       if (statusEl) {
         statusEl.textContent = `❌ ${e}`;
         statusEl.style.color = '#ef4444';
       }
-      toast(`连接失败: ${e}`);
+      toast(`${i18n.t('db.connectionFailed')}: ${e}`);
     } finally {
       if (testBtn) testBtn.disabled = false;
     }
@@ -306,35 +307,33 @@ export class DatabaseTool extends Tool {
     const config = this.getFormConfig();
     
     if (!config.name) {
-      toast('请输入连接名称');
+      toast(i18n.t('db.enterConnName'));
       return;
     }
 
     if (config.type === 'sqlite' && !config.sqlitePath) {
-      toast('请输入数据库文件路径');
+      toast(i18n.t('db.sqlitePath'));
       return;
     }
 
     if (config.type !== 'sqlite' && !config.host) {
-      toast('请输入主机地址');
+      toast(i18n.t('db.host'));
       return;
     }
 
     if (this.editingConfigId) {
-      // 更新现有连接
       const index = this.connections.findIndex(c => c.id === this.editingConfigId);
       if (index !== -1) {
         this.connections[index] = config;
       }
     } else {
-      // 添加新连接
       this.connections.push(config);
     }
 
     this.saveConnections();
     this.renderConnectionList();
     this.hideConnectionModal();
-    toast('连接配置已保存');
+    toast(i18n.t('db.configSaved'));
   }
 
   private editConnection(id: string): void {
@@ -345,11 +344,10 @@ export class DatabaseTool extends Tool {
   }
 
   private deleteConnection(id: string): void {
-    if (!confirm('确定要删除这个连接配置吗？')) {
+    if (!confirm(i18n.t('db.confirmDelete'))) {
       return;
     }
 
-    // 断开连接
     if (this.activeConnections.has(id)) {
       const connectionId = this.activeConnections.get(id)!;
       llmHub.db.disconnect(connectionId).catch(console.error);
@@ -360,14 +358,13 @@ export class DatabaseTool extends Tool {
     this.saveConnections();
     this.renderConnectionList();
     
-    // 隐藏树形面板并清除状态
     const treePanel = this.querySelector('#treePanel');
     if (treePanel) {
       treePanel.style.display = 'none';
     }
-    this.setStatus('未连接');
+    this.setStatus(i18n.t('db.notConnected'));
     
-    toast('连接配置已删除');
+    toast(i18n.t('db.configDeleted'));
   }
 
   // ==================== 数据库连接和浏览 ====================
@@ -390,7 +387,7 @@ export class DatabaseTool extends Tool {
       return;
     }
 
-    this.setStatus(`正在连接 ${config.name}...`, 'loading');
+    this.setStatus(`${i18n.t('db.connecting')} ${config.name}...`, 'loading');
 
     try {
       const result = await llmHub.db.connect(config);
@@ -398,15 +395,15 @@ export class DatabaseTool extends Tool {
         this.activeConnections.set(configId, result.connectionId);
         this.renderConnectionList();
         await this.loadDatabases(configId);
-        this.setStatus(`已连接: ${config.name}`, 'connected');
-        toast(`已连接到 ${config.name}`);
+        this.setStatus(`${i18n.t('db.connected')}: ${config.name}`, 'connected');
+        toast(`${i18n.t('db.connectedTo')} ${config.name}`);
       } else {
-        toast(`连接失败: ${result.error}`);
-        this.setStatus('连接失败', 'error');
+        toast(`${i18n.t('db.connectionFailed')}: ${result.error}`);
+        this.setStatus(i18n.t('db.connectionFailed'), 'error');
       }
     } catch (e) {
-      toast(`连接失败: ${e}`);
-      this.setStatus('连接失败', 'error');
+      toast(`${i18n.t('db.connectionFailed')}: ${e}`);
+      this.setStatus(i18n.t('db.connectionFailed'), 'error');
     }
   }
 
@@ -421,18 +418,18 @@ export class DatabaseTool extends Tool {
     if (!treePanel || !treeContainer || !treePanelTitle) return;
 
     treePanel.style.display = 'flex';
-    treePanelTitle.textContent = '数据库';
-    treeContainer.innerHTML = '<div class="empty-hint">加载中...</div>';
+    treePanelTitle.textContent = i18n.t('db.database');
+    treeContainer.innerHTML = '<div class="empty-hint">Loading...</div>';
 
     try {
       const result = await llmHub.db.getDatabases(connectionId);
       if (result.success && result.databases) {
         this.renderDatabaseTree(configId, result.databases);
       } else {
-        treeContainer.innerHTML = `<div class="empty-hint">加载失败: ${result.error}</div>`;
+        treeContainer.innerHTML = `<div class="empty-hint">Load failed: ${result.error}</div>`;
       }
     } catch (e) {
-      treeContainer.innerHTML = `<div class="empty-hint">加载失败: ${e}</div>`;
+      treeContainer.innerHTML = `<div class="empty-hint">Load failed: ${e}</div>`;
     }
   }
 
@@ -441,7 +438,7 @@ export class DatabaseTool extends Tool {
     if (!treeContainer) return;
 
     if (databases.length === 0) {
-      treeContainer.innerHTML = '<div class="empty-hint">没有数据库</div>';
+      treeContainer.innerHTML = '<div class="empty-hint">No databases</div>';
       return;
     }
 
@@ -479,23 +476,23 @@ export class DatabaseTool extends Tool {
     const connectionId = this.activeConnections.get(configId);
     if (!connectionId) return;
 
-    container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">加载中...</div>';
+    container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">Loading...</div>';
 
     try {
       const result = await llmHub.db.getTables(connectionId, database);
       if (result.success && result.tables) {
         this.renderTableTree(configId, database, result.tables, container);
       } else {
-        container.innerHTML = `<div class="empty-hint" style="padding-left: 20px;">加载失败</div>`;
+        container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">Load failed</div>';
       }
     } catch (e) {
-      container.innerHTML = `<div class="empty-hint" style="padding-left: 20px;">加载失败</div>`;
+      container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">Load failed</div>';
     }
   }
 
   private renderTableTree(configId: string, database: string, tables: string[], container: HTMLElement): void {
     if (tables.length === 0) {
-      container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">没有表</div>';
+      container.innerHTML = '<div class="empty-hint" style="padding-left: 20px;">No tables</div>';
       return;
     }
 
@@ -558,7 +555,7 @@ export class DatabaseTool extends Tool {
     const tab: TabInfo = {
       id: tabId,
       type: 'query',
-      title: `查询 - ${database}`,
+      title: `${i18n.t('db.query')} - ${database}`,
       connectionId: configId,
       database,
     };
@@ -643,16 +640,16 @@ export class DatabaseTool extends Tool {
     panel.innerHTML = `
       <div class="query-panel">
         <div class="query-editor">
-          <textarea class="query-textarea" placeholder="输入 SQL 查询语句..."></textarea>
+          <textarea class="query-textarea" placeholder="${i18n.t('db.enterSql')}"></textarea>
           <div class="query-actions">
-            <button class="query-btn primary run-query">▶ 执行查询</button>
-            <button class="query-btn secondary view-structure">查看表结构</button>
-            <button class="query-btn secondary view-data">查看数据</button>
+            <button class="query-btn primary run-query">${i18n.t('db.executeQuery')}</button>
+            <button class="query-btn secondary view-structure">${i18n.t('db.viewStructure')}</button>
+            <button class="query-btn secondary view-data">${i18n.t('db.data')}</button>
           </div>
         </div>
         <div class="result-area">
           <div class="result-header">
-            <span class="result-info">点击"查看数据"或执行查询</span>
+            <span class="result-info">Click "${i18n.t('db.data')}" or execute query</span>
             <div class="result-actions"></div>
           </div>
           <div class="result-table-wrap">
@@ -662,9 +659,9 @@ export class DatabaseTool extends Tool {
             </table>
           </div>
           <div class="pagination" style="display: none;">
-            <button class="pagination-btn prev-page">上一页</button>
-            <span class="pagination-info">第 1 页</span>
-            <button class="pagination-btn next-page">下一页</button>
+            <button class="pagination-btn prev-page">Prev</button>
+            <span class="pagination-info">${i18n.t('db.page')} 1</span>
+            <button class="pagination-btn next-page">Next</button>
           </div>
         </div>
       </div>
@@ -686,7 +683,7 @@ export class DatabaseTool extends Tool {
       const textarea = panel.querySelector('.query-textarea') as HTMLTextAreaElement;
       const sql = textarea.value.trim();
       if (!sql) {
-        toast('请输入 SQL 语句');
+        toast(i18n.t('db.enterSql'));
         return;
       }
       await this.executeQuery(tab, sql, panel);
@@ -727,14 +724,14 @@ export class DatabaseTool extends Tool {
     panel.innerHTML = `
       <div class="query-panel">
         <div class="query-editor">
-          <textarea class="query-textarea" placeholder="输入 SQL 查询语句..."></textarea>
+          <textarea class="query-textarea" placeholder="${i18n.t('db.enterSql')}"></textarea>
           <div class="query-actions">
-            <button class="query-btn primary run-query">▶ 执行查询</button>
+            <button class="query-btn primary run-query">${i18n.t('db.executeQuery')}</button>
           </div>
         </div>
         <div class="result-area">
           <div class="result-header">
-            <span class="result-info">执行查询查看结果</span>
+            <span class="result-info">Execute query to view results</span>
           </div>
           <div class="result-table-wrap">
             <table class="result-table">
@@ -753,7 +750,7 @@ export class DatabaseTool extends Tool {
       const textarea = panel.querySelector('.query-textarea') as HTMLTextAreaElement;
       const sql = textarea.value.trim();
       if (!sql) {
-        toast('请输入 SQL 语句');
+        toast(i18n.t('db.enterSql'));
         return;
       }
       await this.executeQuery(tab, sql, panel);
@@ -765,18 +762,18 @@ export class DatabaseTool extends Tool {
     if (!connectionId || !tab.database || !tab.table) return;
 
     const resultInfo = panel.querySelector('.result-info');
-    if (resultInfo) resultInfo.textContent = '加载表结构...';
+    if (resultInfo) resultInfo.textContent = 'Loading structure...';
 
     try {
       const result = await llmHub.db.getTableStructure(connectionId, tab.database, tab.table);
       if (result.success && result.columns) {
         this.renderStructureTable(result.columns, panel);
-        if (resultInfo) resultInfo.textContent = `表结构: ${result.columns.length} 个字段`;
+        if (resultInfo) resultInfo.textContent = `${i18n.t('db.structure')}: ${result.columns.length} columns`;
       } else {
-        if (resultInfo) resultInfo.textContent = `加载失败: ${result.error}`;
+        if (resultInfo) resultInfo.textContent = `Load failed: ${result.error}`;
       }
     } catch (e) {
-      if (resultInfo) resultInfo.textContent = `加载失败: ${e}`;
+      if (resultInfo) resultInfo.textContent = `Load failed: ${e}`;
     }
   }
 
@@ -790,12 +787,12 @@ export class DatabaseTool extends Tool {
 
     thead.innerHTML = `
       <tr>
-        <th>字段名</th>
-        <th>类型</th>
-        <th>可空</th>
-        <th>键</th>
-        <th>默认值</th>
-        <th>额外</th>
+        <th>${i18n.t('db.column')}</th>
+        <th>${i18n.t('db.type')}</th>
+        <th>${i18n.t('db.nullable')}</th>
+        <th>${i18n.t('db.key')}</th>
+        <th>${i18n.t('db.default')}</th>
+        <th>${i18n.t('db.extra')}</th>
       </tr>
     `;
 
@@ -816,18 +813,18 @@ export class DatabaseTool extends Tool {
     if (!connectionId || !tab.database || !tab.table) return;
 
     const resultInfo = panel.querySelector('.result-info');
-    if (resultInfo) resultInfo.textContent = '加载数据...';
+    if (resultInfo) resultInfo.textContent = 'Loading data...';
 
     try {
       const result = await llmHub.db.getTableData(connectionId, tab.database, tab.table, page, pageSize);
       if (result.success && result.data) {
         this.renderDataTable(result.data, panel, tab, page, pageSize, result.total || 0);
-        if (resultInfo) resultInfo.textContent = `共 ${result.total || 0} 条记录`;
+        if (resultInfo) resultInfo.textContent = `${i18n.t('db.total')} ${result.total || 0} ${i18n.t('db.rows')}`;
       } else {
-        if (resultInfo) resultInfo.textContent = `加载失败: ${result.error}`;
+        if (resultInfo) resultInfo.textContent = `Load failed: ${result.error}`;
       }
     } catch (e) {
-      if (resultInfo) resultInfo.textContent = `加载失败: ${e}`;
+      if (resultInfo) resultInfo.textContent = `Load failed: ${e}`;
     }
   }
 
@@ -843,7 +840,7 @@ export class DatabaseTool extends Tool {
 
     if (data.length === 0) {
       thead.innerHTML = '';
-      tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; color: #64748b;">没有数据</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; color: #64748b;">No data</td></tr>';
       if (pagination) pagination.style.display = 'none';
       return;
     }
@@ -866,7 +863,7 @@ export class DatabaseTool extends Tool {
     if (pagination && total > pageSize) {
       pagination.style.display = 'flex';
       const totalPages = Math.ceil(total / pageSize);
-      if (pageInfo) pageInfo.textContent = `第 ${page} / ${totalPages} 页`;
+      if (pageInfo) pageInfo.textContent = `${i18n.t('db.page')} ${page} / ${totalPages}`;
       if (prevBtn) prevBtn.disabled = page <= 1;
       if (nextBtn) nextBtn.disabled = page >= totalPages;
     } else if (pagination) {
@@ -903,7 +900,7 @@ export class DatabaseTool extends Tool {
         // 这里简化处理，实际需要知道主键
         cell.innerHTML = this.escapeHtml(newValue);
         cell.dataset.value = newValue;
-        toast('单元格编辑功能需要主键支持，暂未实现完整更新');
+        toast(i18n.t('db.cellEditNeedsPrimaryKey'));
       } else {
         cell.innerHTML = originalValue === '' ? '<span style="color: #64748b;">NULL</span>' : this.escapeHtml(originalValue);
       }
@@ -924,30 +921,30 @@ export class DatabaseTool extends Tool {
     if (!connectionId || !tab.database) return;
 
     const resultInfo = panel.querySelector('.result-info');
-    if (resultInfo) resultInfo.textContent = '执行中...';
-    this.setStatus('执行查询...', 'loading');
+    if (resultInfo) resultInfo.textContent = 'Executing...';
+    this.setStatus('Executing query...', 'loading');
 
     try {
       const result = await llmHub.db.executeQuery(connectionId, tab.database, sql);
       if (result.success) {
         if (result.data && result.data.length > 0) {
           this.renderQueryResult(result.data, panel);
-          if (resultInfo) resultInfo.textContent = `返回 ${result.data.length} 条记录`;
+          if (resultInfo) resultInfo.textContent = `Returned ${result.data.length} ${i18n.t('db.rows')}`;
         } else if (result.affectedRows !== undefined) {
-          if (resultInfo) resultInfo.textContent = `影响 ${result.affectedRows} 行`;
+          if (resultInfo) resultInfo.textContent = i18n.t('db.affectedRows').replace('{count}', String(result.affectedRows));
           const tbody = panel.querySelector('.result-table tbody');
-          if (tbody) tbody.innerHTML = '<tr><td style="text-align: center; color: #22c55e;">执行成功</td></tr>';
+          if (tbody) tbody.innerHTML = '<tr><td style="text-align: center; color: #22c55e;">Success</td></tr>';
         } else {
-          if (resultInfo) resultInfo.textContent = '执行成功';
+          if (resultInfo) resultInfo.textContent = 'Success';
         }
-        this.setStatus('查询完成');
+        this.setStatus('Query completed');
       } else {
-        if (resultInfo) resultInfo.textContent = `执行失败: ${result.error}`;
-        this.setStatus('查询失败', 'error');
+        if (resultInfo) resultInfo.textContent = `Failed: ${result.error}`;
+        this.setStatus('Query failed', 'error');
       }
     } catch (e) {
-      if (resultInfo) resultInfo.textContent = `执行失败: ${e}`;
-      this.setStatus('查询失败', 'error');
+      if (resultInfo) resultInfo.textContent = `Failed: ${e}`;
+      this.setStatus('Query failed', 'error');
     }
   }
 
@@ -961,7 +958,7 @@ export class DatabaseTool extends Tool {
 
     if (data.length === 0) {
       thead.innerHTML = '';
-      tbody.innerHTML = '<tr><td style="text-align: center; color: #64748b;">没有数据</td></tr>';
+      tbody.innerHTML = '<tr><td style="text-align: center; color: #64748b;">No data</td></tr>';
       return;
     }
 

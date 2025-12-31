@@ -2,7 +2,8 @@
  * 使用统计面板（独立于工具系统）
  */
 
-import { statsTemplate } from './template';
+import { getStatsTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 // 每日汇总
 interface DailySummary {
@@ -48,31 +49,36 @@ export class StatsPanel {
       { id: 'claude', name: 'Claude', icon: '🧠', color: '#d97706' },
       { id: 'deepseek', name: 'DeepSeek', icon: '🔍', color: '#6366f1' },
       { id: 'kimi', name: 'Kimi', icon: '🌙', color: '#8b5cf6' },
-      { id: 'doubao', name: '豆包', icon: '🫘', color: '#ff6b35' },
-      { id: 'qwen', name: '通义千问', icon: '💬', color: '#6d28d9' },
-      { id: 'yuanbao', name: '元宝', icon: '🪙', color: '#f59e0b' },
-      { id: 'zhipu', name: '智谱', icon: '🎯', color: '#0ea5e9' },
-      { id: 'baichuan', name: '百川', icon: '🌊', color: '#14b8a6' },
+      { id: 'doubao', name: i18n.t('stats.doubao'), icon: '🫘', color: '#ff6b35' },
+      { id: 'qwen', name: i18n.t('stats.qwen'), icon: '💬', color: '#6d28d9' },
+      { id: 'yuanbao', name: i18n.t('stats.yuanbao'), icon: '🪙', color: '#f59e0b' },
+      { id: 'zhipu', name: i18n.t('stats.zhipu'), icon: '🎯', color: '#0ea5e9' },
+      { id: 'baichuan', name: i18n.t('stats.baichuan'), icon: '🌊', color: '#14b8a6' },
       // 工具
-      { id: 'time', name: '时间戳', icon: '⏰', color: '#f59e0b' },
-      { id: 'pwd', name: '密码生成', icon: '🔑', color: '#ef4444' },
-      { id: 'text', name: '文本统计', icon: '📝', color: '#8b5cf6' },
+      { id: 'time', name: i18n.t('stats.timestamp'), icon: '⏰', color: '#f59e0b' },
+      { id: 'pwd', name: i18n.t('stats.password'), icon: '🔑', color: '#ef4444' },
+      { id: 'text', name: i18n.t('stats.textStats'), icon: '📝', color: '#8b5cf6' },
       { id: 'json', name: 'JSON', icon: '📋', color: '#22c55e' },
-      { id: 'calc', name: '计算器', icon: '🧮', color: '#06b6d4' },
+      { id: 'calc', name: i18n.t('stats.calculator'), icon: '🧮', color: '#06b6d4' },
       { id: 'dns', name: 'DNS', icon: '🌐', color: '#14b8a6' },
-      { id: 'codec', name: '编解码', icon: '🔤', color: '#3b82f6' },
-      { id: 'crypto', name: '加解密', icon: '🔐', color: '#ec4899' },
+      { id: 'codec', name: i18n.t('stats.codec'), icon: '🔤', color: '#3b82f6' },
+      { id: 'crypto', name: i18n.t('stats.crypto'), icon: '🔐', color: '#ec4899' },
       { id: 'curl', name: 'CURL', icon: '🔧', color: '#f97316' },
-      { id: 'currency', name: '货币', icon: '💱', color: '#10b981' },
-      { id: 'color', name: '颜色', icon: '🎨', color: '#a855f7' },
-      { id: 'calendar', name: '万年历', icon: '📅', color: '#6366f1' },
-      { id: 'image', name: '图片', icon: '🖼️', color: '#0ea5e9' },
-      { id: 'database', name: '数据库', icon: '🗄️', color: '#f472b6' },
+      { id: 'currency', name: i18n.t('stats.currency'), icon: '💱', color: '#10b981' },
+      { id: 'color', name: i18n.t('stats.color'), icon: '🎨', color: '#a855f7' },
+      { id: 'calendar', name: i18n.t('stats.calendar'), icon: '📅', color: '#6366f1' },
+      { id: 'image', name: i18n.t('stats.image'), icon: '🖼️', color: '#0ea5e9' },
+      { id: 'database', name: i18n.t('stats.database'), icon: '🗄️', color: '#f472b6' },
       { id: 'redis', name: 'Redis', icon: '📦', color: '#dc2626' },
       { id: 'mongo', name: 'MongoDB', icon: '🍃', color: '#00ed64' },
       { id: 'diff', name: 'Diff', icon: '📝', color: '#7c3aed' },
       { id: 'jwt', name: 'JWT', icon: '🔐', color: '#d946ef' },
-      { id: 'regex', name: '正则', icon: '🔣', color: '#0891b2' },
+      { id: 'regex', name: i18n.t('stats.regex'), icon: '🔣', color: '#0891b2' },
+      // 系统页面
+      { id: '__about__', name: i18n.t('sidebar.about'), icon: 'ℹ️', color: '#6b7280' },
+      { id: '__settings__', name: i18n.t('sidebar.settings'), icon: '⚙️', color: '#6b7280' },
+      { id: '__stats__', name: i18n.t('sidebar.stats'), icon: '📊', color: '#6b7280' },
+      { id: '__worldmap__', name: i18n.t('worldMap.online'), icon: '🌍', color: '#6b7280' },
     ];
 
     toolsList.forEach(tool => {
@@ -81,7 +87,7 @@ export class StatsPanel {
   }
 
   private render(): void {
-    this.container.innerHTML = statsTemplate;
+    this.container.innerHTML = getStatsTemplate();
   }
 
   private bindEvents(): void {
@@ -123,10 +129,10 @@ export class StatsPanel {
     const clearBtn = this.container.querySelector('#clearStats');
     if (clearBtn) {
       this.addListener(clearBtn as HTMLElement, 'click', () => {
-        if (confirm('确定要清除所有使用统计数据吗？此操作不可恢复。')) {
+        if (confirm(i18n.t('stats.confirmClear'))) {
           localStorage.removeItem(STORAGE_KEY);
           this.refreshStats();
-          this.showToast('数据已清除');
+          this.showToast(i18n.t('stats.dataCleared'));
         }
       });
     }
@@ -284,7 +290,7 @@ export class StatsPanel {
 
     // 渲染月份标签（等间距，显示每个月的第一周位置）
     const monthLabels: string[] = [];
-    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const monthNames = i18n.t('stats.monthNames').split(',');
     let lastMonth = -1;
     
     weeks.forEach((week, i) => {
@@ -344,7 +350,7 @@ export class StatsPanel {
             <path d="M13 17V5"/>
             <path d="M8 17v-3"/>
           </svg>
-          <p>暂无数据</p>
+          <p>${i18n.t('stats.noData')}</p>
         </div>
       `;
       return;
@@ -359,7 +365,7 @@ export class StatsPanel {
       const dateObj = new Date(d.date);
       const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
       return `
-        <div class="chart-bar-wrapper" title="${d.date}: ${minutes}分钟">
+        <div class="chart-bar-wrapper" title="${d.date}: ${minutes}${i18n.t('common.minutes')}">
           <div class="chart-bar" style="height: ${height}px"></div>
           <div class="chart-label">${label}</div>
         </div>
@@ -397,7 +403,7 @@ export class StatsPanel {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
           </svg>
-          <p>暂无使用记录</p>
+          <p>${i18n.t('stats.noUsageRecord')}</p>
         </div>
       `;
       return;
@@ -413,7 +419,7 @@ export class StatsPanel {
       const percent = (value / maxValue) * 100;
       const displayValue = this.rankingType === 'time'
         ? this.formatDuration(stats.duration)
-        : `${stats.count}次`;
+        : `${stats.count}${i18n.t('common.times')}`;
 
       let rankClass = 'normal';
       if (index === 0) rankClass = 'top-1';
@@ -442,7 +448,7 @@ export class StatsPanel {
     if (!chart) return;
 
     let hours: number[] = new Array(24).fill(0);
-    let titleText = '使用时段分布';
+    let titleText = i18n.t('stats.hourlyDist');
     
     if (this.selectedDate) {
       // 显示选中日期的时段分布
@@ -451,7 +457,7 @@ export class StatsPanel {
         hours = dayData.hours;
       }
       const dateObj = new Date(this.selectedDate);
-      titleText = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 使用时段`;
+      titleText = `${dateObj.getMonth() + 1}/${dateObj.getDate()} ${i18n.t('stats.hourlyUsage')}`;
     } else {
       // 显示当前周期内的累计时段分布
       data.forEach(d => {
@@ -476,9 +482,9 @@ export class StatsPanel {
         } catch {}
       }
       
-      const periodText = this.currentPeriod === 'week' ? '本周' : 
-                         this.currentPeriod === 'month' ? '本月' : '本年';
-      titleText = `${periodText}使用时段分布`;
+      const periodText = this.currentPeriod === 'week' ? i18n.t('stats.thisWeek') : 
+                         this.currentPeriod === 'month' ? i18n.t('stats.thisMonth') : i18n.t('stats.thisYear');
+      titleText = `${periodText}${i18n.t('stats.hourlyDist')}`;
     }
 
     // 更新标题
@@ -490,7 +496,7 @@ export class StatsPanel {
 
     chart.innerHTML = hours.map((h, i) => {
       const height = Math.max((h / maxHour) * 50, 4);
-      return `<div class="hour-bar" style="height: ${height}px" title="${i}:00 - ${i + 1}:00: ${Math.round(h / 1000 / 60)}分钟"></div>`;
+      return `<div class="hour-bar" style="height: ${height}px" title="${i}:00 - ${i + 1}:00: ${Math.round(h / 1000 / 60)}${i18n.t('common.minutes')}"></div>`;
     }).join('');
   }
 
@@ -543,12 +549,12 @@ export class StatsPanel {
     if (!this.tooltip || !date) return;
 
     const dateObj = new Date(date);
-    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    const dateStr = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日 ${weekdays[dateObj.getDay()]}`;
+    const weekdays = i18n.t('stats.weekdayNames').split(',');
+    const dateStr = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()} ${weekdays[dateObj.getDay()]}`;
 
     this.tooltip.innerHTML = `
       <div class="tooltip-date">${dateStr}</div>
-      <div class="tooltip-value">${duration > 0 ? `使用 ${duration} 分钟` : '无使用记录'}</div>
+      <div class="tooltip-value">${duration > 0 ? `${i18n.t('stats.used')} ${duration} ${i18n.t('common.minutes')}` : i18n.t('stats.noUsage')}</div>
     `;
 
     const rect = target.getBoundingClientRect();
@@ -574,7 +580,7 @@ export class StatsPanel {
     a.download = `toolhub-stats-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    this.showToast('数据已导出');
+    this.showToast(i18n.t('stats.dataExported'));
   }
 
   private importData(input: HTMLInputElement): void {
@@ -589,13 +595,13 @@ export class StatsPanel {
 
         // 验证数据格式
         if (!Array.isArray(importedData)) {
-          throw new Error('数据格式错误：应为数组');
+          throw new Error(i18n.t('stats.invalidDataFormat'));
         }
 
         // 验证每条记录的格式
         for (const item of importedData) {
           if (!item.date || typeof item.totalDuration !== 'number' || !item.tools) {
-            throw new Error('数据格式错误：缺少必要字段');
+            throw new Error(i18n.t('stats.missingFields'));
           }
         }
 
@@ -618,9 +624,9 @@ export class StatsPanel {
 
         // 刷新显示
         this.refreshStats();
-        this.showToast(`导入成功，共 ${importedData.length} 条记录`);
+        this.showToast(`${i18n.t('stats.importSuccess')} ${importedData.length} ${i18n.t('stats.records')}`);
       } catch (err) {
-        this.showToast(`导入失败：${err instanceof Error ? err.message : '未知错误'}`);
+        this.showToast(`${i18n.t('stats.importFailed')}${err instanceof Error ? err.message : i18n.t('common.unknownError')}`);
       }
 
       // 重置 input 以便可以再次选择同一文件
@@ -628,7 +634,7 @@ export class StatsPanel {
     };
 
     reader.onerror = () => {
-      this.showToast('读取文件失败');
+      this.showToast(i18n.t('stats.readFileFailed'));
       input.value = '';
     };
 

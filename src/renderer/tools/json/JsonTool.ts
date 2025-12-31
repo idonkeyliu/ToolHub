@@ -8,7 +8,8 @@ import { ToolCategory, EventType } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { copyText } from '../../utils/clipboard';
 import { eventBus } from '../../core/EventBus';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 type ParseResult =
   | { ok: true; data: unknown }
@@ -20,8 +21,8 @@ export class JsonTool extends Tool {
     title: 'JSON',
     category: ToolCategory.DEVELOPER,
     icon: '📋',
-    description: 'JSON 格式化、压缩、树形预览',
-    keywords: ['json', '格式化', 'format', '解析', 'parse', '树形'],
+    description: i18n.t('tool.jsonDesc'),
+    keywords: ['json', 'format', 'parse'],
   };
 
   config = JsonTool.config;
@@ -34,7 +35,7 @@ export class JsonTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'json-view',
-      innerHTML: template(),
+      innerHTML: getTemplate(),
     });
   }
 
@@ -81,7 +82,7 @@ export class JsonTool extends Tool {
     const text = this.inputEl?.value || '';
     const parsed = this.safeParse(text);
     if (!parsed.ok) {
-      this.showError('JSON 解析失败');
+      this.showError(i18n.t('json.parseFailed'));
       return;
     }
     if (this.inputEl) {
@@ -94,7 +95,7 @@ export class JsonTool extends Tool {
     const text = this.inputEl?.value || '';
     const parsed = this.safeParse(text);
     if (!parsed.ok) {
-      this.showError('JSON 解析失败');
+      this.showError(i18n.t('json.parseFailed'));
       return;
     }
     if (this.inputEl) {
@@ -107,7 +108,7 @@ export class JsonTool extends Tool {
     const text = this.inputEl?.value || '';
     const parsed = this.safeParse(text);
     if (!parsed.ok) {
-      this.showError('JSON 解析失败');
+      this.showError(i18n.t('json.parseFailed'));
       return;
     }
     const sorted = this.sortKeys(parsed.data);
@@ -121,7 +122,7 @@ export class JsonTool extends Tool {
     const text = this.outputEl?.textContent || '';
     if (text) {
       copyText(text).then(() => {
-        eventBus.emit(EventType.TOAST_SHOW, { message: '已复制', duration: 1300 });
+        eventBus.emit(EventType.TOAST_SHOW, { message: i18n.t('common.copied'), duration: 1300 });
       });
     }
   }
@@ -148,7 +149,7 @@ export class JsonTool extends Tool {
         this.refresh();
       }
     } catch {
-      this.showError('无法读取剪贴板');
+      this.showError(i18n.t('json.clipboardReadFailed'));
     }
   }
 
@@ -172,7 +173,7 @@ export class JsonTool extends Tool {
     const parsed = this.safeParse(text);
     if (!parsed.ok) {
       if (this.outputEl) this.outputEl.textContent = '';
-      this.showError('JSON 解析失败');
+      this.showError(i18n.t('json.parseFailed'));
       return;
     }
 
