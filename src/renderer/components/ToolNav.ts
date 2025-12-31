@@ -7,14 +7,18 @@ import { toolRegistry } from '../core/ToolRegistry';
 import { ToolCategory, type ToolConfig } from '../types/index';
 import { eventBus } from '../core/EventBus';
 import { EventType } from '../types/index';
+import { i18n } from '../core/i18n';
 
-/** 分类显示名称 */
-const CATEGORY_LABELS: Record<ToolCategory, string> = {
-  [ToolCategory.UTILITY]: '实用工具',
-  [ToolCategory.DEVELOPER]: '开发工具',
-  [ToolCategory.CONVERTER]: '转换工具',
-  [ToolCategory.NETWORK]: '网络工具',
-  [ToolCategory.TERMINAL]: '终端工具',
+/** 分类显示名称 - 使用函数获取以支持动态语言切换 */
+const getCategoryLabel = (cat: ToolCategory): string => {
+  const labels: Record<ToolCategory, string> = {
+    [ToolCategory.UTILITY]: i18n.t('toolCategory.utility'),
+    [ToolCategory.DEVELOPER]: i18n.t('toolCategory.dev'),
+    [ToolCategory.CONVERTER]: i18n.t('toolCategory.convert'),
+    [ToolCategory.NETWORK]: i18n.t('toolCategory.network'),
+    [ToolCategory.TERMINAL]: i18n.t('toolCategory.terminal'),
+  };
+  return labels[cat];
 };
 
 /** 分类图标 */
@@ -54,20 +58,21 @@ class ToolNav {
       <div class="tool-nav">
         <div class="tool-nav-categories">
           <button class="tool-nav-cat ${this.currentCategory === 'all' ? 'active' : ''}" data-category="all">
-            全部
+            ${i18n.t('search.all')}
           </button>
           ${Object.values(ToolCategory)
+            .filter((cat) => cat !== ToolCategory.TERMINAL)
             .map(
               (cat) => `
             <button class="tool-nav-cat ${this.currentCategory === cat ? 'active' : ''}" data-category="${cat}">
-              ${CATEGORY_ICONS[cat]} ${CATEGORY_LABELS[cat]}
+              ${CATEGORY_ICONS[cat]} ${getCategoryLabel(cat)}
             </button>
           `
             )
             .join('')}
         </div>
         <div class="tool-nav-search">
-          <input type="text" placeholder="搜索工具..." value="${this.searchQuery}" class="tool-nav-search-input" />
+          <input type="text" placeholder="${i18n.t('common.search')}..." value="${this.searchQuery}" class="tool-nav-search-input" />
         </div>
         <div class="tool-nav-list">
           ${filteredConfigs

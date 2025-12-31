@@ -2,6 +2,8 @@
  * Command Palette 组件 - Cmd+K 快速搜索切换
  */
 
+import { i18n } from '../core/i18n';
+
 export interface CommandItem {
   key: string;
   title: string;
@@ -66,7 +68,7 @@ export class CommandPalette {
     this.input = document.createElement('input');
     this.input.type = 'text';
     this.input.className = 'command-palette-input';
-    this.input.placeholder = this.options.placeholder || '搜索工具或 LLM...';
+    this.input.placeholder = this.options.placeholder || i18n.t('commandPalette.placeholder');
     this.input.addEventListener('input', () => this.handleInput());
     this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
     searchWrapper.appendChild(this.input);
@@ -74,7 +76,7 @@ export class CommandPalette {
     // 快捷键提示
     const hint = document.createElement('span');
     hint.className = 'command-palette-hint';
-    hint.textContent = 'ESC 关闭';
+    hint.textContent = i18n.t('commandPalette.escToClose');
     searchWrapper.appendChild(hint);
 
     this.panel.appendChild(searchWrapper);
@@ -197,7 +199,7 @@ export class CommandPalette {
     if (this.filteredItems.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'command-palette-empty';
-      empty.textContent = '没有找到匹配的结果';
+      empty.textContent = i18n.t('commandPalette.noResults');
       this.list.appendChild(empty);
       return;
     }

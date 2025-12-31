@@ -4,7 +4,8 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
@@ -35,11 +36,11 @@ interface ImageState {
 export class ImageTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'image',
-    title: '图片工具',
+    title: i18n.t('tool.image'),
     category: ToolCategory.UTILITY,
     icon: '🏞️',
-    description: '图片裁剪、压缩、旋转、滤镜等处理',
-    keywords: ['图片', 'image', '裁剪', 'crop', '压缩', 'compress', '旋转', '滤镜'],
+    description: i18n.t('tool.imageDesc'),
+    keywords: ['image', 'crop', 'compress', 'filter'],
   };
 
   readonly config = ImageTool.config;
@@ -72,7 +73,7 @@ export class ImageTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -259,7 +260,7 @@ export class ImageTool extends Tool {
 
   private loadImage(file: File): void {
     if (!file.type.startsWith('image/')) {
-      toast('请选择图片文件');
+      toast(i18n.t('image.pleaseSelectImage'));
       return;
     }
 
@@ -356,11 +357,11 @@ export class ImageTool extends Tool {
     const displayH = isRotated ? this.state.width : this.state.height;
 
     infoEl.innerHTML = `
-      <span class="label">文件名</span><span class="value">${this.fileName}</span>
-      <span class="label">原始大小</span><span class="value">${formatSize(this.fileSize)}</span>
-      <span class="label">格式</span><span class="value">${this.fileType}</span>
-      <span class="label">尺寸</span><span class="value">${displayW} × ${displayH} px</span>
-      <span class="label">宽高比</span><span class="value">${this.aspectRatio.toFixed(3)}</span>
+      <span class="label">${i18n.t('image.fileName')}</span><span class="value">${this.fileName}</span>
+      <span class="label">${i18n.t('image.originalSize')}</span><span class="value">${formatSize(this.fileSize)}</span>
+      <span class="label">${i18n.t('image.imageFormat')}</span><span class="value">${this.fileType}</span>
+      <span class="label">${i18n.t('image.dimensions')}</span><span class="value">${displayW} × ${displayH} px</span>
+      <span class="label">${i18n.t('image.aspectRatio')}</span><span class="value">${this.aspectRatio.toFixed(3)}</span>
     `;
   }
 
@@ -587,7 +588,7 @@ export class ImageTool extends Tool {
     }
 
     this.cancelCrop();
-    toast('裁剪完成');
+    toast(i18n.t('image.cropComplete'));
   }
 
   private cancelCrop(): void {
@@ -631,7 +632,7 @@ export class ImageTool extends Tool {
       newImg.src = tempCanvas.toDataURL();
     }
 
-    toast('尺寸已调整');
+    toast(i18n.t('image.sizeAdjusted'));
   }
 
   private resetImage(): void {
@@ -650,7 +651,7 @@ export class ImageTool extends Tool {
     this.drawImage();
     this.updateInfo();
     this.updateResizeInputs();
-    toast('已重置');
+    toast(i18n.t('image.reset'));
   }
 
   private applyFiltersPreview(): void {
@@ -699,7 +700,7 @@ export class ImageTool extends Tool {
       newImg.src = tempCanvas.toDataURL();
     }
 
-    toast('滤镜已应用');
+    toast(i18n.t('image.filterApplied'));
   }
 
   private resetFilters(): void {
@@ -757,7 +758,7 @@ export class ImageTool extends Tool {
 
   private async exportImage(): Promise<void> {
     if (!this.canvas) {
-      alert('请先选择图片');
+      alert(i18n.t('image.pleaseSelectImageFirst'));
       return;
     }
 
@@ -795,7 +796,7 @@ export class ImageTool extends Tool {
         defaultName: fileName,
         filters: [
           { name: format.toUpperCase(), extensions: [ext] },
-          { name: '所有文件', extensions: ['*'] }
+          { name: i18n.t('common.allFiles'), extensions: ['*'] }
         ],
         data: dataUrl
       });
@@ -806,12 +807,12 @@ export class ImageTool extends Tool {
       }
 
       if (result.success) {
-        alert(`导出成功！\n\n保存位置：${result.filePath}`);
+        alert(`${i18n.t('image.exportSuccess')}\\n\\n${i18n.t('image.savePath')}：${result.filePath}`);
       } else {
-        alert(`导出失败：${result.error || '未知错误'}`);
+        alert(`${i18n.t('image.exportFailed')}：${result.error || i18n.t('common.unknownError')}`);
       }
     } catch (e) {
-      alert('导出失败，请重试');
+      alert(i18n.t('image.exportFailedRetry'));
       console.error('Export error:', e);
     }
   }
@@ -853,7 +854,7 @@ export class ImageTool extends Tool {
         this.addEventListener(swatch as HTMLElement, 'click', () => {
           const hex = swatch.getAttribute('data-color') || '';
           copyText(hex);
-          toast(`已复制 ${hex}`);
+          toast(`${i18n.t('common.copied')} ${hex}`);
         });
       });
     }

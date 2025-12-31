@@ -6,7 +6,8 @@ import { Tool } from '../../core/Tool';
 import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
-import { dnsTemplate } from './template';
+import { getDnsTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 interface DnsRow {
   name: string;
@@ -32,11 +33,11 @@ const MAX_HISTORY = 20;
 export class DnsTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'dns',
-    title: 'DNS 查询',
+    title: i18n.t('tool.dns'),
     category: ToolCategory.NETWORK,
     icon: '🌐',
-    description: '支持 Google/Cloudflare DoH 的 DNS 解析工具',
-    keywords: ['dns', '域名', '解析', 'domain', 'doh', 'google', 'cloudflare'],
+    description: i18n.t('tool.dnsDesc'),
+    keywords: ['dns', 'domain', 'doh', 'google', 'cloudflare'],
   };
 
   config = DnsTool.config;
@@ -68,7 +69,7 @@ export class DnsTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'dns-view',
-      innerHTML: dnsTemplate,
+      innerHTML: getDnsTemplate(),
     });
   }
 
@@ -118,7 +119,7 @@ export class DnsTool extends Tool {
         const text = (el?.textContent || '').trim();
         if (text) {
           copyText(text);
-          toast('已复制');
+          toast(i18n.t('dns.copied'));
         }
       });
     });
@@ -221,7 +222,7 @@ export class DnsTool extends Tool {
   private renderList(el: HTMLElement | null, list: string[]): void {
     if (!el) return;
     if (!list || !list.length) {
-      el.innerHTML = '<div class="dns-empty">暂无结果</div>';
+      el.innerHTML = `<div class="dns-empty">${i18n.t('dns.noResult')}</div>`;
       return;
     }
     el.textContent = list.join('\n');
@@ -230,7 +231,7 @@ export class DnsTool extends Tool {
   private renderTable(el: HTMLElement | null, rows: DnsRow[]): void {
     if (!el) return;
     if (!rows || !rows.length) {
-      el.innerHTML = '<div class="dns-empty">暂无结果</div>';
+      el.innerHTML = `<div class="dns-empty">${i18n.t('dns.noResult')}</div>`;
       return;
     }
     const thead = '<thead><tr><th>NAME</th><th>TYPE</th><th>TTL</th><th>DATA</th></tr></thead>';
@@ -241,7 +242,7 @@ export class DnsTool extends Tool {
   }
 
   private setMeta(el: HTMLElement | null, ms: number, from: string): void {
-    if (el) el.innerHTML = `<span class="tag">${ms}ms</span> 来源: ${from}`;
+    if (el) el.innerHTML = `<span class="tag">${ms}ms</span> ${i18n.t('dns.source')}: ${from}`;
   }
 
   private setErr(el: HTMLElement | null, e: any): void {
@@ -269,7 +270,7 @@ export class DnsTool extends Tool {
   private clearHistory(): void {
     localStorage.removeItem(HISTORY_KEY);
     this.renderHistory();
-    toast('历史已清空');
+    toast(i18n.t('dns.historyCleared'));
   }
 
   private renderHistory(): void {
@@ -352,7 +353,7 @@ export class DnsTool extends Tool {
     }
 
     if (!name) {
-      toast('请输入域名');
+      toast(i18n.t('dns.enterDomain'));
       return;
     }
 
@@ -360,7 +361,7 @@ export class DnsTool extends Tool {
     this.saveHistory(this.normalizeName(this.host?.value || ''));
 
     // 清空结果
-    [this.gList, this.cList, this.uList].forEach(el => { if (el) el.innerHTML = '<div class="dns-empty">查询中...</div>'; });
+    [this.gList, this.cList, this.uList].forEach(el => { if (el) el.innerHTML = `<div class="dns-empty">${i18n.t('dns.querying')}</div>`; });
     [this.gMeta, this.cMeta, this.uMeta].forEach(el => { if (el) el.textContent = ''; });
     [this.gErr, this.cErr, this.uErr].forEach(el => { if (el) el.textContent = ''; });
 
@@ -385,7 +386,7 @@ export class DnsTool extends Tool {
     if (this.useU?.checked) {
       const ep = this.customEp?.value || '';
       if (!ep.trim()) {
-        toast('请填写自定义 DoH 端点');
+        toast(i18n.t('dns.enterCustomEndpoint'));
       } else {
         tasks.push(
           this.dohCustom(ep, name, rr)
@@ -396,7 +397,7 @@ export class DnsTool extends Tool {
     }
 
     if (!tasks.length) {
-      toast('请至少选择一个解析源');
+      toast(i18n.t('dns.selectSource'));
       return;
     }
 
@@ -416,7 +417,7 @@ export class DnsTool extends Tool {
         }
         this.setMeta(this.gMeta, r.ms || 0, 'Google');
         if (this.trace?.checked && r.raw && this.gMeta) {
-          this.gMeta.innerHTML += ` · 状态码 ${r.raw.Status}`;
+          this.gMeta.innerHTML += ` · ${i18n.t('dns.statusCode')} ${r.raw.Status}`;
         }
       } else if (r.who === 'Cloudflare') {
         if (r.error) {
@@ -431,7 +432,7 @@ export class DnsTool extends Tool {
         }
         this.setMeta(this.cMeta, r.ms || 0, 'Cloudflare');
         if (this.trace?.checked && r.raw && this.cMeta) {
-          this.cMeta.innerHTML += ` · 状态码 ${r.raw.Status}`;
+          this.cMeta.innerHTML += ` · ${i18n.t('dns.statusCode')} ${r.raw.Status}`;
         }
       } else if (r.who === 'Custom') {
         if (r.error) {
@@ -446,7 +447,7 @@ export class DnsTool extends Tool {
         }
         this.setMeta(this.uMeta, r.ms || 0, 'Custom');
         if (this.trace?.checked && r.raw && this.uMeta) {
-          this.uMeta.innerHTML += ` · 状态码 ${r.raw.Status}`;
+          this.uMeta.innerHTML += ` · ${i18n.t('dns.statusCode')} ${r.raw.Status}`;
         }
       }
     }

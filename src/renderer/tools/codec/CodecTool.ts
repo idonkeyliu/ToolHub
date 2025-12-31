@@ -6,7 +6,8 @@ import { Tool } from '../../core/Tool';
 import type { ToolConfig } from '../../types/index';
 import { ToolCategory } from '../../types/index';
 import { createElement } from '../../utils/dom';
-import { codecTemplate } from './template';
+import { getCodecTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
@@ -14,11 +15,11 @@ declare function copyText(text: string): void;
 export class CodecTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'codec',
-    title: '编解码',
+    title: i18n.t('tool.codec'),
     category: ToolCategory.CONVERTER,
     icon: '🔄',
-    description: 'URL/Base64/Unicode/Hex/HTML 编解码工具',
-    keywords: ['codec', '编码', '解码', 'url', 'base64', 'unicode', 'hex', 'html'],
+    description: i18n.t('tool.codecDesc'),
+    keywords: ['codec', 'url', 'base64', 'unicode', 'hex', 'html'],
   };
 
   config = CodecTool.config;
@@ -26,7 +27,7 @@ export class CodecTool extends Tool {
   render(): HTMLElement {
     return createElement('div', {
       className: 'codec-view',
-      innerHTML: codecTemplate,
+      innerHTML: getCodecTemplate(),
     });
   }
 
@@ -79,7 +80,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '编码失败：' + e.message;
+            error.textContent = i18n.t('codec.encodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -93,7 +94,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解码失败：' + e.message;
+            error.textContent = i18n.t('codec.decodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -112,7 +113,7 @@ export class CodecTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = encoded?.value || decoded?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -141,7 +142,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '编码失败：' + e.message;
+            error.textContent = i18n.t('codec.encodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -160,7 +161,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解码失败：' + e.message;
+            error.textContent = i18n.t('codec.decodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -179,7 +180,7 @@ export class CodecTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = encoded?.value || decoded?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -209,7 +210,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '编码失败：' + e.message;
+            error.textContent = i18n.t('codec.encodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -228,7 +229,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解码失败：' + e.message;
+            error.textContent = i18n.t('codec.decodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -247,7 +248,7 @@ export class CodecTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = encoded?.value || decoded?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -275,7 +276,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '编码失败：' + e.message;
+            error.textContent = i18n.t('codec.encodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -287,7 +288,7 @@ export class CodecTool extends Tool {
         try {
           if (decoded && encoded) {
             const hex = encoded.value.replace(/\s/g, '');
-            if (hex.length % 2 !== 0) throw new Error('Hex 长度必须为偶数');
+            if (hex.length % 2 !== 0) throw new Error(i18n.t('codec.hexLengthError'));
             const bytes = new Uint8Array(hex.length / 2);
             for (let i = 0; i < hex.length; i += 2) {
               bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
@@ -297,7 +298,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解码失败：' + e.message;
+            error.textContent = i18n.t('codec.decodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -316,7 +317,7 @@ export class CodecTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = encoded?.value || decoded?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }
@@ -352,7 +353,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '编码失败：' + e.message;
+            error.textContent = i18n.t('codec.encodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -370,7 +371,7 @@ export class CodecTool extends Tool {
           if (error) error.style.display = 'none';
         } catch (e: any) {
           if (error) {
-            error.textContent = '解码失败：' + e.message;
+            error.textContent = i18n.t('codec.decodeFailed') + ': ' + e.message;
             error.style.display = 'block';
           }
         }
@@ -389,7 +390,7 @@ export class CodecTool extends Tool {
       this.addEventListener(copyBtn, 'click', () => {
         const text = encoded?.value || decoded?.value || '';
         if (text) copyText(text);
-        else toast('无内容可复制');
+        else toast(i18n.t('common.noCopyContent'));
       });
     }
   }

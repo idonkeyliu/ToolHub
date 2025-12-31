@@ -1,15 +1,16 @@
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class ColorTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'color',
-    title: '颜色工具',
+    title: i18n.t('tool.color'),
     category: ToolCategory.CONVERTER,
     icon: '🎨',
-    description: '颜色选择、转换与调色板',
-    keywords: ['颜色', 'color', 'hex', 'rgb', 'hsl', '调色板'],
+    description: i18n.t('tool.colorDesc'),
+    keywords: ['color', 'hex', 'rgb', 'hsl', 'palette'],
   };
 
   readonly config = ColorTool.config;
@@ -21,7 +22,7 @@ export class ColorTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -522,18 +523,18 @@ export class ColorTool extends Tool {
   }
 
   private getColorName(h: number, s: number, v: number): string {
-    if (v < 10) return '黑色';
-    if (s < 10 && v > 90) return '白色';
-    if (s < 10) return '灰色';
+    if (v < 10) return i18n.t('color.black');
+    if (s < 10 && v > 90) return i18n.t('color.white');
+    if (s < 10) return i18n.t('color.gray');
 
     const hueNames: [number, string][] = [
-      [15, '红色'], [45, '橙色'], [75, '黄色'], [150, '绿色'],
-      [210, '青色'], [270, '蓝色'], [330, '紫色'], [360, '红色']
+      [15, i18n.t('color.red')], [45, i18n.t('color.orange')], [75, i18n.t('color.yellow')], [150, i18n.t('color.green')],
+      [210, i18n.t('color.cyan')], [270, i18n.t('color.blue')], [330, i18n.t('color.purple')], [360, i18n.t('color.red')]
     ];
 
     for (const [threshold, name] of hueNames) {
       if (h <= threshold) return name;
     }
-    return '红色';
+    return i18n.t('color.red');
   }
 }

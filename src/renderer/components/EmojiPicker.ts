@@ -4,6 +4,7 @@
  */
 
 import { emojiCategories, EmojiCategory } from '../assets/emojis/index';
+import { i18n } from '../core/i18n';
 
 export interface EmojiPickerOptions {
   onSelect: (emojiPath: string, emojiName: string) => void;
@@ -64,7 +65,7 @@ export class EmojiPicker {
 
     this.container.innerHTML = `
       <div class="emoji-picker-header">
-        <div class="emoji-picker-title">选择图标</div>
+        <div class="emoji-picker-title">${i18n.t('emoji.selectIcon')}</div>
         <div class="emoji-picker-close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -72,7 +73,7 @@ export class EmojiPicker {
         </div>
       </div>
       <div class="emoji-picker-search">
-        <input type="text" placeholder="搜索 emoji..." class="emoji-search-input" />
+        <input type="text" placeholder="${i18n.t('emoji.searchPlaceholder')}" class="emoji-search-input" />
       </div>
       <div class="emoji-tabs">${tabs}</div>
       <div class="emoji-grid-container">

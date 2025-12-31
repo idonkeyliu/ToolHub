@@ -4,8 +4,9 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
+import { i18n } from '../../core/i18n';
 
 // Terminal IPC 接口
 declare const llmHub: {
@@ -47,25 +48,25 @@ interface TerminalState {
 export class TerminalTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'terminal',
-    title: 'SSH 终端',
+    title: i18n.t('tool.terminal'),
     category: ToolCategory.TERMINAL,
     icon: '🖥️',
-    description: 'SSH 终端工具，管理服务器连接',
-    keywords: ['终端', 'terminal', 'ssh', '服务器', 'server', 'shell', '命令行'],
+    description: i18n.t('tool.terminalDesc'),
+    keywords: ['terminal', 'ssh', 'server', 'shell'],
   };
 
   readonly config = TerminalTool.config;
 
   private servers: ServerConfig[] = [];
   private activeSessions: Map<string, string> = new Map(); // serverId -> sessionId
-  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: '欢迎' }];
+  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: i18n.t('terminal.welcome') }];
   private activeTabId = 'welcome';
   private editingServerId: string | null = null;
   private terminalStates: Map<string, TerminalState> = new Map();
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -124,7 +125,7 @@ export class TerminalTool extends Tool {
     if (!list) return;
 
     if (this.servers.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无连接配置</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('terminal.noConnections')}</div>`;
       return;
     }
 
@@ -139,8 +140,8 @@ export class TerminalTool extends Tool {
             <div class="conn-detail">${this.escapeHtml(server.username)}@${this.escapeHtml(server.host)}:${server.port}</div>
           </div>
           <div class="conn-actions">
-            <button class="conn-action-btn edit" data-action="edit" title="编辑">✏️</button>
-            <button class="conn-action-btn delete" data-action="delete" title="删除">🗑️</button>
+            <button class="conn-action-btn edit" data-action="edit" title="${i18n.t('common.edit')}">✏️</button>
+            <button class="conn-action-btn delete" data-action="delete" title="${i18n.t('common.delete')}">🗑️</button>
           </div>
         </div>
       `;
@@ -172,7 +173,7 @@ export class TerminalTool extends Tool {
     if (!modal || !title) return;
 
     this.editingServerId = server?.id || null;
-    title.textContent = server ? '编辑服务器' : '添加服务器';
+    title.textContent = server ? i18n.t('terminal.editServerTitle') : i18n.t('terminal.addServerTitle');
 
     // 填充表单（用户名默认 root）
     (this.querySelector('#serverName') as HTMLInputElement).value = server?.name || '';
@@ -226,17 +227,17 @@ export class TerminalTool extends Tool {
     const config = this.getFormConfig();
     
     if (!config.name || !config.host || !config.username) {
-      toast('请填写完整的连接信息');
+      toast(i18n.t('terminal.fillCompleteInfo'));
       return;
     }
 
     if (config.authType === 'password' && !config.password) {
-      toast('请输入密码');
+      toast(i18n.t('terminal.enterPassword'));
       return;
     }
 
     if (config.authType === 'key' && !config.privateKey) {
-      toast('请输入私钥');
+      toast(i18n.t('terminal.enterPrivateKey'));
       return;
     }
 
@@ -244,7 +245,7 @@ export class TerminalTool extends Tool {
     const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
     
     if (statusEl) {
-      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.textContent = i18n.t('terminal.testing');
       statusEl.style.color = '#f59e0b';
     }
     if (testBtn) testBtn.disabled = true;
@@ -253,23 +254,23 @@ export class TerminalTool extends Tool {
       const result = await llmHub.terminal.testConnection(config);
       if (result.success) {
         if (statusEl) {
-          statusEl.textContent = '✅ 连接成功！';
+          statusEl.textContent = i18n.t('terminal.testSuccess');
           statusEl.style.color = '#22c55e';
         }
-        toast('连接成功！');
+        toast(i18n.t('terminal.connectionSuccess'));
       } else {
         if (statusEl) {
           statusEl.textContent = `❌ ${result.error}`;
           statusEl.style.color = '#ef4444';
         }
-        toast(`连接失败: ${result.error}`);
+        toast(`${i18n.t('terminal.connectionFailed')}: ${result.error}`);
       }
     } catch (e) {
       if (statusEl) {
         statusEl.textContent = `❌ ${e}`;
         statusEl.style.color = '#ef4444';
       }
-      toast(`连接失败: ${e}`);
+      toast(`${i18n.t('terminal.connectionFailed')}: ${e}`);
     } finally {
       if (testBtn) testBtn.disabled = false;
     }
@@ -279,17 +280,17 @@ export class TerminalTool extends Tool {
     const config = this.getFormConfig();
     
     if (!config.name || !config.host || !config.username) {
-      toast('请填写完整的连接信息');
+      toast(i18n.t('terminal.fillCompleteInfo'));
       return;
     }
 
     if (config.authType === 'password' && !config.password) {
-      toast('请输入密码');
+      toast(i18n.t('terminal.enterPassword'));
       return;
     }
 
     if (config.authType === 'key' && !config.privateKey) {
-      toast('请输入私钥');
+      toast(i18n.t('terminal.enterPrivateKey'));
       return;
     }
 
@@ -307,7 +308,7 @@ export class TerminalTool extends Tool {
     this.saveServers();
     this.renderServerList();
     this.hideServerModal();
-    toast('服务器配置已保存');
+    toast(i18n.t('terminal.configSaved'));
   }
 
   private editServer(id: string): void {
@@ -318,7 +319,7 @@ export class TerminalTool extends Tool {
   }
 
   private deleteServer(id: string): void {
-    if (!confirm('确定要删除这个服务器配置吗？')) {
+    if (!confirm(i18n.t('terminal.confirmDelete'))) {
       return;
     }
 
@@ -332,9 +333,9 @@ export class TerminalTool extends Tool {
     this.servers = this.servers.filter(s => s.id !== id);
     this.saveServers();
     this.renderServerList();
-    this.setStatus('就绪');
+    this.setStatus(i18n.t('terminal.ready'));
     
-    toast('服务器配置已删除');
+    toast(i18n.t('terminal.configDeleted'));
   }
 
   // ==================== 连接管理 ====================
@@ -361,7 +362,7 @@ export class TerminalTool extends Tool {
       }
     }
 
-    this.setStatus(`正在连接 ${server.name}...`, 'loading');
+    this.setStatus(`${i18n.t('terminal.connecting')} ${server.name}...`, 'loading');
 
     try {
       const result = await llmHub.terminal.connect(server);
@@ -369,15 +370,15 @@ export class TerminalTool extends Tool {
         this.activeSessions.set(serverId, result.sessionId);
         this.renderServerList();
         this.openTerminalTab(server, result.sessionId);
-        this.setStatus(`已连接: ${server.name}`, 'connected');
-        toast(`已连接到 ${server.name}`);
+        this.setStatus(`${i18n.t('terminal.connected')}: ${server.name}`, 'connected');
+        toast(`${i18n.t('terminal.connectedTo')} ${server.name}`);
       } else {
-        toast(`连接失败: ${result.error}`);
-        this.setStatus('连接失败', 'error');
+        toast(`${i18n.t('terminal.connectionFailed')}: ${result.error}`);
+        this.setStatus(i18n.t('terminal.connectionFailed'), 'error');
       }
     } catch (e) {
-      toast(`连接失败: ${e}`);
-      this.setStatus('连接失败', 'error');
+      toast(`${i18n.t('terminal.connectionFailed')}: ${e}`);
+      this.setStatus(i18n.t('terminal.connectionFailed'), 'error');
     }
   }
 
@@ -493,7 +494,7 @@ export class TerminalTool extends Tool {
       }
     }
 
-    this.setStatus('就绪');
+    this.setStatus(i18n.t('terminal.ready'));
   }
 
   // ==================== 终端面板 ====================
@@ -517,14 +518,14 @@ export class TerminalTool extends Tool {
             <span>bash</span>
           </div>
           <div class="terminal-actions">
-            <button class="terminal-action-btn clear-btn" title="清屏 (Ctrl+L)">清屏</button>
-            <button class="terminal-action-btn disconnect" title="断开连接">断开</button>
+            <button class="terminal-action-btn clear-btn" title="${i18n.t('terminal.clearScreen')} (Ctrl+L)">${i18n.t('terminal.clear')}</button>
+            <button class="terminal-action-btn disconnect" title="${i18n.t('terminal.disconnect')}">${i18n.t('terminal.disconnectBtn')}</button>
           </div>
         </div>
         <div class="terminal-body" tabindex="0">
           <div class="terminal-content">
-            <div class="output-line system">已连接到 ${this.escapeHtml(server.name)} (${this.escapeHtml(server.host)}:${server.port})</div>
-            <div class="output-line system">输入命令开始操作，按 ↑↓ 浏览历史命令</div>
+            <div class="output-line system">${i18n.t('terminal.connectedTo')} ${this.escapeHtml(server.name)} (${this.escapeHtml(server.host)}:${server.port})</div>
+            <div class="output-line system">${i18n.t('terminal.inputHint')}</div>
           </div>
           <div class="input-line">
             <span class="prompt">${this.escapeHtml(prompt)}</span><span class="input-text"></span><span class="cursor"> </span>
@@ -813,7 +814,7 @@ export class TerminalTool extends Tool {
         await this.updateCurrentDir(tab, state, terminalBody, server);
       }
     } catch (e) {
-      this.appendOutput(terminalBody, `执行失败: ${e}`, 'error');
+      this.appendOutput(terminalBody, `${i18n.t('terminal.executeFailed')}: ${e}`, 'error');
     }
   }
 

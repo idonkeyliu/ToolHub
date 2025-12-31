@@ -5,7 +5,8 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 
@@ -38,8 +39,8 @@ export class RegexTool extends Tool {
     title: 'Regex',
     category: ToolCategory.DEVELOPER,
     icon: '🔍',
-    description: '正则表达式测试工具',
-    keywords: ['regex', 'regular expression', '正则', '匹配', 'pattern', '替换', 'replace'],
+    description: i18n.t('tool.regexDesc'),
+    keywords: ['regex', 'regular expression', 'pattern', 'replace'],
   };
 
   readonly config = RegexTool.config;
@@ -49,7 +50,7 @@ export class RegexTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -118,7 +119,7 @@ export class RegexTool extends Tool {
         if (pattern && regexInput) {
           regexInput.value = pattern;
           this.onRegexChange();
-          toast('已加载模板');
+          toast(i18n.t('regex.templateLoaded'));
         }
       });
     });
@@ -169,7 +170,7 @@ export class RegexTool extends Tool {
     } catch (error) {
       this.currentRegex = null;
       if (regexError) {
-        regexError.textContent = error instanceof Error ? error.message : '无效的正则表达式';
+        regexError.textContent = error instanceof Error ? error.message : i18n.t('regex.invalidRegex');
         regexError.classList.add('show');
       }
       if (patternWrapper) {
@@ -274,7 +275,7 @@ export class RegexTool extends Tool {
     if (!matchesList) return;
 
     if (this.matches.length === 0) {
-      matchesList.innerHTML = '<div class="matches-empty">没有匹配结果</div>';
+      matchesList.innerHTML = `<div class="matches-empty">${i18n.t('regex.noMatches')}</div>`;
       return;
     }
 
@@ -286,8 +287,8 @@ export class RegexTool extends Tool {
           <div class="match-content">
             <div class="match-value">${this.escapeHtml(match.match)}</div>
             <div class="match-info">
-              <span>位置: ${match.start}-${match.end}</span>
-              <span>长度: ${match.match.length}</span>
+              <span>${i18n.t('regex.position')}: ${match.start}-${match.end}</span>
+              <span>${i18n.t('regex.length')}: ${match.match.length}</span>
             </div>
             ${
               match.groups.length > 0
@@ -318,7 +319,7 @@ export class RegexTool extends Tool {
   private clearMatches(): void {
     const matchesList = this.querySelector('#matchesList');
     if (matchesList) {
-      matchesList.innerHTML = '<div class="matches-empty">输入正则和文本查看匹配</div>';
+      matchesList.innerHTML = `<div class="matches-empty">${i18n.t('regex.enterToMatch')}</div>`;
     }
     this.matches = [];
     this.updateStats();
@@ -360,7 +361,7 @@ export class RegexTool extends Tool {
       const result = text.replace(this.currentRegex, replacement);
       replaceResult.textContent = result;
     } catch (error) {
-      replaceResult.textContent = '替换出错';
+      replaceResult.textContent = i18n.t('regex.replaceError');
     }
   }
 
@@ -374,7 +375,7 @@ export class RegexTool extends Tool {
     if (result) {
       testTextInput.value = result;
       this.performMatch();
-      toast('已应用替换');
+      toast(i18n.t('regex.replaceApplied'));
     }
   }
 
@@ -383,21 +384,21 @@ export class RegexTool extends Tool {
     const result = replaceResult?.textContent || '';
 
     if (!result) {
-      toast('没有可复制的内容');
+      toast(i18n.t('common.noCopyContent'));
       return;
     }
 
     try {
       await navigator.clipboard.writeText(result);
-      toast('已复制替换结果');
+      toast(i18n.t('regex.replaceResultCopied'));
     } catch {
-      toast('复制失败');
+      toast(i18n.t('regex.copyFailed'));
     }
   }
 
   private async copyMatches(): Promise<void> {
     if (this.matches.length === 0) {
-      toast('没有匹配结果');
+      toast(i18n.t('regex.noMatches'));
       return;
     }
 
@@ -405,9 +406,9 @@ export class RegexTool extends Tool {
 
     try {
       await navigator.clipboard.writeText(text);
-      toast('已复制所有匹配');
+      toast(i18n.t('regex.allMatchesCopied'));
     } catch {
-      toast('复制失败');
+      toast(i18n.t('regex.copyFailed'));
     }
   }
 
@@ -446,7 +447,7 @@ export class RegexTool extends Tool {
       patternWrapper.classList.remove('error');
     }
 
-    toast('已清空');
+    toast(i18n.t('regex.cleared'));
   }
 
   private loadSample(): void {
@@ -457,7 +458,7 @@ export class RegexTool extends Tool {
     if (testTextInput) testTextInput.value = SAMPLE_TEXT;
 
     this.onRegexChange();
-    toast('已加载示例');
+    toast(i18n.t('regex.sampleLoaded'));
   }
 
   private async pasteTestText(): Promise<void> {
@@ -467,10 +468,10 @@ export class RegexTool extends Tool {
       if (testTextInput) {
         testTextInput.value = text;
         this.performMatch();
-        toast('已粘贴');
+        toast(i18n.t('common.pasted'));
       }
     } catch {
-      toast('粘贴失败，请检查剪贴板权限');
+      toast(i18n.t('regex.pasteFailed'));
     }
   }
 

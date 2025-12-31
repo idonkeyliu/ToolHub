@@ -4,8 +4,9 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
+import { i18n } from '../../core/i18n';
 
 declare const llmHub: {
   mongo: {
@@ -69,8 +70,8 @@ export class MongoTool extends Tool {
     title: 'MongoDB',
     category: ToolCategory.DEVELOPER,
     icon: '🍃',
-    description: 'MongoDB 管理工具',
-    keywords: ['mongodb', 'mongo', 'nosql', '文档数据库', 'document'],
+    description: i18n.t('tool.mongoDesc'),
+    keywords: ['mongodb', 'mongo', 'nosql', 'document'],
   };
 
   readonly config = MongoTool.config;
@@ -79,7 +80,7 @@ export class MongoTool extends Tool {
   private activeConnections: Map<string, string> = new Map();
   private currentConfigId: string | null = null;
   private databases: DatabaseInfo[] = [];
-  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: '欢迎' }];
+  private tabs: TabInfo[] = [{ id: 'welcome', type: 'welcome', title: i18n.t('mongo.welcome') }];
   private activeTabId = 'welcome';
   private editingConfigId: string | null = null;
   private collectionStates: Map<string, CollectionState> = new Map();
@@ -88,7 +89,7 @@ export class MongoTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -159,14 +160,14 @@ export class MongoTool extends Tool {
     if (!list) return;
 
     if (this.connections.length === 0) {
-      list.innerHTML = '<div class="empty-hint">暂无连接配置</div>';
+      list.innerHTML = `<div class="empty-hint">${i18n.t('mongo.noConnections')}</div>`;
       return;
     }
 
     list.innerHTML = this.connections.map(conn => {
       const isConnected = this.activeConnections.has(conn.id!);
       const isActive = this.currentConfigId === conn.id;
-      const detail = conn.mode === 'uri' ? 'URI 连接' : `${conn.host}:${conn.port}`;
+      const detail = conn.mode === 'uri' ? i18n.t('mongo.uriConnection') : `${conn.host}:${conn.port}`;
       return `
         <div class="connection-item ${isConnected ? 'connected' : ''} ${isActive ? 'active' : ''}" data-id="${conn.id}">
           <div class="conn-icon">🍃</div>
@@ -175,8 +176,8 @@ export class MongoTool extends Tool {
             <div class="conn-detail">${this.escapeHtml(detail)}</div>
           </div>
           <div class="conn-actions">
-            <button class="conn-action-btn edit" data-action="edit" title="编辑">✏️</button>
-            <button class="conn-action-btn delete" data-action="delete" title="删除">🗑️</button>
+            <button class="conn-action-btn edit" data-action="edit" title="Edit">✏️</button>
+            <button class="conn-action-btn delete" data-action="delete" title="Delete">🗑️</button>
           </div>
         </div>
       `;
@@ -200,7 +201,7 @@ export class MongoTool extends Tool {
     if (!modal || !title) return;
 
     this.editingConfigId = config?.id || null;
-    title.textContent = config ? '编辑 MongoDB 连接' : '添加 MongoDB 连接';
+    title.textContent = config ? i18n.t('mongo.editConnection') : i18n.t('mongo.addMongoConnection');
 
     const mode = config?.mode || 'standard';
     (this.querySelector('#connName') as HTMLInputElement).value = config?.name || '';
@@ -247,13 +248,13 @@ export class MongoTool extends Tool {
 
   private async testConnection(): Promise<void> {
     const config = this.getFormConfig();
-    if (!config.name) { toast('请输入连接名称'); return; }
+    if (!config.name) { toast(i18n.t('mongo.enterConnName')); return; }
 
     const statusEl = this.querySelector('#connTestStatus');
     const testBtn = this.querySelector('#testConnBtn') as HTMLButtonElement;
     
     if (statusEl) {
-      statusEl.textContent = '⏳ 正在测试...';
+      statusEl.textContent = i18n.t('mongo.testing');
       statusEl.style.color = '#f59e0b';
     }
     if (testBtn) testBtn.disabled = true;
@@ -262,23 +263,23 @@ export class MongoTool extends Tool {
       const result = await llmHub.mongo.testConnection(config);
       if (result.success) { 
         if (statusEl) {
-          statusEl.textContent = '✅ 连接成功！';
+          statusEl.textContent = i18n.t('mongo.testSuccess');
           statusEl.style.color = '#22c55e';
         }
-        toast('连接成功！'); 
+        toast(i18n.t('mongo.connectionSuccess')); 
       } else { 
         if (statusEl) {
           statusEl.textContent = `❌ ${result.error}`;
           statusEl.style.color = '#ef4444';
         }
-        toast(`连接失败: ${result.error}`); 
+        toast(`${i18n.t('mongo.connectionFailed')}: ${result.error}`); 
       }
     } catch (e) { 
       if (statusEl) {
         statusEl.textContent = `❌ ${e}`;
         statusEl.style.color = '#ef4444';
       }
-      toast(`连接失败: ${e}`); 
+      toast(`${i18n.t('mongo.connectionFailed')}: ${e}`); 
     } finally {
       if (testBtn) testBtn.disabled = false;
     }
@@ -286,7 +287,7 @@ export class MongoTool extends Tool {
 
   private saveConnection(): void {
     const config = this.getFormConfig();
-    if (!config.name) { toast('请输入连接名称'); return; }
+    if (!config.name) { toast(i18n.t('mongo.enterConnName')); return; }
 
     if (this.editingConfigId) {
       const index = this.connections.findIndex(c => c.id === this.editingConfigId);
@@ -298,7 +299,7 @@ export class MongoTool extends Tool {
     this.saveConnections();
     this.renderConnectionList();
     this.hideConnectionModal();
-    toast('连接配置已保存');
+    toast(i18n.t('mongo.configSaved'));
   }
 
   private editConnection(id: string): void {
@@ -307,7 +308,7 @@ export class MongoTool extends Tool {
   }
 
   private deleteConnection(id: string): void {
-    if (!confirm('确定要删除这个连接配置吗？')) return;
+    if (!confirm(i18n.t('mongo.confirmDelete'))) return;
 
     if (this.activeConnections.has(id)) {
       const connectionId = this.activeConnections.get(id)!;
@@ -323,10 +324,10 @@ export class MongoTool extends Tool {
       this.currentConfigId = null;
       const collectionsPanel = this.querySelector('#collectionsPanel');
       if (collectionsPanel) collectionsPanel.style.display = 'none';
-      this.setStatus('未连接');
+      this.setStatus(i18n.t('mongo.notConnected'));
     }
 
-    toast('连接配置已删除');
+    toast(i18n.t('mongo.configDeleted'));
   }
 
   private async connectToMongo(configId: string): Promise<void> {
@@ -341,7 +342,7 @@ export class MongoTool extends Tool {
       return;
     }
 
-    this.setStatus(`正在连接 ${config.name}...`, 'loading');
+    this.setStatus(`${i18n.t('mongo.connecting')} ${config.name}...`, 'loading');
 
     try {
       const result = await llmHub.mongo.connect(config);
@@ -349,15 +350,15 @@ export class MongoTool extends Tool {
         this.activeConnections.set(configId, result.connectionId);
         this.renderConnectionList();
         await this.loadDatabases();
-        this.setStatus(`已连接: ${config.name}`, 'connected');
-        toast(`已连接到 ${config.name}`);
+        this.setStatus(`${i18n.t('mongo.connected')}: ${config.name}`, 'connected');
+        toast(`${i18n.t('mongo.connectedTo')} ${config.name}`);
       } else {
-        toast(`连接失败: ${result.error}`);
-        this.setStatus('连接失败', 'error');
+        toast(`${i18n.t('mongo.connectionFailed')}: ${result.error}`);
+        this.setStatus(i18n.t('mongo.connectionFailed'), 'error');
       }
     } catch (e) {
-      toast(`连接失败: ${e}`);
-      this.setStatus('连接失败', 'error');
+      toast(`${i18n.t('mongo.connectionFailed')}: ${e}`);
+      this.setStatus(i18n.t('mongo.connectionFailed'), 'error');
     }
   }
 
@@ -371,7 +372,7 @@ export class MongoTool extends Tool {
     if (!collectionsPanel || !treeContainer) return;
 
     collectionsPanel.style.display = 'flex';
-    treeContainer.innerHTML = '<div class="empty-hint">加载中...</div>';
+    treeContainer.innerHTML = '<div class="empty-hint">Loading...</div>';
 
     try {
       const result = await llmHub.mongo.listDatabases(connectionId);
@@ -383,10 +384,10 @@ export class MongoTool extends Tool {
         }));
         this.renderTree();
       } else {
-        treeContainer.innerHTML = `<div class="empty-hint">加载失败: ${result.error}</div>`;
+        treeContainer.innerHTML = `<div class="empty-hint">Load failed: ${result.error}</div>`;
       }
     } catch (e) {
-      treeContainer.innerHTML = `<div class="empty-hint">加载失败: ${e}</div>`;
+      treeContainer.innerHTML = `<div class="empty-hint">Load failed: ${e}</div>`;
     }
   }
 
@@ -397,7 +398,7 @@ export class MongoTool extends Tool {
     const searchText = (this.querySelector('#collectionSearchInput') as HTMLInputElement)?.value.toLowerCase() || '';
 
     if (this.databases.length === 0) {
-      treeContainer.innerHTML = '<div class="empty-hint">没有数据库</div>';
+      treeContainer.innerHTML = '<div class="empty-hint">No databases</div>';
       return;
     }
 
@@ -581,7 +582,7 @@ export class MongoTool extends Tool {
     const panel = document.createElement('div');
     panel.className = 'content-panel';
     panel.dataset.panel = tab.id;
-    panel.innerHTML = '<div class="empty-hint">加载中...</div>';
+    panel.innerHTML = `<div class="empty-hint">${i18n.t('common.loading')}</div>`;
     panels.appendChild(panel);
 
     // 初始化状态
@@ -600,7 +601,7 @@ export class MongoTool extends Tool {
       const statsRes = await llmHub.mongo.getCollectionStats(connectionId, tab.database, tab.collection);
       if (statsRes.success && statsRes.stats) {
         const { count, size } = statsRes.stats;
-        statsText = `${count} 文档 · ${this.formatSize(size)}`;
+        statsText = `${count} docs · ${this.formatSize(size)}`;
       }
     } catch (e) {
       console.error('Failed to get stats:', e);
@@ -615,15 +616,15 @@ export class MongoTool extends Tool {
           </div>
           <div class="collection-actions">
             <button class="collection-action-btn secondary shell-btn">Shell</button>
-            <button class="collection-action-btn secondary indexes-btn">索引</button>
-            <button class="collection-action-btn primary add-doc-btn">+ 新增文档</button>
+            <button class="collection-action-btn secondary indexes-btn">Indexes</button>
+            <button class="collection-action-btn primary add-doc-btn">+ ${i18n.t('mongo.newDocument')}</button>
           </div>
         </div>
         <div class="query-section">
           <div class="query-row">
             <span class="query-label">Filter:</span>
             <input type="text" class="query-input filter-input" placeholder='{"field": "value"}' value="{}">
-            <button class="query-btn execute-query-btn">查询</button>
+            <button class="query-btn execute-query-btn">${i18n.t('mongo.query')}</button>
           </div>
           <div class="query-row">
             <span class="query-label">Sort:</span>
@@ -632,9 +633,9 @@ export class MongoTool extends Tool {
         </div>
         <div class="documents-section"></div>
         <div class="pagination">
-          <button class="pagination-btn prev-btn" disabled>上一页</button>
-          <span class="pagination-info">第 1 页</span>
-          <button class="pagination-btn next-btn" disabled>下一页</button>
+          <button class="pagination-btn prev-btn" disabled>Prev</button>
+          <span class="pagination-info">Page 1</span>
+          <button class="pagination-btn next-btn" disabled>Next</button>
         </div>
       </div>
     `;
@@ -650,9 +651,9 @@ export class MongoTool extends Tool {
       const result = await llmHub.mongo.getIndexes(connectionId, tab.database!, tab.collection!);
       if (result.success && result.indexes) {
         const indexInfo = result.indexes.map(idx => `${idx.name}: ${JSON.stringify(idx.key)}`).join('\n');
-        alert(`索引列表:\n\n${indexInfo || '无索引'}`);
+        alert(`Indexes:\n\n${indexInfo || 'No indexes'}`);
       } else {
-        toast(`获取索引失败: ${result.error}`);
+        toast(`Get indexes failed: ${result.error}`);
       }
     });
 
@@ -710,7 +711,7 @@ export class MongoTool extends Tool {
     const documentsSection = panel.querySelector('.documents-section');
     if (!documentsSection) return;
 
-    documentsSection.innerHTML = '<div class="empty-hint">加载中...</div>';
+    documentsSection.innerHTML = '<div class="empty-hint">Loading...</div>';
 
     try {
       const skip = (state.page - 1) * state.pageSize;
@@ -724,10 +725,10 @@ export class MongoTool extends Tool {
         state.total = result.total || 0;
         this.renderDocuments(tabId);
       } else {
-        documentsSection.innerHTML = `<div class="empty-hint">查询失败: ${result.error}</div>`;
+        documentsSection.innerHTML = `<div class="empty-hint">Query failed: ${result.error}</div>`;
       }
     } catch (e) {
-      documentsSection.innerHTML = `<div class="empty-hint">查询失败: ${e}</div>`;
+      documentsSection.innerHTML = `<div class="empty-hint">Query failed: ${e}</div>`;
     }
   }
 
@@ -742,7 +743,7 @@ export class MongoTool extends Tool {
     if (!documentsSection) return;
 
     if (state.documents.length === 0) {
-      documentsSection.innerHTML = '<div class="empty-hint">没有文档</div>';
+      documentsSection.innerHTML = '<div class="empty-hint">No documents</div>';
     } else {
       documentsSection.innerHTML = state.documents.map(doc => {
         const id = doc._id?.$oid || doc._id || 'unknown';
@@ -751,8 +752,8 @@ export class MongoTool extends Tool {
             <div class="document-header">
               <span class="document-id">_id: ${this.escapeHtml(String(id))}</span>
               <div class="document-actions">
-                <button class="doc-action-btn edit-doc-btn">编辑</button>
-                <button class="doc-action-btn delete delete-doc-btn">删除</button>
+                <button class="doc-action-btn edit-doc-btn">Edit</button>
+                <button class="doc-action-btn delete delete-doc-btn">Delete</button>
               </div>
             </div>
             <div class="document-body">
@@ -762,7 +763,6 @@ export class MongoTool extends Tool {
         `;
       }).join('');
 
-      // 绑定文档操作事件
       documentsSection.querySelectorAll('.document-card').forEach(card => {
         const docId = (card as HTMLElement).dataset.id!;
         const doc = state.documents.find(d => {
@@ -779,20 +779,19 @@ export class MongoTool extends Tool {
         });
 
         card.querySelector('.delete-doc-btn')?.addEventListener('click', async () => {
-          if (!confirm('确定要删除这个文档吗？')) return;
+          if (!confirm('Are you sure you want to delete this document?')) return;
           await this.deleteDocument(tabId, docId);
         });
       });
     }
 
-    // 更新分页
     const paginationInfo = panel.querySelector('.pagination-info');
     const prevBtn = panel.querySelector('.prev-btn') as HTMLButtonElement;
     const nextBtn = panel.querySelector('.next-btn') as HTMLButtonElement;
 
     if (paginationInfo) {
       const totalPages = Math.ceil(state.total / state.pageSize) || 1;
-      paginationInfo.textContent = `第 ${state.page} / ${totalPages} 页 (共 ${state.total} 条)`;
+      paginationInfo.textContent = `Page ${state.page} / ${totalPages} (${state.total} total)`;
     }
     if (prevBtn) prevBtn.disabled = state.page <= 1;
     if (nextBtn) nextBtn.disabled = state.page * state.pageSize >= state.total;
@@ -827,21 +826,21 @@ export class MongoTool extends Tool {
     try {
       JSON.parse(content); // 验证 JSON
     } catch (e) {
-      toast('无效的 JSON 格式');
+      toast(i18n.t('mongo.invalidJson'));
       return;
     }
 
     try {
       const result = await llmHub.mongo.insertDocument(connectionId, tab.database, tab.collection, content);
       if (result.success) {
-        toast('文档已插入');
+        toast('Document inserted');
         this.hideAddDocModal();
         await this.loadDocuments(this.editingDocTabId);
       } else {
-        toast(`插入失败: ${result.error}`);
+        toast(`Insert failed: ${result.error}`);
       }
     } catch (e) {
-      toast(`插入失败: ${e}`);
+      toast(`Insert failed: ${e}`);
     }
   }
 
@@ -875,21 +874,21 @@ export class MongoTool extends Tool {
     try {
       JSON.parse(content);
     } catch (e) {
-      toast('无效的 JSON 格式');
+      toast('Invalid JSON format');
       return;
     }
 
     try {
       const result = await llmHub.mongo.updateDocument(connectionId, tab.database, tab.collection, this.editingDocId, content);
       if (result.success) {
-        toast('文档已更新');
+        toast('Document updated');
         this.hideEditDocModal();
         await this.loadDocuments(this.editingDocTabId);
       } else {
-        toast(`更新失败: ${result.error}`);
+        toast(`Update failed: ${result.error}`);
       }
     } catch (e) {
-      toast(`更新失败: ${e}`);
+      toast(`Update failed: ${e}`);
     }
   }
 
@@ -903,13 +902,13 @@ export class MongoTool extends Tool {
     try {
       const result = await llmHub.mongo.deleteDocument(connectionId, tab.database, tab.collection, docId);
       if (result.success) {
-        toast('文档已删除');
+        toast('Document deleted');
         await this.loadDocuments(tabId);
       } else {
-        toast(`删除失败: ${result.error}`);
+        toast(`Delete failed: ${result.error}`);
       }
     } catch (e) {
-      toast(`删除失败: ${e}`);
+      toast(`Delete failed: ${e}`);
     }
   }
 
@@ -925,10 +924,10 @@ export class MongoTool extends Tool {
     panel.dataset.panel = tab.id;
     panel.innerHTML = `
       <div class="shell-panel">
-        <div class="shell-output"><div class="shell-line info">输入 MongoDB 命令（JSON 格式），按 Enter 执行</div></div>
+        <div class="shell-output"><div class="shell-line info">Enter MongoDB command (JSON format), press Enter to execute</div></div>
         <div class="shell-input-wrap">
           <input type="text" class="shell-input" placeholder='db.runCommand({ping: 1})'>
-          <button class="shell-run-btn">执行</button>
+          <button class="shell-run-btn">${i18n.t('mongo.execute')}</button>
         </div>
       </div>
     `;

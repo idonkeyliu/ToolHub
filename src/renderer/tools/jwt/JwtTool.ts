@@ -5,7 +5,8 @@
 
 import { Tool } from '../../core/Tool';
 import { ToolConfig, ToolCategory } from '../../types/index';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 declare function toast(msg: string): void;
 
@@ -48,8 +49,8 @@ export class JwtTool extends Tool {
     title: 'JWT',
     category: ToolCategory.DEVELOPER,
     icon: '🔑',
-    description: 'JWT Token 解析器',
-    keywords: ['jwt', 'token', 'json web token', '解析', 'decode', 'verify', '验证'],
+    description: i18n.t('tool.jwtDesc'),
+    keywords: ['jwt', 'token', 'json web token', 'decode', 'verify'],
   };
 
   readonly config = JwtTool.config;
@@ -58,7 +59,7 @@ export class JwtTool extends Tool {
 
   render(): HTMLElement {
     const container = document.createElement('div');
-    container.innerHTML = template;
+    container.innerHTML = getTemplate();
     return container.firstElementChild as HTMLElement;
   }
 
@@ -114,7 +115,7 @@ export class JwtTool extends Tool {
       this.displayResults();
       this.updatePartsIndicator(true);
     } catch (error) {
-      this.displayError(error instanceof Error ? error.message : '解析失败');
+      this.displayError(error instanceof Error ? error.message : i18n.t('jwt.parseFailed'));
       this.updatePartsIndicator(false);
     }
   }
@@ -123,7 +124,7 @@ export class JwtTool extends Tool {
     const parts = token.split('.');
 
     if (parts.length !== 3) {
-      throw new Error('无效的 JWT 格式：应包含 3 个部分（Header.Payload.Signature）');
+      throw new Error(i18n.t('jwt.invalidFormat'));
     }
 
     const [headerB64, payloadB64, signatureB64] = parts;
@@ -134,13 +135,13 @@ export class JwtTool extends Tool {
     try {
       header = JSON.parse(this.base64UrlDecode(headerB64));
     } catch {
-      throw new Error('Header 解码失败：无效的 Base64 或 JSON');
+      throw new Error(i18n.t('jwt.headerDecodeFailed'));
     }
 
     try {
       payload = JSON.parse(this.base64UrlDecode(payloadB64));
     } catch {
-      throw new Error('Payload 解码失败：无效的 Base64 或 JSON');
+      throw new Error(i18n.t('jwt.payloadDecodeFailed'));
     }
 
     return {
@@ -187,7 +188,7 @@ export class JwtTool extends Tool {
       headerJson.innerHTML = this.formatJson(this.decoded.header);
     }
     if (headerAlg) {
-      headerAlg.textContent = `算法: ${this.decoded.header.alg}`;
+      headerAlg.textContent = `${i18n.t('jwt.algorithm')}: ${this.decoded.header.alg}`;
     }
 
     // Payload
@@ -198,7 +199,7 @@ export class JwtTool extends Tool {
     }
     if (claimsCount) {
       const count = Object.keys(this.decoded.payload).length;
-      claimsCount.textContent = `${count} 个 claims`;
+      claimsCount.textContent = `${count} claims`;
     }
 
     // 更新时间信息
@@ -315,39 +316,37 @@ export class JwtTool extends Tool {
 
     if (payload.exp) {
       if (now > payload.exp) {
-        // 已过期
         const expiredAgo = this.formatDuration(now - payload.exp);
-        expiryStatus.innerHTML = `⚠️ Token 已过期 ${expiredAgo}`;
+        expiryStatus.innerHTML = `⚠️ ${i18n.t('jwt.tokenExpired')} ${expiredAgo}`;
         expiryStatus.classList.add('show', 'expired');
       } else {
-        // 未过期
         const expiresIn = this.formatDuration(payload.exp - now);
-        expiryStatus.innerHTML = `✅ Token 有效，将在 ${expiresIn} 后过期`;
+        expiryStatus.innerHTML = `✅ ${i18n.t('jwt.tokenValid')} ${expiresIn}`;
         expiryStatus.classList.add('show', 'valid');
       }
     }
 
     if (payload.nbf && now < payload.nbf) {
       const startsIn = this.formatDuration(payload.nbf - now);
-      expiryStatus.innerHTML = `⏳ Token 尚未生效，将在 ${startsIn} 后生效`;
+      expiryStatus.innerHTML = `⏳ ${i18n.t('jwt.tokenNotYet')} ${startsIn}`;
       expiryStatus.classList.add('show', 'not-yet');
     }
   }
 
   private formatDuration(seconds: number): string {
     if (seconds < 60) {
-      return `${seconds} 秒`;
+      return `${seconds} ${i18n.t('common.seconds')}`;
     } else if (seconds < 3600) {
       const minutes = Math.floor(seconds / 60);
-      return `${minutes} 分钟`;
+      return `${minutes} ${i18n.t('common.minutes')}`;
     } else if (seconds < 86400) {
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
-      return minutes > 0 ? `${hours} 小时 ${minutes} 分钟` : `${hours} 小时`;
+      return minutes > 0 ? `${hours} ${i18n.t('common.hours')} ${minutes} ${i18n.t('common.minutes')}` : `${hours} ${i18n.t('common.hours')}`;
     } else {
       const days = Math.floor(seconds / 86400);
       const hours = Math.floor((seconds % 86400) / 3600);
-      return hours > 0 ? `${days} 天 ${hours} 小时` : `${days} 天`;
+      return hours > 0 ? `${days} ${i18n.t('common.days')} ${hours} ${i18n.t('common.hours')}` : `${days} ${i18n.t('common.days')}`;
     }
   }
 
@@ -419,10 +418,10 @@ export class JwtTool extends Tool {
       if (jwtInput) {
         jwtInput.value = text.trim();
         this.parseJwt();
-        toast('已粘贴');
+        toast(i18n.t('common.pasted'));
       }
     } catch {
-      toast('粘贴失败，请检查剪贴板权限');
+      toast(i18n.t('common.pasteFailed'));
     }
   }
 
@@ -431,7 +430,7 @@ export class JwtTool extends Tool {
     if (jwtInput) {
       jwtInput.value = SAMPLE_JWT;
       this.parseJwt();
-      toast('已加载示例 Token');
+      toast(i18n.t('jwt.sampleLoaded'));
     }
   }
 
@@ -441,12 +440,12 @@ export class JwtTool extends Tool {
       jwtInput.value = '';
     }
     this.clearResults();
-    toast('已清空');
+    toast(i18n.t('common.cleared'));
   }
 
   private async copyPart(part: 'header' | 'payload' | 'signature'): Promise<void> {
     if (!this.decoded) {
-      toast('没有可复制的内容');
+      toast(i18n.t('common.nothingToCopy'));
       return;
     }
 
@@ -465,15 +464,15 @@ export class JwtTool extends Tool {
 
     try {
       await navigator.clipboard.writeText(content);
-      toast(`${part.charAt(0).toUpperCase() + part.slice(1)} 已复制`);
+      toast(`${part.charAt(0).toUpperCase() + part.slice(1)} ${i18n.t('common.copied')}`);
     } catch {
-      toast('复制失败');
+      toast(i18n.t('common.copyFailed'));
     }
   }
 
   private async verifySignature(): Promise<void> {
     if (!this.decoded) {
-      toast('请先输入 JWT Token');
+      toast(i18n.t('jwt.pleaseInputToken'));
       return;
     }
 
@@ -485,7 +484,7 @@ export class JwtTool extends Tool {
 
     const secret = secretInput.value.trim();
     if (!secret) {
-      toast('请输入密钥');
+      toast(i18n.t('jwt.pleaseInputSecret'));
       return;
     }
 
@@ -493,27 +492,26 @@ export class JwtTool extends Tool {
     const isHmac = alg.startsWith('HS');
 
     if (isHmac && secretType?.value === 'publicKey') {
-      toast('HMAC 算法应使用 Secret，而非 Public Key');
+      toast(i18n.t('jwt.hmacShouldUseSecret'));
       return;
     }
 
     if (!isHmac && secretType?.value === 'secret') {
-      toast('RSA/EC 算法应使用 Public Key，而非 Secret');
+      toast(i18n.t('jwt.rsaShouldUsePublicKey'));
       return;
     }
 
     try {
       if (isHmac) {
         const isValid = await this.verifyHmac(secret);
-        verifyResult.textContent = isValid ? '✅ 签名有效' : '❌ 签名无效';
+        verifyResult.textContent = isValid ? `✅ ${i18n.t('jwt.signatureValid')}` : `❌ ${i18n.t('jwt.signatureInvalid')}`;
         verifyResult.className = `verify-result ${isValid ? 'valid' : 'invalid'}`;
       } else {
-        // RSA/EC 验证需要 Web Crypto API，这里简化处理
-        verifyResult.textContent = '⚠️ RSA/EC 验证暂不支持';
+        verifyResult.textContent = `⚠️ ${i18n.t('jwt.rsaNotSupported')}`;
         verifyResult.className = 'verify-result';
       }
     } catch (error) {
-      verifyResult.textContent = '❌ 验证失败';
+      verifyResult.textContent = `❌ ${i18n.t('jwt.verifyFailed')}`;
       verifyResult.className = 'verify-result invalid';
     }
   }
@@ -537,7 +535,7 @@ export class JwtTool extends Tool {
         hashAlg = 'SHA-512';
         break;
       default:
-        throw new Error(`不支持的算法: ${alg}`);
+        throw new Error(`${i18n.t('jwt.unsupportedAlgorithm')}: ${alg}`);
     }
 
     // 编码密钥

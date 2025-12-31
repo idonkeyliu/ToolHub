@@ -8,16 +8,17 @@ import { ToolCategory, EventType } from '../../types/index';
 import { createElement } from '../../utils/dom';
 import { copyText } from '../../utils/clipboard';
 import { eventBus } from '../../core/EventBus';
-import { template } from './template';
+import { getTemplate } from './template';
+import { i18n } from '../../core/i18n';
 
 export class TimestampTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'time',
-    title: '时间戳',
+    title: i18n.t('tool.timestamp'),
     category: ToolCategory.UTILITY,
     icon: '⏰',
-    description: 'Unix时间戳转换、实时时钟显示',
-    keywords: ['时间', '时间戳', 'timestamp', 'unix', '日期'],
+    description: i18n.t('tool.timestampDesc'),
+    keywords: ['timestamp', 'unix', 'date', 'time'],
   };
 
   config = TimestampTool.config;
@@ -27,7 +28,7 @@ export class TimestampTool extends Tool {
   render(): HTMLElement {
     const container = createElement('div', {
       className: 'time-wrap',
-      innerHTML: template(new Date()),
+      innerHTML: getTemplate(new Date()),
     });
     return container;
   }
@@ -62,21 +63,21 @@ export class TimestampTool extends Tool {
           if (target) {
             const text = target.textContent || '';
             copyText(text).then(() => {
-              eventBus.emit(EventType.TOAST_SHOW, { message: '已复制', duration: 1300 });
+              eventBus.emit(EventType.TOAST_SHOW, { message: i18n.t('timestamp.copied'), duration: 1300 });
             });
           }
         } else if (btn.id === 'tsCopyBtn') {
           const output = this.querySelector<HTMLElement>('#tsConvOut');
           if (output?.textContent) {
             copyText(output.textContent).then(() => {
-              eventBus.emit(EventType.TOAST_SHOW, { message: '已复制', duration: 1300 });
+              eventBus.emit(EventType.TOAST_SHOW, { message: i18n.t('timestamp.copied'), duration: 1300 });
             });
           }
         } else if (btn.id === 'dtCopyBtn') {
           const output = this.querySelector<HTMLElement>('#dtConvOut');
           if (output?.textContent) {
             copyText(output.textContent).then(() => {
-              eventBus.emit(EventType.TOAST_SHOW, { message: '已复制', duration: 1300 });
+              eventBus.emit(EventType.TOAST_SHOW, { message: i18n.t('timestamp.copied'), duration: 1300 });
             });
           }
         }
@@ -99,7 +100,7 @@ export class TimestampTool extends Tool {
 
       let num = Number(val);
       if (isNaN(num)) {
-        output.textContent = '请输入有效数字';
+        output.textContent = i18n.t('timestamp.invalidNumber');
         output.style.color = '#ef4444';
         return;
       }
@@ -109,7 +110,7 @@ export class TimestampTool extends Tool {
       const date = new Date(num);
 
       if (isNaN(date.getTime())) {
-        output.textContent = '无效时间戳';
+        output.textContent = i18n.t('timestamp.invalidTimestamp');
         output.style.color = '#ef4444';
         return;
       }
@@ -147,7 +148,7 @@ export class TimestampTool extends Tool {
 
       const date = new Date(y, m - 1, d, h, min, s);
       if (isNaN(date.getTime())) {
-        output.textContent = '无效日期';
+        output.textContent = i18n.t('timestamp.invalidDate');
         output.style.color = '#ef4444';
         return;
       }

@@ -2,11 +2,13 @@
  * 时间戳工具模板
  */
 
+import { i18n } from '../../core/i18n';
+
 function two(n: number): string {
   return n < 10 ? `0${n}` : String(n);
 }
 
-export function template(now: Date = new Date()): string {
+export function getTemplate(now: Date = new Date()): string {
   const sec = Math.floor(now.getTime() / 1000);
   const ms = now.getTime();
   const y = now.getFullYear();
@@ -42,22 +44,22 @@ export function template(now: Date = new Date()): string {
         <div class="stamp-card">
           <div class="stamp-card-header">
             <span class="stamp-card-icon">⏱️</span>
-            <span class="stamp-card-title">Unix 秒</span>
+            <span class="stamp-card-title">${i18n.t('timestamp.unixSec')}</span>
           </div>
           <div class="stamp-card-body">
             <span class="stamp-card-value" id="unixSecVal">${sec}</span>
           </div>
-          <button class="stamp-card-copy" data-target="unixSecVal">复制</button>
+          <button class="stamp-card-copy" data-target="unixSecVal">${i18n.t('timestamp.copy')}</button>
         </div>
         <div class="stamp-card">
           <div class="stamp-card-header">
             <span class="stamp-card-icon">⚡</span>
-            <span class="stamp-card-title">Unix 毫秒</span>
+            <span class="stamp-card-title">${i18n.t('timestamp.unixMs')}</span>
           </div>
           <div class="stamp-card-body">
             <span class="stamp-card-value" id="unixMsVal">${ms}</span>
           </div>
-          <button class="stamp-card-copy" data-target="unixMsVal">复制</button>
+          <button class="stamp-card-copy" data-target="unixMsVal">${i18n.t('timestamp.copy')}</button>
         </div>
       </div>
 
@@ -66,29 +68,29 @@ export function template(now: Date = new Date()): string {
         <div class="convert-card">
           <div class="convert-card-header">
             <span class="convert-card-icon">🔢</span>
-            <span class="convert-card-title">时间戳 → 日期时间</span>
+            <span class="convert-card-title">${i18n.t('timestamp.toDatetime')}</span>
           </div>
           <div class="convert-card-body">
             <div class="convert-input-group">
-              <label>时间戳</label>
-              <input id="tsInput" type="text" inputmode="numeric" placeholder="输入时间戳（秒或毫秒）" />
+              <label>${i18n.t('timestamp.inputLabel')}</label>
+              <input id="tsInput" type="text" inputmode="numeric" placeholder="${i18n.t('timestamp.inputPlaceholder')}" />
             </div>
             <div class="convert-output-group">
-              <label>结果</label>
+              <label>${i18n.t('timestamp.resultLabel')}</label>
               <span class="convert-output" id="tsConvOut">-</span>
             </div>
           </div>
-          <button class="convert-card-copy" id="tsCopyBtn">复制结果</button>
+          <button class="convert-card-copy" id="tsCopyBtn">${i18n.t('timestamp.copyResult')}</button>
         </div>
 
         <div class="convert-card">
           <div class="convert-card-header">
             <span class="convert-card-icon">📅</span>
-            <span class="convert-card-title">日期时间 → 时间戳</span>
+            <span class="convert-card-title">${i18n.t('timestamp.toTimestamp')}</span>
           </div>
           <div class="convert-card-body">
             <div class="convert-input-group datetime-inputs">
-              <label>日期时间</label>
+              <label>${i18n.t('timestamp.datetimeLabel')}</label>
               <div class="dt-fields">
                 <input id="dtY" type="text" inputmode="numeric" placeholder="YYYY" class="dt-input dt-year" />
                 <span class="dt-sep">-</span>
@@ -104,13 +106,16 @@ export function template(now: Date = new Date()): string {
               </div>
             </div>
             <div class="convert-output-group">
-              <label>结果</label>
+              <label>${i18n.t('timestamp.resultLabel')}</label>
               <span class="convert-output" id="dtConvOut">-</span>
             </div>
           </div>
-          <button class="convert-card-copy" id="dtCopyBtn">复制结果</button>
+          <button class="convert-card-copy" id="dtCopyBtn">${i18n.t('timestamp.copyResult')}</button>
         </div>
       </div>
     </div>
   `;
 }
+
+// 保持向后兼容
+export const template = getTemplate;

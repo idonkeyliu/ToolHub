@@ -1,11 +1,13 @@
-export const statsTemplate = `
+import { i18n } from '../../core/i18n';
+
+export const getStatsTemplate = () => `
 <div class="stats-container">
   <!-- 概览卡片 -->
   <div class="stats-overview-wrapper">
     <div class="stats-period">
-      <button class="period-btn active" data-period="week">近7天</button>
-      <button class="period-btn" data-period="month">近30天</button>
-      <button class="period-btn" data-period="year">近一年</button>
+      <button class="period-btn active" data-period="week">${i18n.t('stats.last7Days')}</button>
+      <button class="period-btn" data-period="month">${i18n.t('stats.last30Days')}</button>
+      <button class="period-btn" data-period="year">${i18n.t('stats.lastYear')}</button>
     </div>
     <div class="stats-overview">
     <div class="overview-card">
@@ -17,7 +19,7 @@ export const statsTemplate = `
       </div>
       <div class="card-content">
         <div class="card-value" id="totalTime">0h</div>
-        <div class="card-label">总使用时长</div>
+        <div class="card-label">${i18n.t('stats.totalTime')}</div>
       </div>
     </div>
     <div class="overview-card">
@@ -31,7 +33,7 @@ export const statsTemplate = `
       </div>
       <div class="card-content">
         <div class="card-value" id="activeDays">0</div>
-        <div class="card-label">活跃天数</div>
+        <div class="card-label">${i18n.t('stats.activeDays')}</div>
       </div>
     </div>
     <div class="overview-card">
@@ -42,7 +44,7 @@ export const statsTemplate = `
       </div>
       <div class="card-content">
         <div class="card-value" id="favoriteTool">-</div>
-        <div class="card-label">最常用工具</div>
+        <div class="card-label">${i18n.t('stats.favoriteTool')}</div>
       </div>
     </div>
     <div class="overview-card">
@@ -53,7 +55,7 @@ export const statsTemplate = `
       </div>
       <div class="card-content">
         <div class="card-value" id="toolsUsed">0</div>
-        <div class="card-label">使用工具数</div>
+        <div class="card-label">${i18n.t('stats.toolsUsed')}</div>
       </div>
     </div>
     </div>
@@ -65,13 +67,13 @@ export const statsTemplate = `
     <div class="stats-left">
       <div class="section-card heatmap-section">
         <div class="section-header">
-          <h3>活跃度</h3>
+          <h3>${i18n.t('stats.activity')}</h3>
           <div class="streak-info">
             <span class="streak-badge" id="currentStreak">
               <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
-              连续 <span id="streakDays">0</span> 天
+              ${i18n.t('stats.streak')} <span id="streakDays">0</span> ${i18n.t('common.days')}
             </span>
           </div>
         </div>
@@ -80,18 +82,18 @@ export const statsTemplate = `
           <div class="heatmap-content">
             <div class="heatmap-weekdays">
               <span></span>
-              <span>一</span>
+              <span>2</span>
               <span></span>
-              <span>三</span>
+              <span>4</span>
               <span></span>
-              <span>五</span>
+              <span>6</span>
               <span></span>
             </div>
             <div class="heatmap-grid" id="heatmapGrid"></div>
           </div>
         </div>
         <div class="heatmap-legend">
-          <span class="legend-label">少</span>
+          <span class="legend-label">${i18n.t('stats.less')}</span>
           <div class="legend-boxes">
             <div class="legend-box level-0"></div>
             <div class="legend-box level-1"></div>
@@ -99,14 +101,14 @@ export const statsTemplate = `
             <div class="legend-box level-3"></div>
             <div class="legend-box level-4"></div>
           </div>
-          <span class="legend-label">多</span>
+          <span class="legend-label">${i18n.t('stats.more')}</span>
         </div>
       </div>
 
       <!-- 每日使用时长趋势 -->
       <div class="section-card chart-section">
         <div class="section-header">
-          <h3>每日使用时长</h3>
+          <h3>${i18n.t('stats.dailyUsage')}</h3>
         </div>
         <div class="chart-container" id="dailyChart"></div>
       </div>
@@ -117,10 +119,10 @@ export const statsTemplate = `
       <!-- 工具使用排行 -->
       <div class="section-card ranking-section">
         <div class="section-header">
-          <h3>工具使用排行</h3>
+          <h3>${i18n.t('stats.toolRanking')}</h3>
           <div class="ranking-tabs">
-            <button class="ranking-tab active" data-type="time">时长</button>
-            <button class="ranking-tab" data-type="count">次数</button>
+            <button class="ranking-tab active" data-type="time">${i18n.t('stats.duration')}</button>
+            <button class="ranking-tab" data-type="count">${i18n.t('stats.count')}</button>
           </div>
         </div>
         <div class="ranking-list" id="toolRanking"></div>
@@ -129,8 +131,8 @@ export const statsTemplate = `
       <!-- 使用时段分布 -->
       <div class="section-card hours-section">
         <div class="section-header">
-          <h3 id="hoursChartTitle">使用时段分布</h3>
-          <span class="hours-hint">点击热力图查看某天详情</span>
+          <h3 id="hoursChartTitle">${i18n.t('stats.hourlyDistribution')}</h3>
+          <span class="hours-hint">${i18n.t('stats.clickHeatmap')}</span>
         </div>
         <div class="hours-chart" id="hoursChart"></div>
         <div class="hours-labels">
@@ -152,7 +154,7 @@ export const statsTemplate = `
         <polyline points="7,10 12,15 17,10"/>
         <line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
-      导出数据
+      ${i18n.t('stats.exportData')}
     </button>
     <button class="toolbar-btn" id="importStats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -160,7 +162,7 @@ export const statsTemplate = `
         <polyline points="17,8 12,3 7,8"/>
         <line x1="12" y1="3" x2="12" y2="15"/>
       </svg>
-      导入数据
+      ${i18n.t('stats.importData')}
     </button>
     <input type="file" id="importStatsFile" accept=".json" style="display: none;">
     <button class="toolbar-btn danger" id="clearStats">
@@ -168,7 +170,7 @@ export const statsTemplate = `
         <polyline points="3,6 5,6 21,6"/>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
       </svg>
-      清除数据
+      ${i18n.t('stats.clearData')}
     </button>
   </div>
 </div>

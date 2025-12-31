@@ -2,49 +2,78 @@
  * 世界地图页面组件 - 使用 D3.js 渲染专业世界地图
  */
 
-// 使用全局的 d3 和 topojson (通过 CDN 引入)
-declare const d3: any;
-declare const topojson: any;
+import { i18n } from '../core/i18n';
+import { wsService, OnlineData } from '../core/WebSocketService';
 
-interface OnlineUser {
-  id: string;
-  lat: number;
-  lng: number;
+// 使用本地化的 d3 和 topojson (通过 script 标签引入)
+declare const d3: typeof import('d3');
+declare const topojson: typeof import('topojson-client');
+
+interface CountryData {
+  code: string;
+  name: string;
+  count: number;
 }
 
-// 模拟的城市坐标数据
-const CITIES: Array<{ lat: number; lng: number }> = [
-  { lat: 39.9, lng: 116.4 },   // 北京
-  { lat: 31.2, lng: 121.5 },   // 上海
-  { lat: 22.5, lng: 114.1 },   // 深圳
-  { lat: 23.1, lng: 113.3 },   // 广州
-  { lat: 30.3, lng: 120.2 },   // 杭州
-  { lat: 30.7, lng: 104.1 },   // 成都
-  { lat: 35.7, lng: 139.7 },   // 东京
-  { lat: 37.6, lng: 127.0 },   // 首尔
-  { lat: 1.3, lng: 103.8 },    // 新加坡
-  { lat: -33.9, lng: 151.2 },  // 悉尼
-  { lat: 51.5, lng: -0.1 },    // 伦敦
-  { lat: 48.9, lng: 2.4 },     // 巴黎
-  { lat: 52.5, lng: 13.4 },    // 柏林
-  { lat: 40.7, lng: -74.0 },   // 纽约
-  { lat: 37.8, lng: -122.4 },  // 旧金山
-  { lat: 34.1, lng: -118.2 },  // 洛杉矶
-  { lat: 47.6, lng: -122.3 },  // 西雅图
-  { lat: 43.7, lng: -79.4 },   // 多伦多
-  { lat: 49.3, lng: -123.1 },  // 温哥华
-  { lat: -23.5, lng: -46.6 },  // 圣保罗
-  { lat: 19.4, lng: -99.1 },   // 墨西哥城
-  { lat: 25.2, lng: 55.3 },    // 迪拜
-  { lat: 19.1, lng: 72.9 },    // 孟买
-  { lat: 13.0, lng: 77.6 },    // 班加罗尔
-  { lat: 55.8, lng: 37.6 },    // 莫斯科
-  { lat: -33.9, lng: 18.4 },   // 开普敦
-  { lat: 25.0, lng: 121.5 },   // 台北
-  { lat: 22.3, lng: 114.2 },   // 香港
-  { lat: 13.8, lng: 100.5 },   // 曼谷
-  { lat: -6.2, lng: 106.8 },   // 雅加达
-];
+// 国家代码到 ISO 3166-1 numeric 的映射（用于地图高亮）
+const COUNTRY_CODE_TO_ID: Record<string, string> = {
+  'CN': '156', 'JP': '392', 'KR': '410', 'SG': '702', 'AU': '036',
+  'GB': '826', 'FR': '250', 'DE': '276', 'US': '840', 'CA': '124',
+  'BR': '076', 'MX': '484', 'AE': '784', 'IN': '356', 'RU': '643',
+  'ZA': '710', 'TW': '158', 'HK': '344', 'TH': '764', 'ID': '360',
+  'NZ': '554', 'IT': '380', 'ES': '724', 'NL': '528', 'CH': '756',
+  'SE': '752', 'NO': '578', 'DK': '208', 'FI': '246', 'PL': '616',
+  'AT': '040', 'BE': '056', 'PT': '620', 'GR': '300', 'TR': '792',
+  'EG': '818', 'SA': '682', 'AR': '032', 'CL': '152', 'CO': '170',
+  'PH': '608', 'VN': '704', 'MY': '458',
+};
+
+// 国家首都/主要城市坐标（用于显示用户点）
+const COUNTRY_CENTERS: Record<string, { lat: number; lng: number }> = {
+  'CN': { lat: 35.0, lng: 105.0 },
+  'JP': { lat: 36.0, lng: 138.0 },
+  'KR': { lat: 36.5, lng: 127.5 },
+  'SG': { lat: 1.3, lng: 103.8 },
+  'AU': { lat: -25.0, lng: 135.0 },
+  'GB': { lat: 54.0, lng: -2.0 },
+  'FR': { lat: 46.0, lng: 2.0 },
+  'DE': { lat: 51.0, lng: 10.0 },
+  'US': { lat: 39.0, lng: -98.0 },
+  'CA': { lat: 56.0, lng: -106.0 },
+  'BR': { lat: -14.0, lng: -51.0 },
+  'MX': { lat: 23.0, lng: -102.0 },
+  'AE': { lat: 24.0, lng: 54.0 },
+  'IN': { lat: 22.0, lng: 78.0 },
+  'RU': { lat: 60.0, lng: 100.0 },
+  'ZA': { lat: -29.0, lng: 25.0 },
+  'TW': { lat: 23.5, lng: 121.0 },
+  'HK': { lat: 22.3, lng: 114.2 },
+  'TH': { lat: 15.0, lng: 101.0 },
+  'ID': { lat: -2.0, lng: 118.0 },
+  'NZ': { lat: -41.0, lng: 174.0 },
+  'IT': { lat: 42.5, lng: 12.5 },
+  'ES': { lat: 40.0, lng: -4.0 },
+  'NL': { lat: 52.5, lng: 5.5 },
+  'CH': { lat: 47.0, lng: 8.0 },
+  'SE': { lat: 62.0, lng: 15.0 },
+  'NO': { lat: 64.0, lng: 10.0 },
+  'DK': { lat: 56.0, lng: 10.0 },
+  'FI': { lat: 64.0, lng: 26.0 },
+  'PL': { lat: 52.0, lng: 19.0 },
+  'AT': { lat: 47.5, lng: 14.5 },
+  'BE': { lat: 50.5, lng: 4.5 },
+  'PT': { lat: 39.5, lng: -8.0 },
+  'GR': { lat: 39.0, lng: 22.0 },
+  'TR': { lat: 39.0, lng: 35.0 },
+  'EG': { lat: 26.0, lng: 30.0 },
+  'SA': { lat: 24.0, lng: 45.0 },
+  'AR': { lat: -34.0, lng: -64.0 },
+  'CL': { lat: -33.5, lng: -70.5 },
+  'CO': { lat: 4.5, lng: -74.0 },
+  'PH': { lat: 12.0, lng: 122.0 },
+  'VN': { lat: 16.0, lng: 108.0 },
+  'MY': { lat: 4.0, lng: 109.5 },
+};
 
 // Natural Earth TopoJSON URL
 const WORLD_TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
@@ -52,44 +81,18 @@ const WORLD_TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110
 export class WorldMapPage {
   private container: HTMLElement;
   private element: HTMLElement | null = null;
-  private users: OnlineUser[] = [];
-  private updateInterval: ReturnType<typeof setInterval> | null = null;
+  private onlineData: OnlineData | null = null;
+  private unsubscribe: (() => void) | null = null;
   private svg: any = null;
   private projection: any = null;
   private worldData: any = null;
   private width = 0;
   private height = 0;
+  private resizeHandler: (() => void) | null = null;
+  private tooltip: HTMLElement | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
-    this.initUsers();
-  }
-
-  private initUsers(): void {
-    const count = 15 + Math.floor(Math.random() * 11);
-    for (let i = 0; i < count; i++) {
-      this.addRandomUser();
-    }
-  }
-
-  private addRandomUser(): void {
-    const cityData = CITIES[Math.floor(Math.random() * CITIES.length)];
-    const latOffset = (Math.random() - 0.5) * 2;
-    const lngOffset = (Math.random() - 0.5) * 2;
-    
-    const user: OnlineUser = {
-      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      lat: cityData.lat + latOffset,
-      lng: cityData.lng + lngOffset,
-    };
-    this.users.push(user);
-  }
-
-  private removeRandomUser(): void {
-    if (this.users.length > 10) {
-      const index = Math.floor(Math.random() * this.users.length);
-      this.users.splice(index, 1);
-    }
   }
 
   show(): void {
@@ -99,8 +102,7 @@ export class WorldMapPage {
       requestAnimationFrame(() => {
         this.element?.classList.add('show');
       });
-      this.startUpdates();
-      this.renderUsers();
+      this.subscribeToData();
       return;
     }
 
@@ -113,16 +115,22 @@ export class WorldMapPage {
         <!-- 在线人数显示 -->
         <div class="online-indicator">
           <span class="online-dot"></span>
-          <span class="online-count">${this.users.length}</span>
-          <span class="online-text">在线</span>
+          <span class="online-count">0</span>
+          <span class="online-text">${i18n.t('worldMap.online')}</span>
         </div>
         
         <!-- 连接线动画层 -->
         <svg class="connection-lines"></svg>
+        
+        <!-- 国家悬停提示 -->
+        <div class="country-tooltip"></div>
       </div>
     `;
 
     this.container.appendChild(this.element);
+    
+    // 获取 tooltip 元素引用
+    this.tooltip = this.element.querySelector('.country-tooltip');
 
     requestAnimationFrame(() => {
       this.element?.classList.add('show');
@@ -130,7 +138,120 @@ export class WorldMapPage {
 
     // 异步加载地图，不阻塞页面显示
     this.initMap();
-    this.startUpdates();
+    this.subscribeToData();
+    this.setupResizeListener();
+  }
+
+  private subscribeToData(): void {
+    // 订阅 WebSocket 数据
+    this.unsubscribe = wsService.subscribe((data) => {
+      this.onlineData = data;
+      this.updateDisplay();
+    });
+  }
+
+  private updateDisplay(): void {
+    if (!this.onlineData) return;
+
+    // 更新在线总人数
+    const countEl = this.element?.querySelector('.online-count');
+    if (countEl) {
+      countEl.textContent = this.onlineData.total.toString();
+    }
+
+    // 更新地图上的用户点
+    this.renderUsers();
+  }
+
+  private setupResizeListener(): void {
+    // 防抖处理，避免频繁重绘
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    this.resizeHandler = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        this.handleResize();
+      }, 250);
+    };
+    window.addEventListener('resize', this.resizeHandler);
+  }
+
+  private handleResize(): void {
+    if (!this.element || !this.svg) return;
+
+    const mapContainer = this.element.querySelector('.map-container');
+    if (!mapContainer) return;
+
+    const rect = mapContainer.getBoundingClientRect();
+    const newWidth = rect.width || window.innerWidth;
+    const newHeight = rect.height || window.innerHeight;
+
+    // 如果尺寸变化不大，不重绘
+    if (Math.abs(newWidth - this.width) < 50 && Math.abs(newHeight - this.height) < 50) {
+      return;
+    }
+
+    this.width = newWidth;
+    this.height = newHeight;
+
+    // 更新 SVG viewBox
+    this.svg.attr('viewBox', `0 0 ${this.width} ${this.height}`);
+
+    // 更新投影
+    this.updateProjection();
+
+    // 重绘地图
+    this.redrawMap();
+  }
+
+  private updateProjection(): void {
+    // 根据屏幕宽高比调整比例
+    const aspectRatio = this.width / this.height;
+    let scale: number;
+    
+    if (aspectRatio > 1.8) {
+      // 宽屏显示器
+      scale = this.width / 7;
+    } else if (aspectRatio > 1.4) {
+      // 普通显示器
+      scale = this.width / 7.5;
+    } else {
+      // MacBook 或竖屏
+      scale = Math.min(this.width, this.height) / 4;
+    }
+
+    this.projection = d3.geoMercator()
+      .scale(scale)
+      .translate([this.width / 2, this.height / 1.5])
+      .center([0, 10]);
+  }
+
+  private redrawMap(): void {
+    if (!this.svg) return;
+
+    // 清除现有内容（保留 defs）
+    this.svg.selectAll('rect').remove();
+    this.svg.selectAll('.graticule').remove();
+    this.svg.selectAll('.countries').remove();
+    this.svg.selectAll('.user-dots').remove();
+
+    // 重绘背景
+    this.svg.append('rect')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('fill', '#0a0f1a');
+
+    // 重绘经纬网格
+    this.drawGraticule();
+
+    // 重绘地图
+    if (this.worldData) {
+      this.drawMap();
+    } else {
+      this.drawFallbackMap();
+    }
+
+    // 重绘用户点
+    this.renderUsers();
   }
 
   private async initMap(): Promise<void> {
@@ -180,11 +301,8 @@ export class WorldMapPage {
     dotMerge.append('feMergeNode').attr('in', 'blur');
     dotMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
-    // 设置投影 - 墨卡托投影，缩小比例以完整展示新西兰等南半球国家
-    this.projection = d3.geoMercator()
-      .scale(this.width / 7.5)
-      .translate([this.width / 2, this.height / 1.5])
-      .center([0, 10]);  // 视觉中心稍微向北偏移
+    // 设置投影 - 根据屏幕尺寸自适应
+    this.updateProjection();
 
     // 背景
     this.svg.append('rect')
@@ -238,6 +356,7 @@ export class WorldMapPage {
     if (!this.svg || !this.projection || !this.worldData) return;
 
     const path = d3.geoPath().projection(this.projection);
+    const self = this;  // 保存 this 引用
     
     // 获取国家数据
     const countries = topojson.feature(
@@ -246,7 +365,7 @@ export class WorldMapPage {
     );
 
     // 过滤掉南极洲
-    const filteredFeatures = countries.features.filter((feature: any) => {
+    const filteredFeatures = (countries as any).features.filter((feature: any) => {
       // 南极洲的 ID 通常是 010 或名称包含 Antarctica
       return feature.id !== '010' && 
              feature.properties?.name !== 'Antarctica';
@@ -264,21 +383,87 @@ export class WorldMapPage {
       .attr('stroke', '#2a4a3e')
       .attr('stroke-width', 0.5)
       .attr('class', 'country')
-      .on('mouseenter', function(this: SVGPathElement) {
+      .on('mouseenter', function(this: SVGPathElement, event: MouseEvent, d: any) {
         d3.select(this)
           .transition()
           .duration(200)
           .attr('fill', '#1f4a3a');
+        
+        // 显示 tooltip
+        self.showTooltip(event, d.id);
+      })
+      .on('mousemove', function(this: SVGPathElement, event: MouseEvent) {
+        // 更新 tooltip 位置
+        self.updateTooltipPosition(event);
       })
       .on('mouseleave', function(this: SVGPathElement) {
         d3.select(this)
           .transition()
           .duration(200)
           .attr('fill', 'url(#landGradient)');
+        
+        // 隐藏 tooltip
+        self.hideTooltip();
       });
 
     // 添加用户点图层
     this.svg.append('g').attr('class', 'user-dots');
+  }
+
+  // 获取国家在线人数
+  private getCountryOnlineCount(countryId: string): number {
+    if (!this.onlineData) return 0;
+    // 通过 ISO numeric ID 反查国家代码
+    const code = Object.entries(COUNTRY_CODE_TO_ID).find(([_, id]) => id === countryId)?.[0];
+    if (!code) return 0;
+    const country = this.onlineData.countries.find(c => c.code === code);
+    return country?.count || 0;
+  }
+
+  // 获取国家名称
+  private getCountryName(countryId: string): string {
+    if (!this.onlineData) return i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown';
+    const code = Object.entries(COUNTRY_CODE_TO_ID).find(([_, id]) => id === countryId)?.[0];
+    if (!code) return i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown';
+    const country = this.onlineData.countries.find(c => c.code === code);
+    return country?.name || (i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown');
+  }
+
+  // 显示 tooltip
+  private showTooltip(event: MouseEvent, countryId: string): void {
+    if (!this.tooltip) return;
+    
+    const countryName = this.getCountryName(countryId);
+    const onlineCount = this.getCountryOnlineCount(countryId);
+    const isZh = i18n.getLanguage() === 'zh';
+    
+    this.tooltip.innerHTML = `
+      <div class="tooltip-title">${countryName}</div>
+      <div class="tooltip-count">${isZh ? '在线' : 'Online'}: <span class="count">${onlineCount}</span> ${isZh ? '人' : ''}</div>
+    `;
+    this.tooltip.style.opacity = '1';
+    this.tooltip.style.visibility = 'visible';
+    
+    this.updateTooltipPosition(event);
+  }
+
+  // 更新 tooltip 位置
+  private updateTooltipPosition(event: MouseEvent): void {
+    if (!this.tooltip || !this.element) return;
+    
+    const rect = this.element.getBoundingClientRect();
+    const x = event.clientX - rect.left + 15;
+    const y = event.clientY - rect.top - 10;
+    
+    this.tooltip.style.left = `${x}px`;
+    this.tooltip.style.top = `${y}px`;
+  }
+
+  // 隐藏 tooltip
+  private hideTooltip(): void {
+    if (!this.tooltip) return;
+    this.tooltip.style.opacity = '0';
+    this.tooltip.style.visibility = 'hidden';
   }
 
   private drawFallbackMap(): void {
@@ -289,7 +474,7 @@ export class WorldMapPage {
   }
 
   private renderUsers(): void {
-    if (!this.svg || !this.projection) return;
+    if (!this.svg || !this.projection || !this.onlineData) return;
 
     const dotsGroup = this.svg.select('.user-dots');
     if (dotsGroup.empty()) return;
@@ -297,94 +482,93 @@ export class WorldMapPage {
     // 清除现有点
     dotsGroup.selectAll('*').remove();
 
-    // 绘制用户点
-    this.users.forEach((user, index) => {
-      const coords = this.projection!([user.lng, user.lat]);
-      if (!coords) return;
+    // 根据国家数据绘制用户点
+    let dotIndex = 0;
+    this.onlineData.countries.forEach((country) => {
+      const center = COUNTRY_CENTERS[country.code];
+      if (!center) return;
 
-      const [x, y] = coords;
+      // 每个国家根据人数绘制多个点（最多显示 10 个点）
+      const dotsCount = Math.min(country.count, 10);
+      for (let i = 0; i < dotsCount; i++) {
+        // 使用固定的偏移量，基于国家代码和索引生成（不再随机）
+        const offset = this.getFixedOffset(country.code, i);
+        const lat = center.lat + offset.lat;
+        const lng = center.lng + offset.lng;
+        
+        const coords = this.projection!([lng, lat]);
+        if (!coords) continue;
 
-      const group = dotsGroup.append('g')
-        .attr('class', 'user-dot-group')
-        .attr('data-user-id', user.id);
+        const [x, y] = coords;
 
-      // 外圈脉冲动画
-      group.append('circle')
-        .attr('cx', x)
-        .attr('cy', y)
-        .attr('r', 4)
-        .attr('class', 'user-pulse')
-        .attr('fill', 'none')
-        .attr('stroke', '#00ff88')
-        .attr('stroke-width', 1)
-        .attr('opacity', 0.6)
-        .style('animation', `pulse 2s ease-out infinite`)
-        .style('animation-delay', `${index * 0.1}s`);
+        const group = dotsGroup.append('g')
+          .attr('class', 'user-dot-group')
+          .attr('data-country', country.code);
 
-      // 用户点
-      group.append('circle')
-        .attr('cx', x)
-        .attr('cy', y)
-        .attr('r', 3)
-        .attr('class', 'user-dot')
-        .attr('fill', '#00ff88')
-        .attr('filter', 'url(#dotGlow)');
-    });
+        // 外圈脉冲动画
+        group.append('circle')
+          .attr('cx', x)
+          .attr('cy', y)
+          .attr('r', 4)
+          .attr('class', 'user-pulse')
+          .attr('fill', 'none')
+          .attr('stroke', '#00ff88')
+          .attr('stroke-width', 1)
+          .attr('opacity', 0.6)
+          .style('animation', `pulse 2s ease-out infinite`)
+          .style('animation-delay', `${dotIndex * 0.1}s`);
 
-    // 更新在线人数
-    const countEl = this.element?.querySelector('.online-count');
-    if (countEl) {
-      countEl.textContent = this.users.length.toString();
-    }
-  }
+        // 用户点
+        group.append('circle')
+          .attr('cx', x)
+          .attr('cy', y)
+          .attr('r', 3)
+          .attr('class', 'user-dot')
+          .attr('fill', '#00ff88')
+          .attr('filter', 'url(#dotGlow)');
 
-  private startUpdates(): void {
-    // 定期添加/移除用户
-    this.updateInterval = setInterval(() => {
-      const action = Math.random();
-      if (action < 0.6 && this.users.length < 35) {
-        this.addRandomUser();
-        this.renderUsers();
-        this.showJoinAnimation();
-      } else if (action < 0.8 && this.users.length > 12) {
-        this.removeRandomUser();
-        this.renderUsers();
+        dotIndex++;
       }
-    }, 3000 + Math.random() * 5000);
+    });
   }
 
-  private showJoinAnimation(): void {
-    if (!this.svg || !this.projection) return;
+  // 根据国家代码和索引生成固定的偏移量
+  private getFixedOffset(countryCode: string, index: number): { lat: number; lng: number } {
+    // 预定义的偏移模式（螺旋分布）
+    const offsets = [
+      { lat: 0, lng: 0 },
+      { lat: 2, lng: 2 },
+      { lat: -2, lng: 2 },
+      { lat: 2, lng: -2 },
+      { lat: -2, lng: -2 },
+      { lat: 3, lng: 0 },
+      { lat: -3, lng: 0 },
+      { lat: 0, lng: 3 },
+      { lat: 0, lng: -3 },
+      { lat: 3.5, lng: 3.5 },
+    ];
     
-    const lastUser = this.users[this.users.length - 1];
-    if (!lastUser) return;
-
-    const coords = this.projection([lastUser.lng, lastUser.lat]);
-    if (!coords) return;
-
-    const [x, y] = coords;
-    const dotsGroup = this.svg.select('.user-dots');
-
-    const pulse = dotsGroup.append('circle')
-      .attr('cx', x)
-      .attr('cy', y)
-      .attr('r', 3)
-      .attr('fill', 'none')
-      .attr('stroke', '#00ff88')
-      .attr('stroke-width', 2)
-      .attr('opacity', 1);
-
-    pulse.transition()
-      .duration(1500)
-      .attr('r', 30)
-      .attr('opacity', 0)
-      .remove();
+    // 根据国家代码生成一个固定的基础偏移
+    const hash = countryCode.charCodeAt(0) + countryCode.charCodeAt(1);
+    const baseOffset = (hash % 3) - 1; // -1, 0, 或 1
+    
+    const offset = offsets[index % offsets.length];
+    return {
+      lat: offset.lat + baseOffset * 0.5,
+      lng: offset.lng + baseOffset * 0.5,
+    };
   }
 
   private stopUpdates(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
+    // 取消订阅 WebSocket 数据
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
+    // 移除 resize 监听器
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
     }
   }
 
