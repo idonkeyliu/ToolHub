@@ -3,7 +3,7 @@
  */
 
 import { i18n } from '../core/i18n';
-import { categoryManager, CategoryItem } from '../core/CategoryManager';
+import { categoryManager, CategoryItem, Category } from '../core/CategoryManager';
 import { toast } from '../components/Toast';
 
 export interface AddItemDialogCallbacks {
@@ -51,7 +51,15 @@ export class AddItemDialog {
           </div>
           <div class="add-site-field">
             <label>${i18n.t('app.category')}</label>
-            <select class="add-site-category-select"></select>
+            <div class="add-site-category-dropdown">
+              <div class="category-dropdown-trigger">
+                <span class="category-dropdown-icon"></span>
+                <span class="category-dropdown-text"></span>
+                <svg class="category-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="category-dropdown-menu"></div>
+            </div>
+            <input type="hidden" class="add-site-category-select" />
           </div>
           <div class="add-site-field">
             <label>${i18n.t('app.iconColor')}</label>
@@ -151,9 +159,101 @@ export class AddItemDialog {
     nameInput?.addEventListener('input', () => {
       this.updatePreview();
     });
+
+    // 自定义下拉菜单
+    this.setupCategoryDropdown();
   }
 
-  /** 生成网站图标缩写 */
+  /** 设置自定义目录下拉事件 */
+  private setupCategoryDropdown(): void {
+    if (!this.dialog) return;
+    const dropdown = this.dialog.querySelector('.add-site-category-dropdown');
+    const trigger = dropdown?.querySelector('.category-dropdown-trigger');
+    const menu = dropdown?.querySelector('.category-dropdown-menu');
+    
+    trigger?.addEventListener('click', () => {
+      dropdown?.classList.toggle('open');
+    });
+
+    // 点击外部关闭
+    document.addEventListener('click', (e) => {
+      if (!dropdown?.contains(e.target as Node)) {
+        dropdown?.classList.remove('open');
+      }
+    });
+  }
+
+  /** 初始化目录下拉 */
+  private initCategoryDropdown(selectedId: string): void {
+    if (!this.dialog) return;
+    const dropdown = this.dialog.querySelector('.add-site-category-dropdown');
+    const menu = dropdown?.querySelector('.category-dropdown-menu');
+    const hiddenInput = this.dialog.querySelector('.add-site-category-select') as HTMLInputElement;
+    
+    const categories = categoryManager.getCategories();
+    
+    // 生成菜单项
+    if (menu) {
+      menu.innerHTML = categories.map(cat => {
+        const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
+        const iconHtml = cat.iconType === 'image' 
+          ? `<img src="${cat.icon}" class="category-icon-img" />` 
+          : `<span class="category-icon-emoji">${cat.icon}</span>`;
+        return `<div class="category-dropdown-item ${cat.id === selectedId ? 'selected' : ''}" data-id="${cat.id}">${iconHtml}<span>${displayTitle}</span></div>`;
+      }).join('');
+
+      // 绑定点击事件
+      menu.querySelectorAll('.category-dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = (item as HTMLElement).dataset.id || '';
+          this.selectCategory(id);
+          dropdown?.classList.remove('open');
+        });
+      });
+    }
+
+    // 设置初始选中
+    this.selectCategory(selectedId);
+  }
+
+  /** 选中目录 */
+  private selectCategory(id: string): void {
+    if (!this.dialog) return;
+    const dropdown = this.dialog.querySelector('.add-site-category-dropdown');
+    const iconEl = dropdown?.querySelector('.category-dropdown-icon');
+    const textEl = dropdown?.querySelector('.category-dropdown-text');
+    const hiddenInput = this.dialog.querySelector('.add-site-category-select') as HTMLInputElement;
+    const menu = dropdown?.querySelector('.category-dropdown-menu');
+
+    const cat = categoryManager.getCategory(id);
+    if (!cat) return;
+
+    const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
+    
+    if (iconEl) {
+      if (cat.iconType === 'image') {
+        iconEl.innerHTML = `<img src="${cat.icon}" class="category-icon-img" />`;
+      } else {
+        iconEl.textContent = cat.icon;
+      }
+    }
+    if (textEl) textEl.textContent = displayTitle;
+    if (hiddenInput) hiddenInput.value = id;
+
+    // 更新选中状态
+    menu?.querySelectorAll('.category-dropdown-item').forEach(item => {
+      item.classList.toggle('selected', (item as HTMLElement).dataset.id === id);
+    });
+  }
+
+  /** 生成目录图标显示文本（处理 emoji 和图片两种类型） */
+  private getCategoryIconDisplay(cat: Category): string {
+    if (cat.iconType === 'image') {
+      return '📁'; // 图片类型的目录用文件夹图标代替
+    }
+    return cat.icon;
+  }
+
   private generateAbbr(name: string): string {
     if (!name) return '';
     const trimmed = name.trim();
@@ -207,20 +307,14 @@ export class AddItemDialog {
     const colorInput = this.dialog.querySelector('.add-site-color-input') as HTMLInputElement;
     const colorPresets = this.dialog.querySelectorAll('.color-preset');
     const previewIcon = this.dialog.querySelector('.add-site-preview-icon') as HTMLElement;
-    const categorySelect = this.dialog.querySelector('.add-site-category-select') as HTMLSelectElement;
+    const categorySelect = this.dialog.querySelector('.add-site-category-select') as HTMLInputElement;
 
     if (nameInput) nameInput.value = '';
     if (urlInput) urlInput.value = '';
     if (colorInput) colorInput.value = '#3b82f6';
     
-    // 填充目录下拉选择
-    if (categorySelect) {
-      const categories = categoryManager.getCategories();
-      categorySelect.innerHTML = categories.map(cat => {
-        const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
-        return `<option value="${cat.id}" ${cat.id === categoryId ? 'selected' : ''}>${cat.icon} ${displayTitle}</option>`;
-      }).join('');
-    }
+    // 初始化自定义目录下拉
+    this.initCategoryDropdown(categoryId);
     
     // 重置颜色预设选中状态
     colorPresets.forEach((p, i) => {
@@ -301,10 +395,22 @@ export class AddItemDialog {
 
     const currentCategory = categoryManager.getItemCategory(key);
     const categories = categoryManager.getCategories();
-    const categoryOptions = categories.map(cat => {
+    
+    // 生成下拉菜单项
+    const menuItems = categories.map(cat => {
       const displayTitle = i18n.getCategoryTitle(cat.id, cat.title);
-      return `<option value="${cat.id}" ${cat.id === currentCategory?.id ? 'selected' : ''}>${cat.icon} ${displayTitle}</option>`;
+      const iconHtml = cat.iconType === 'image' 
+        ? `<img src="${cat.icon}" class="category-icon-img" />` 
+        : `<span class="category-icon-emoji">${cat.icon}</span>`;
+      return `<div class="category-dropdown-item ${cat.id === currentCategory?.id ? 'selected' : ''}" data-id="${cat.id}">${iconHtml}<span>${displayTitle}</span></div>`;
     }).join('');
+
+    // 当前选中的目录
+    const selectedCat = currentCategory || categories[0];
+    const selectedIconHtml = selectedCat?.iconType === 'image'
+      ? `<img src="${selectedCat.icon}" class="category-icon-img" />`
+      : selectedCat?.icon || '';
+    const selectedTitle = selectedCat ? i18n.getCategoryTitle(selectedCat.id, selectedCat.title) : '';
 
     const dialog = document.createElement('div');
     dialog.className = 'add-site-overlay';
@@ -332,7 +438,15 @@ export class AddItemDialog {
           </div>
           <div class="add-site-field">
             <label>${i18n.t('app.category')}</label>
-            <select class="add-site-category-select">${categoryOptions}</select>
+            <div class="add-site-category-dropdown">
+              <div class="category-dropdown-trigger">
+                <span class="category-dropdown-icon">${selectedIconHtml}</span>
+                <span class="category-dropdown-text">${selectedTitle}</span>
+                <svg class="category-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="category-dropdown-menu">${menuItems}</div>
+            </div>
+            <input type="hidden" class="add-site-category-select" value="${currentCategory?.id || ''}" />
           </div>
           <div class="add-site-field">
             <label>${i18n.t('app.iconColor')}</label>
@@ -356,9 +470,34 @@ export class AddItemDialog {
     const nameInput = dialog.querySelector('.add-site-name-input') as HTMLInputElement;
     const urlInput = dialog.querySelector('.add-site-url-input') as HTMLInputElement;
     const colorInput = dialog.querySelector('.add-site-color-input') as HTMLInputElement;
-    const categorySelect = dialog.querySelector('.add-site-category-select') as HTMLSelectElement;
+    const categorySelect = dialog.querySelector('.add-site-category-select') as HTMLInputElement;
     const previewIcon = dialog.querySelector('.add-site-preview-icon') as HTMLElement;
     const colorPresets = dialog.querySelectorAll('.color-preset');
+    const dropdown = dialog.querySelector('.add-site-category-dropdown');
+    const trigger = dropdown?.querySelector('.category-dropdown-trigger');
+    const menu = dropdown?.querySelector('.category-dropdown-menu');
+
+    // 下拉菜单事件
+    trigger?.addEventListener('click', () => dropdown?.classList.toggle('open'));
+    dialog.addEventListener('click', (e) => {
+      if (!dropdown?.contains(e.target as Node)) dropdown?.classList.remove('open');
+    });
+    menu?.querySelectorAll('.category-dropdown-item').forEach(itemEl => {
+      itemEl.addEventListener('click', () => {
+        const id = (itemEl as HTMLElement).dataset.id || '';
+        const cat = categoryManager.getCategory(id);
+        if (!cat) return;
+        const iconEl = dropdown?.querySelector('.category-dropdown-icon');
+        const textEl = dropdown?.querySelector('.category-dropdown-text');
+        if (iconEl) {
+          iconEl.innerHTML = cat.iconType === 'image' ? `<img src="${cat.icon}" class="category-icon-img" />` : cat.icon;
+        }
+        if (textEl) textEl.textContent = i18n.getCategoryTitle(cat.id, cat.title);
+        categorySelect.value = id;
+        menu?.querySelectorAll('.category-dropdown-item').forEach(i => i.classList.toggle('selected', (i as HTMLElement).dataset.id === id));
+        dropdown?.classList.remove('open');
+      });
+    });
 
     // 更新预览函数
     const updatePreview = () => {

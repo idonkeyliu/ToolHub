@@ -3,7 +3,7 @@
  * 重构后的版本：作为协调者，将具体业务委托给各个管理器模块
  */
 
-import { app, BrowserWindow, Menu, dialog, shell, session, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, Menu, dialog, shell, session, ipcMain, screen, nativeImage } from 'electron';
 import type { MenuItemConstructorOptions } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -364,8 +364,10 @@ function loadSite(site: SiteDef) {
 function buildMenu() {
     const template: MenuItemConstructorOptions[] = [
         {
-            label: 'App',
+            label: 'ToolHub',
             submenu: [
+                { role: 'about' },
+                { type: 'separator' },
                 { label: 'Reload Window', accelerator: 'CmdOrCtrl+R', click: () => mainWindow?.reload() },
                 {
                     label: 'Half Height Now', click: () => {
@@ -376,6 +378,10 @@ function buildMenu() {
                         mainWindow.setBounds({ ...bounds, height: targetH });
                     }
                 },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
                 { type: 'separator' },
                 { role: 'quit' },
             ],
@@ -424,8 +430,26 @@ function setupEmojiHandlers() {
 
 // ==================== 应用生命周期 ====================
 
+// 设置应用名称（开发模式下显示在菜单栏）
+app.setName('ToolHub');
+
 app.whenReady().then(async () => {
     // 所有管理器已经在模块级别初始化，直接注册处理器
+    
+    // 设置 macOS Dock 图标
+    if (process.platform === 'darwin' && app.dock) {
+        const iconPath = path.join(__dirname, '../assets/icons/icon.icns');
+        if (fs.existsSync(iconPath)) {
+            try {
+                const icon = nativeImage.createFromPath(iconPath);
+                if (!icon.isEmpty()) {
+                    app.dock.setIcon(icon);
+                }
+            } catch (e) {
+                console.warn('Failed to set dock icon:', e);
+            }
+        }
+    }
     
     // 注册所有处理器
     setupDBHandlers();
