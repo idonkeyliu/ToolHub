@@ -63,3 +63,34 @@ export interface ToastData {
   duration?: number;
   type?: 'info' | 'success' | 'error' | 'warning';
 }
+
+// ============ 重导出 llmHub 类型 ============
+
+export type {
+  BaseResponse,
+  DataResponse,
+  TableColumn,
+  DatabaseAPI,
+  RedisAPI,
+  MongoAPI,
+  MongoCollectionStats,
+  MongoIndex,
+  TerminalAPI,
+  SyncAPI,
+  SyncResult,
+  FileDiff,
+  ServerSyncResult,
+  SaveFileAPI,
+  SaveFileOptions,
+  SaveFileResponse,
+  LlmHub,
+} from './llmHub.d';
+
+// ============ 重导出共享类型 ============
+
+export type {
+  DBConnectionConfig,
+  RedisConnectionConfig,
+  MongoConnectionConfig,
+  ServerConfig,
+} from '../../shared/types';

@@ -10,12 +10,6 @@ import { i18n } from '../../core/i18n';
 declare function toast(msg: string): void;
 declare function copyText(text: string): void;
 
-// Electron IPC 接口
-declare const llmHub: {
-  saveFile: (options: { defaultName: string; filters: { name: string; extensions: string[] }[]; data: string }) => 
-    Promise<{ success: boolean; canceled?: boolean; filePath?: string; error?: string }>;
-};
-
 interface ImageState {
   originalImage: HTMLImageElement | null;
   currentImageData: ImageData | null;

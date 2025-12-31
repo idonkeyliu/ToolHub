@@ -7,47 +7,7 @@ import { ToolConfig, ToolCategory } from '../../types/index';
 import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
 import { i18n } from '../../core/i18n';
-
-declare const llmHub: {
-  redis: {
-    testConnection: (config: RedisConnectionConfig) => Promise<{ success: boolean; error?: string }>;
-    connect: (config: RedisConnectionConfig) => Promise<{ success: boolean; connectionId?: string; error?: string }>;
-    disconnect: (connectionId: string) => Promise<{ success: boolean; error?: string }>;
-    selectDB: (connectionId: string, db: number) => Promise<{ success: boolean; error?: string }>;
-    scan: (connectionId: string, cursor: string, pattern: string, count: number) => Promise<{ success: boolean; cursor?: string; keys?: string[]; error?: string }>;
-    getType: (connectionId: string, key: string) => Promise<{ success: boolean; type?: string; error?: string }>;
-    getTTL: (connectionId: string, key: string) => Promise<{ success: boolean; ttl?: number; error?: string }>;
-    setTTL: (connectionId: string, key: string, ttl: number) => Promise<{ success: boolean; error?: string }>;
-    deleteKey: (connectionId: string, key: string) => Promise<{ success: boolean; error?: string }>;
-    renameKey: (connectionId: string, oldKey: string, newKey: string) => Promise<{ success: boolean; error?: string }>;
-    getString: (connectionId: string, key: string) => Promise<{ success: boolean; value?: string; error?: string }>;
-    setString: (connectionId: string, key: string, value: string, ttl?: number) => Promise<{ success: boolean; error?: string }>;
-    getHash: (connectionId: string, key: string) => Promise<{ success: boolean; value?: Record<string, string>; error?: string }>;
-    setHashField: (connectionId: string, key: string, field: string, value: string) => Promise<{ success: boolean; error?: string }>;
-    deleteHashField: (connectionId: string, key: string, field: string) => Promise<{ success: boolean; error?: string }>;
-    getList: (connectionId: string, key: string, start: number, stop: number) => Promise<{ success: boolean; value?: string[]; total?: number; error?: string }>;
-    pushList: (connectionId: string, key: string, value: string, position: 'left' | 'right') => Promise<{ success: boolean; error?: string }>;
-    deleteListItem: (connectionId: string, key: string, index: number, count: number) => Promise<{ success: boolean; error?: string }>;
-    getSet: (connectionId: string, key: string) => Promise<{ success: boolean; value?: string[]; error?: string }>;
-    addSetMember: (connectionId: string, key: string, member: string) => Promise<{ success: boolean; error?: string }>;
-    removeSetMember: (connectionId: string, key: string, member: string) => Promise<{ success: boolean; error?: string }>;
-    getZSet: (connectionId: string, key: string, withScores: boolean) => Promise<{ success: boolean; value?: Array<{ member: string; score: number }>; total?: number; error?: string }>;
-    addZSetMember: (connectionId: string, key: string, member: string, score: number) => Promise<{ success: boolean; error?: string }>;
-    removeZSetMember: (connectionId: string, key: string, member: string) => Promise<{ success: boolean; error?: string }>;
-    executeCommand: (connectionId: string, command: string) => Promise<{ success: boolean; result?: any; error?: string }>;
-    dbSize: (connectionId: string) => Promise<{ success: boolean; size?: number; error?: string }>;
-  };
-};
-
-interface RedisConnectionConfig {
-  id?: string;
-  name: string;
-  host: string;
-  port: number;
-  password?: string;
-  database: number;
-  tls?: boolean;
-}
+import type { RedisConnectionConfig } from '../../types';
 
 interface KeyInfo {
   key: string;

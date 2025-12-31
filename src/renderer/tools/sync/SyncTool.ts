@@ -8,27 +8,7 @@ import { ToolConfig, ToolCategory } from '../../types/index';
 import { getTemplate } from './template';
 import { toast } from '../../components/Toast';
 import { i18n } from '../../core/i18n';
-
-// Sync IPC 接口
-declare const llmHub: {
-  sync: {
-    testConnection: (config: ServerConfig) => Promise<{ success: boolean; error?: string }>;
-    checkSync: (project: ProjectConfig, servers: ServerConfig[]) => Promise<SyncResult>;
-    getFileContent: (sessionId: string, filePath: string) => Promise<{ success: boolean; content?: string; error?: string }>;
-    cloneRepo: (gitUrl: string, branch: string, token?: string) => Promise<{ success: boolean; path?: string; error?: string }>;
-  };
-};
-
-interface ServerConfig {
-  id: string;
-  name: string;
-  host: string;
-  port: number;
-  username: string;
-  authType: 'password' | 'key';
-  password?: string;
-  privateKey?: string;
-}
+import type { ServerConfig, SyncResult, FileDiff, ServerSyncResult } from '../../types';
 
 interface PathMapping {
   serverId: string;
@@ -46,27 +26,6 @@ interface ProjectConfig {
   mappings: PathMapping[];
   ignorePattern: string;
   checkContent: boolean;
-}
-
-interface FileDiff {
-  path: string;
-  status: 'synced' | 'modified' | 'added' | 'deleted';
-  gitSize?: number;
-  serverSize?: number;
-}
-
-interface ServerSyncResult {
-  serverId: string;
-  serverName: string;
-  status: 'success' | 'error';
-  error?: string;
-  files: FileDiff[];
-}
-
-interface SyncResult {
-  projectId: string;
-  timestamp: number;
-  servers: ServerSyncResult[];
 }
 
 export class SyncTool extends Tool {
@@ -622,7 +581,7 @@ export class SyncTool extends Tool {
 
     // 获取相关服务器配置
     const serverIds = [...new Set(project.mappings.map(m => m.serverId))];
-    const servers = this.servers.filter(s => serverIds.includes(s.id));
+    const servers = this.servers.filter(s => s.id && serverIds.includes(s.id));
 
     if (servers.length === 0) {
       toast(i18n.t('sync.noServerFound'));
