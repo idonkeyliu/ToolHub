@@ -75,8 +75,8 @@ const COUNTRY_CENTERS: Record<string, { lat: number; lng: number }> = {
   'MY': { lat: 4.0, lng: 109.5 },
 };
 
-// Natural Earth TopoJSON URL
-const WORLD_TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+// Natural Earth TopoJSON URL (50m 精度版本，包含 242 个国家/地区)
+const WORLD_TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
 
 export class WorldMapPage {
   private container: HTMLElement;
@@ -389,8 +389,8 @@ export class WorldMapPage {
           .duration(200)
           .attr('fill', '#1f4a3a');
         
-        // 显示 tooltip
-        self.showTooltip(event, d.id);
+        // 显示 tooltip，传入 feature 数据以获取国家名称
+        self.showTooltip(event, d.id, d);
       })
       .on('mousemove', function(this: SVGPathElement, event: MouseEvent) {
         // 更新 tooltip 位置
@@ -421,19 +421,29 @@ export class WorldMapPage {
   }
 
   // 获取国家名称
-  private getCountryName(countryId: string): string {
-    if (!this.onlineData) return i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown';
-    const code = Object.entries(COUNTRY_CODE_TO_ID).find(([_, id]) => id === countryId)?.[0];
-    if (!code) return i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown';
-    const country = this.onlineData.countries.find(c => c.code === code);
-    return country?.name || (i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown');
+  private getCountryName(countryId: string, feature?: any): string {
+    // 优先从 TopoJSON feature 的 properties 中获取名称
+    if (feature?.properties?.name) {
+      return feature.properties.name;
+    }
+    
+    // 备用：从在线数据中查找
+    if (this.onlineData) {
+      const code = Object.entries(COUNTRY_CODE_TO_ID).find(([_, id]) => id === countryId)?.[0];
+      if (code) {
+        const country = this.onlineData.countries.find(c => c.code === code);
+        if (country?.name) return country.name;
+      }
+    }
+    
+    return i18n.getLanguage() === 'zh' ? '未知地区' : 'Unknown';
   }
 
   // 显示 tooltip
-  private showTooltip(event: MouseEvent, countryId: string): void {
+  private showTooltip(event: MouseEvent, countryId: string, feature?: any): void {
     if (!this.tooltip) return;
     
-    const countryName = this.getCountryName(countryId);
+    const countryName = this.getCountryName(countryId, feature);
     const onlineCount = this.getCountryOnlineCount(countryId);
     const isZh = i18n.getLanguage() === 'zh';
     
