@@ -94,4 +94,8 @@ Download the latest version of ToolHub for macOS. Currently only macOS is suppor
 
 **Made with ❤️ for developers who value productivity**
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=idonkeyliu/ToolHub&type=date&legend=top-left)](https://www.star-history.com/#idonkeyliu/ToolHub&type=date&legend=top-left)
+
 ⭐ **Star this repo if ToolHub helps your workflow!**
