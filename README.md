@@ -1,6 +1,10 @@
 # ToolHub - All-in-One Developer Toolkit
 
 <p align="center">
+  <a href="README.md">English</a> | <a href="README_CN.md">简体中文</a>
+</p>
+
+<p align="center">
   <img src="docs/images/toolhub6.png" alt="ToolHub Logo">
 </p>
 

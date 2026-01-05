@@ -1,0 +1,759 @@
+/* YouTube 下载器 - 现代风格 */
+.yt-container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.03) 0%, transparent 50%);
+}
+
+/* 主内容区 */
+.yt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.yt-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.yt-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.yt-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.yt-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 品牌头部 */
+.yt-hero {
+  padding: 32px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.yt-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 80%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.yt-brand {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.yt-logo {
+  width: 64px;
+  height: 64px;
+  background: #ff0000;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(255, 0, 0, 0.3);
+}
+
+.yt-logo svg {
+  width: 36px;
+  height: 36px;
+  color: #fff;
+}
+
+.yt-brand-text h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.yt-brand-text p {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.yt-hero-stats {
+  display: flex;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.yt-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.yt-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ff0000;
+}
+
+.yt-stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 输入卡片 */
+.yt-input-card {
+  padding: 24px;
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+}
+
+.yt-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 4px 16px;
+  background: var(--input-bg, #0d0d1a);
+  border: 2px solid var(--border-color, #2a2a4a);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.yt-input-wrapper:focus-within {
+  border-color: #ff0000;
+  box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.1);
+}
+
+.yt-input-icon {
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.yt-input-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.yt-input {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #fff);
+  outline: none;
+}
+
+.yt-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.yt-paste-btn {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-paste-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.yt-paste-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.yt-parse-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.3);
+}
+
+.yt-parse-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 0, 0, 0.4);
+}
+
+.yt-parse-btn:active {
+  transform: translateY(0);
+}
+
+.yt-parse-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.yt-parse-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.yt-supported {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.yt-badge {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+}
+
+/* 状态卡片 */
+.yt-status-card {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 0, 0, 0.05) 100%);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 12px;
+}
+
+.yt-status-card.error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.yt-status-card.success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.yt-status-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 0, 0, 0.2);
+  border-top-color: #ff0000;
+  border-radius: 50%;
+  animation: yt-spin 1s linear infinite;
+}
+
+@keyframes yt-spin {
+  to { transform: rotate(360deg); }
+}
+
+.yt-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.yt-status-content span:first-child {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.yt-status-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 结果卡片 */
+.yt-result-card {
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+  overflow: hidden;
+}
+
+.yt-preview {
+  position: relative;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+
+.yt-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.yt-preview-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.yt-preview:hover .yt-preview-overlay {
+  opacity: 1;
+}
+
+.yt-play-btn {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 0, 0, 0.9);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.yt-play-btn:hover {
+  transform: scale(1.1);
+}
+
+.yt-play-btn svg {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  margin-left: 4px;
+}
+
+.yt-duration {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  color: #fff;
+}
+
+/* 视频信息 */
+.yt-video-info {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.yt-video-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.yt-video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.yt-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.yt-meta-item svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 格式选择 */
+.yt-formats {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.yt-format-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.yt-format-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.yt-format-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.yt-format-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-format-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.yt-format-tab:hover {
+  color: #fff;
+}
+
+.yt-format-tab.active {
+  background: #ff0000;
+  color: #fff;
+}
+
+.yt-format-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.yt-format-item {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-format-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 0, 0, 0.3);
+}
+
+.yt-format-item.selected {
+  background: rgba(255, 0, 0, 0.1);
+  border-color: #ff0000;
+}
+
+.yt-format-quality {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.yt-format-info {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.yt-format-item.selected .yt-format-quality {
+  color: #ff0000;
+}
+
+/* 操作按钮 */
+.yt-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+}
+
+.yt-action-btn {
+  flex: 1;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.yt-download-btn {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.3);
+}
+
+.yt-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 0, 0, 0.4);
+}
+
+.yt-copy-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color, #2a2a4a);
+  color: var(--text-primary, #fff);
+}
+
+.yt-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.yt-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+/* 侧边栏 */
+.yt-sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+  overflow: hidden;
+}
+
+.yt-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.yt-sidebar-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.yt-sidebar-header h3 svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.yt-clear-btn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.yt-clear-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.yt-history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.yt-history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.yt-history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.yt-history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.yt-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.yt-history-empty svg {
+  width: 48px;
+  height: 48px;
+}
+
+.yt-history-empty span {
+  font-size: 13px;
+}
+
+.yt-history-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-history-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.yt-history-thumb {
+  width: 80px;
+  height: 45px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+  flex-shrink: 0;
+}
+
+.yt-history-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.yt-history-title {
+  font-size: 13px;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.yt-history-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.yt-history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.yt-history-item:hover .yt-history-actions {
+  opacity: 1;
+}
+
+.yt-history-btn {
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary, #fff);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.yt-history-btn:hover {
+  background: #ff0000;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .yt-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .yt-sidebar {
+    max-height: 300px;
+  }
+  
+  .yt-hero-stats {
+    gap: 20px;
+  }
+  
+  .yt-stat-value {
+    font-size: 20px;
+  }
+}
+
+/* 按钮加载状态 */
+.yt-parse-btn.loading {
+  pointer-events: none;
+}
+
+.yt-parse-btn.loading svg {
+  animation: yt-spin 1s linear infinite;
+}

@@ -24,6 +24,8 @@ import { JwtTool } from './jwt/JwtTool';
 // import { TerminalTool } from './terminal/TerminalTool';
 // import { SyncTool } from './sync/SyncTool';
 import { UsageTracker } from './stats/StatsTool';
+import { XVideoTool } from './xvideo/XVideoTool';
+import { YoutubeTool } from './youtube/YoutubeTool';
 
 export const tools = [
   TimestampTool,
@@ -47,6 +49,8 @@ export const tools = [
   // RegexTool,
   // TerminalTool,
   // SyncTool,
+  XVideoTool,
+  YoutubeTool,
 ];
 
 // 导出使用追踪器

@@ -87,6 +87,7 @@ const TOOL_COLORS: Record<string, string> = {
   curl: '#f97316', color: '#a855f7', calendar: '#6366f1', currency: '#10b981',
   image: '#0ea5e9', database: '#f472b6', redis: '#dc2626', mongo: '#00ed64',
   diff: '#7c3aed', jwt: '#d946ef', regex: '#0891b2', terminal: '#374151', sync: '#059669',
+  xvideo: '#1da1f2', 'youtube-dl': '#ff0000',
 };
 
 // 默认分类配置
@@ -102,7 +103,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: 'encoding', title: '编解码工具', icon: '🔐', items: ['codec', 'crypto', 'jwt'], isSystem: true },
   { id: 'format', title: '格式化工具', icon: '📝', items: ['json', 'text'], isSystem: true },
   { id: 'storage', title: '存储工具', icon: '💾', items: ['database', 'redis', 'mongo'], isSystem: true },
-  { id: 'network', title: '网络工具', icon: '🌐', items: ['dns', 'curl'], isSystem: true },
+  { id: 'network', title: '网络工具', icon: '🌐', items: ['dns', 'curl', 'xvideo', 'youtube-dl'], isSystem: true },
   // { id: 'terminal', title: '终端工具', icon: '🖥️', items: ['terminal', 'sync'], isSystem: true },
 ];
 
@@ -218,7 +219,8 @@ class CategoryManager {
 
   // 注册工具（由 app.ts 调用）
   registerTool(key: string, title: string, icon: string): void {
-    if (!this.data.itemMap[key]) {
+    const isNew = !this.data.itemMap[key];
+    if (isNew) {
       this.data.itemMap[key] = {
         key,
         title,
@@ -226,6 +228,21 @@ class CategoryManager {
         color: TOOL_COLORS[key] || '#6b7280',
         type: 'tool',
       };
+    }
+    
+    // 检查工具是否已在任何分类中
+    const isInCategory = this.data.categories.some(cat => cat.items.includes(key));
+    if (!isInCategory) {
+      // 新工具自动添加到对应分类
+      const networkTools = ['xvideo', 'youtube-dl', 'dns', 'curl'];
+      const targetCategoryId = networkTools.includes(key) ? 'network' : 'utility';
+      const category = this.data.categories.find(c => c.id === targetCategoryId);
+      if (category) {
+        category.items.push(key);
+      }
+    }
+    
+    if (isNew || !isInCategory) {
       this.save();
     }
   }

@@ -1,0 +1,630 @@
+/* X 视频下载器 - 现代风格 */
+.xvideo-container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(29, 161, 242, 0.03) 0%, transparent 50%);
+}
+
+/* 主内容区 */
+.xvideo-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.xvideo-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.xvideo-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.xvideo-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.xvideo-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 品牌头部 */
+.xvideo-hero {
+  padding: 32px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(29, 161, 242, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.xvideo-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(29, 161, 242, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.xvideo-brand {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.xvideo-logo {
+  width: 64px;
+  height: 64px;
+  background: #000;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.x-logo {
+  width: 36px;
+  height: 36px;
+  color: #fff;
+}
+
+.xvideo-brand-text h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.xvideo-brand-text p {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 输入卡片 */
+.xvideo-input-card {
+  padding: 24px;
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+}
+
+.xvideo-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 4px 16px;
+  background: var(--input-bg, #0d0d1a);
+  border: 2px solid var(--border-color, #2a2a4a);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.xvideo-input-wrapper:focus-within {
+  border-color: #1da1f2;
+  box-shadow: 0 0 0 4px rgba(29, 161, 242, 0.1);
+}
+
+.xvideo-input-icon {
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.xvideo-input-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.xvideo-input {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #fff);
+  outline: none;
+}
+
+.xvideo-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.xvideo-paste-btn {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-paste-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.xvideo-paste-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.xvideo-parse-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #1da1f2 0%, #0d8ecf 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(29, 161, 242, 0.3);
+}
+
+.xvideo-parse-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(29, 161, 242, 0.4);
+}
+
+.xvideo-parse-btn:active {
+  transform: translateY(0);
+}
+
+.xvideo-parse-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.xvideo-parse-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.xvideo-supported {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.xvideo-badge {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+}
+
+/* 状态卡片 */
+.xvideo-status-card {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(29, 161, 242, 0.1) 0%, rgba(29, 161, 242, 0.05) 100%);
+  border: 1px solid rgba(29, 161, 242, 0.2);
+  border-radius: 12px;
+}
+
+.xvideo-status-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(29, 161, 242, 0.2);
+  border-top-color: #1da1f2;
+  border-radius: 50%;
+  animation: xvideo-spin 1s linear infinite;
+}
+
+@keyframes xvideo-spin {
+  to { transform: rotate(360deg); }
+}
+
+.xvideo-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.xvideo-status-content span:first-child {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.xvideo-status-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 错误卡片 */
+.xvideo-error-card {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+}
+
+.xvideo-error-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+  color: #ef4444;
+}
+
+.xvideo-error-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.xvideo-error-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.xvideo-error-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.xvideo-error-msg {
+  font-size: 13px;
+  color: rgba(239, 68, 68, 0.8);
+}
+
+.xvideo-retry-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-retry-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* 结果卡片 */
+.xvideo-result-card {
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+  overflow: hidden;
+}
+
+.xvideo-video-wrapper {
+  position: relative;
+  background: #000;
+}
+
+.xvideo-video {
+  width: 100%;
+  max-height: 400px;
+  display: block;
+}
+
+.xvideo-video-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.xvideo-quality-badge {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  color: #22c55e;
+}
+
+.xvideo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.xvideo-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.xvideo-meta-item svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.xvideo-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+}
+
+.xvideo-action-btn {
+  flex: 1;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.xvideo-download-btn {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+}
+
+.xvideo-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(34, 197, 94, 0.4);
+}
+
+.xvideo-copy-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color, #2a2a4a);
+  color: var(--text-primary, #fff);
+}
+
+.xvideo-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.xvideo-share-btn {
+  background: rgba(29, 161, 242, 0.1);
+  border: 1px solid rgba(29, 161, 242, 0.2);
+  color: #1da1f2;
+}
+
+.xvideo-share-btn:hover {
+  background: rgba(29, 161, 242, 0.2);
+}
+
+/* 侧边栏 */
+.xvideo-sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #1a1a2e);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, #2a2a4a);
+  overflow: hidden;
+}
+
+.xvideo-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.xvideo-sidebar-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.xvideo-sidebar-header h3 svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.xvideo-clear-btn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.xvideo-clear-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.xvideo-history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.xvideo-history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.xvideo-history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.xvideo-history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.xvideo-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.xvideo-history-empty svg {
+  width: 48px;
+  height: 48px;
+}
+
+.xvideo-history-empty span {
+  font-size: 13px;
+}
+
+.xvideo-history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-history-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.xvideo-history-thumb {
+  width: 64px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+  flex-shrink: 0;
+}
+
+.xvideo-history-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.xvideo-history-url {
+  font-size: 13px;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.xvideo-history-time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.xvideo-history-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.xvideo-history-item:hover .xvideo-history-actions {
+  opacity: 1;
+}
+
+.xvideo-history-btn {
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary, #fff);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.xvideo-history-btn:hover {
+  background: #1da1f2;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .xvideo-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .xvideo-sidebar {
+    max-height: 300px;
+  }
+}
+
+/* 按钮加载状态 */
+.xvideo-parse-btn.loading {
+  pointer-events: none;
+}
+
+.xvideo-parse-btn.loading svg {
+  animation: xvideo-spin 1s linear infinite;
+}
+
+/* 复制成功动画 */
+.xvideo-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
