@@ -59,6 +59,9 @@
     "build": {
         "appId": "com.toolhub.shell",
         "productName": "ToolHub",
+        "directories": {
+            "output": "release"
+        },
         "files": [
             "dist/**/*",
             "package.json",

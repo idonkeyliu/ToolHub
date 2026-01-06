@@ -87,7 +87,7 @@ const TOOL_COLORS: Record<string, string> = {
   curl: '#f97316', color: '#a855f7', calendar: '#6366f1', currency: '#10b981',
   image: '#0ea5e9', database: '#f472b6', redis: '#dc2626', mongo: '#00ed64',
   diff: '#7c3aed', jwt: '#d946ef', regex: '#0891b2', terminal: '#374151', sync: '#059669',
-  xvideo: '#1da1f2', 'youtube-dl': '#ff0000',
+  xvideo: '#1da1f2', 'youtube-dl': '#ff0000', 'weixin-video': '#07c160',
 };
 
 // 默认分类配置
@@ -98,12 +98,12 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: 'community', title: 'Community', icon: '👥', items: ['twitter', 'discord', 'hackernews'], isSystem: true },
   { id: 'design', title: 'Design', icon: '🎨', items: ['figma'], isSystem: true },
   { id: 'email', title: 'Email', icon: '📧', items: ['gmail', 'outlook'], isSystem: true },
-  { id: 'video', title: 'Video', icon: '🎬', items: ['youtube'], isSystem: true },
+  { id: 'video', title: 'Video', icon: '🎬', items: ['youtube', 'youtube-dl', 'xvideo'], isSystem: true },
   { id: 'utility', title: '实用工具', icon: '🧰', items: ['time', 'pwd', 'calc', 'color', 'calendar', 'currency', 'image'], isSystem: true },
   { id: 'encoding', title: '编解码工具', icon: '🔐', items: ['codec', 'crypto', 'jwt'], isSystem: true },
   { id: 'format', title: '格式化工具', icon: '📝', items: ['json', 'text'], isSystem: true },
   { id: 'storage', title: '存储工具', icon: '💾', items: ['database', 'redis', 'mongo'], isSystem: true },
-  { id: 'network', title: '网络工具', icon: '🌐', items: ['dns', 'curl', 'xvideo', 'youtube-dl'], isSystem: true },
+  { id: 'network', title: '网络工具', icon: '🌐', items: ['dns', 'curl'], isSystem: true },
   // { id: 'terminal', title: '终端工具', icon: '🖥️', items: ['terminal', 'sync'], isSystem: true },
 ];
 

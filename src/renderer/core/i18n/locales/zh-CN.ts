@@ -1089,4 +1089,13 @@ export const zhCN: Translations = {
   'toolCategory.convert': '转换工具',
   'toolCategory.network': '网络工具',
   'toolCategory.terminal': '终端工具',
+  'toolCategory.video': '视频下载',
+
+  // ============== YouTube 工具 ==============
+  'youtube.title': 'YouTube 视频下载',
+  'youtube.desc': '下载 YouTube 视频和音频',
+
+  // ============== X 视频工具 ==============
+  'xvideo.title': 'X/Twitter 视频下载',
+  'xvideo.desc': '下载 X (Twitter) 视频',
 };

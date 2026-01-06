@@ -1,13 +1,12 @@
 /* YouTube 下载器 - 现代风格 */
 .yt-container {
   width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 1fr 320px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   padding: 24px;
   box-sizing: border-box;
-  overflow: hidden;
   background: linear-gradient(135deg, rgba(255, 0, 0, 0.03) 0%, transparent 50%);
 }
 
@@ -16,8 +15,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-y: auto;
-  padding-right: 8px;
+  flex: 1;
 }
 
 .yt-main::-webkit-scrollbar {
@@ -203,18 +201,18 @@
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border: none;
   border-radius: 12px;
   color: #fff;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
 .yt-parse-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
 }
 
 .yt-parse-btn:active {
@@ -281,6 +279,10 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .yt-status-content {
   display: flex;
   flex-direction: column;
@@ -296,6 +298,34 @@
 .yt-status-hint {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
+}
+
+/* 进度条 */
+.yt-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-top: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.yt-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0000 0%, #ff4444 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.yt-progress-text {
+  position: absolute;
+  right: 0;
+  top: -22px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff4444;
 }
 
 /* 结果卡片 */
@@ -561,14 +591,53 @@
   color: #22c55e;
 }
 
-/* 侧边栏 */
+/* 侧边栏 - 隐藏，改为历史记录卡片 */
 .yt-sidebar {
-  display: flex;
-  flex-direction: column;
+  display: none;
+}
+
+/* 历史记录卡片 */
+.yt-history-card {
   background: var(--card-bg, #1a1a2e);
   border-radius: 16px;
   border: 1px solid var(--border-color, #2a2a4a);
   overflow: hidden;
+}
+
+.yt-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #2a2a4a);
+}
+
+.yt-history-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.yt-history-header h3 svg {
+  width: 18px;
+  height: 18px;
+  color: #ff0000;
+}
+
+/* 历史记录网格布局 */
+.yt-history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.yt-history-grid .yt-history-empty {
+  grid-column: 1 / -1;
 }
 
 .yt-sidebar-header {
@@ -658,15 +727,16 @@
   display: flex;
   gap: 12px;
   padding: 12px;
-  margin-bottom: 8px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
+  border: 1px solid transparent;
 }
 
 .yt-history-item:hover {
   background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 0, 0, 0.2);
 }
 
 .yt-history-thumb {
@@ -729,17 +799,8 @@
   background: #ff0000;
 }
 
-/* 响应式 */
+/* 响应式 - 已改为单列布局 */
 @media (max-width: 900px) {
-  .yt-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-  }
-  
-  .yt-sidebar {
-    max-height: 300px;
-  }
-  
   .yt-hero-stats {
     gap: 20px;
   }

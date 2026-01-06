@@ -16,7 +16,7 @@ export class XVideoTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'xvideo',
     title: i18n.t('xvideo.title') || 'X 视频下载',
-    category: ToolCategory.NETWORK,
+    category: ToolCategory.VIDEO,
     icon: '📹',
     description: i18n.t('xvideo.desc') || '下载 X (Twitter) 视频，无需会员',
     keywords: ['x', 'twitter', 'video', 'download', '视频', '下载', '推特'],

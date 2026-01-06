@@ -8,6 +8,10 @@ import type { MenuItemConstructorOptions } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { exec, spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execAsync = promisify(exec);
 import Store from 'electron-store';
 
 // 导入管理器模块
@@ -17,6 +21,7 @@ import { mongoManager as mongoManagerInstance } from './main/mongo/mongo-manager
 import { terminalManager as terminalManagerInstance } from './main/terminal/terminal-manager.js';
 import { syncManager as syncManagerInstance } from './main/sync/sync-manager.js';
 import { windowManager } from './main/window/window-manager.js';
+import { weixinProxyManager } from './main/proxy/weixin-proxy-manager.js';
 
 // Recreate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -307,6 +312,119 @@ function setupSyncHandlers() {
     });
 }
 
+// ==================== YouTube 下载处理器 ====================
+
+function setupYoutubeHandlers() {
+    const cookiesArg = '--cookies-from-browser chrome';
+    
+    // 获取视频直链
+    ipcMain.handle('youtube:get-video-url', async (_e, videoId: string, format: 'video' | 'audio' = 'video') => {
+        try {
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            const formatArg = format === 'audio' ? '-f bestaudio' : '';
+            
+            const { stdout } = await execAsync(`yt-dlp ${cookiesArg} ${formatArg} -g "${youtubeUrl}"`, {
+                timeout: 120000,
+            });
+            
+            const url = stdout.trim().split('\n')[0];
+            return { success: true, url };
+        } catch (error: any) {
+            return { success: false, error: error.message };
+        }
+    });
+    
+    // 获取视频信息
+    ipcMain.handle('youtube:get-video-info', async (_e, videoId: string) => {
+        try {
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            
+            const { stdout } = await execAsync(`yt-dlp ${cookiesArg} -j "${youtubeUrl}"`, {
+                timeout: 120000,
+            });
+            
+            const info = JSON.parse(stdout);
+            return { 
+                success: true, 
+                info: {
+                    title: info.title,
+                    duration: info.duration_string || '',
+                    author: info.uploader || info.channel || '',
+                    thumbnail: info.thumbnail,
+                    views: info.view_count?.toString() || '',
+                }
+            };
+        } catch (error: any) {
+            return { success: false, error: error.message };
+        }
+    });
+    
+    // 下载视频到指定目录（带进度回调）
+    ipcMain.handle('youtube:download', async (event, videoId: string, format: 'video' | 'audio' = 'video') => {
+        return new Promise((resolve) => {
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            const downloadDir = app.getPath('downloads');
+            const outputTemplate = path.join(downloadDir, '%(title)s.%(ext)s');
+            
+            const args = [
+                '--cookies-from-browser', 'chrome',
+                '--newline', // 每行输出进度，便于解析
+                '-o', outputTemplate,
+                youtubeUrl,
+            ];
+            
+            if (format === 'audio') {
+                args.unshift('-x', '--audio-format', 'mp3');
+            }
+            
+            const ytdlp = spawn('yt-dlp', args);
+            let lastProgress = 0;
+            
+            ytdlp.stdout.on('data', (data: Buffer) => {
+                const line = data.toString();
+                // 解析进度: [download]  45.2% of 123.45MiB at 2.34MiB/s ETA 00:30
+                const progressMatch = line.match(/\[download\]\s+([\d.]+)%/);
+                if (progressMatch) {
+                    const progress = parseFloat(progressMatch[1]);
+                    if (progress > lastProgress) {
+                        lastProgress = progress;
+                        // 发送进度到渲染进程
+                        event.sender.send('youtube:download-progress', {
+                            videoId,
+                            progress,
+                            line: line.trim(),
+                        });
+                    }
+                }
+                // 解析下载完成信息
+                if (line.includes('[download] 100%') || line.includes('has already been downloaded')) {
+                    event.sender.send('youtube:download-progress', {
+                        videoId,
+                        progress: 100,
+                        line: line.trim(),
+                    });
+                }
+            });
+            
+            ytdlp.stderr.on('data', (data: Buffer) => {
+                console.log('yt-dlp stderr:', data.toString());
+            });
+            
+            ytdlp.on('close', (code) => {
+                if (code === 0) {
+                    resolve({ success: true, downloadDir });
+                } else {
+                    resolve({ success: false, error: `yt-dlp exited with code ${code}` });
+                }
+            });
+            
+            ytdlp.on('error', (err) => {
+                resolve({ success: false, error: err.message });
+            });
+        });
+    });
+}
+
 // ==================== 窗口和应用管理 ====================
 
 function createWindow(initialSite?: string) {
@@ -428,6 +546,84 @@ function setupEmojiHandlers() {
     });
 }
 
+// ==================== 微信视频号代理处理器 ====================
+
+function setupWeixinProxyHandlers() {
+    // 启动代理
+    ipcMain.handle('weixin-proxy:start', async (_e, port?: number) => {
+        return weixinProxyManager.start(port);
+    });
+    
+    // 停止代理
+    ipcMain.handle('weixin-proxy:stop', async () => {
+        return weixinProxyManager.stop();
+    });
+    
+    // 获取状态
+    ipcMain.handle('weixin-proxy:status', async () => {
+        return weixinProxyManager.getStatus();
+    });
+    
+    // 获取捕获的视频列表
+    ipcMain.handle('weixin-proxy:get-videos', async () => {
+        return weixinProxyManager.getCapturedVideos();
+    });
+    
+    // 清空视频列表
+    ipcMain.handle('weixin-proxy:clear-videos', async () => {
+        weixinProxyManager.clearCapturedVideos();
+        return { success: true };
+    });
+    
+    // 删除单个视频
+    ipcMain.handle('weixin-proxy:remove-video', async (_e, id: string) => {
+        weixinProxyManager.removeVideo(id);
+        return { success: true };
+    });
+    
+    // 下载视频
+    ipcMain.handle('weixin-proxy:download-video', async (_e, video: any) => {
+        const result = await dialog.showSaveDialog({
+            defaultPath: `${video.title || 'video'}.mp4`,
+            filters: [{ name: 'MP4 Video', extensions: ['mp4'] }],
+        });
+        
+        if (result.canceled || !result.filePath) {
+            return { success: false, canceled: true };
+        }
+        
+        return weixinProxyManager.downloadVideo(video, result.filePath);
+    });
+    
+    // 获取代理设置说明
+    ipcMain.handle('weixin-proxy:get-instructions', async () => {
+        return weixinProxyManager.getProxyInstructions();
+    });
+    
+    // 启用系统代理
+    ipcMain.handle('weixin-proxy:enable-system-proxy', async () => {
+        return weixinProxyManager.enableSystemProxy();
+    });
+    
+    // 禁用系统代理
+    ipcMain.handle('weixin-proxy:disable-system-proxy', async () => {
+        return weixinProxyManager.disableSystemProxy();
+    });
+    
+    // 监听视频捕获事件，转发给渲染进程
+    weixinProxyManager.on('video-captured', (video) => {
+        if (mainWindow) {
+            mainWindow.webContents.send('weixin-proxy:video-captured', video);
+        }
+    });
+    
+    weixinProxyManager.on('videos-updated', (videos) => {
+        if (mainWindow) {
+            mainWindow.webContents.send('weixin-proxy:videos-updated', videos);
+        }
+    });
+}
+
 // ==================== 应用生命周期 ====================
 
 // 设置应用名称（开发模式下显示在菜单栏）
@@ -458,6 +654,8 @@ app.whenReady().then(async () => {
     setupTerminalHandlers();
     setupSyncHandlers();
     setupEmojiHandlers();
+    setupWeixinProxyHandlers();
+    setupYoutubeHandlers();
     
     // 配置窗口环境
     windowManager.installFrameBypass();

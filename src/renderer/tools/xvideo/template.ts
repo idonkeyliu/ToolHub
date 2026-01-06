@@ -138,31 +138,31 @@ export const getTemplate = () => `
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- 侧边栏 - 历史记录 -->
-  <div class="xvideo-sidebar">
-    <div class="xvideo-sidebar-header">
-      <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        下载历史
-      </h3>
-      <button id="clearHistoryBtn" class="xvideo-clear-btn" title="清空历史">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-      </button>
-    </div>
-    <div id="historyList" class="xvideo-history-list">
-      <div class="xvideo-history-empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span>暂无下载记录</span>
+    <!-- 历史记录卡片 -->
+    <div class="xvideo-history-card">
+      <div class="xvideo-history-header">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          下载历史
+        </h3>
+        <button id="clearHistoryBtn" class="xvideo-clear-btn" title="清空历史">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div id="historyList" class="xvideo-history-grid">
+        <div class="xvideo-history-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>暂无下载记录</span>
+        </div>
       </div>
     </div>
   </div>

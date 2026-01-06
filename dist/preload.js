@@ -88,6 +88,37 @@ electron_1.contextBridge.exposeInMainWorld('llmHub', {
     },
     // Emoji 文件 API
     listEmojiFiles: (categoryDir) => electron_1.ipcRenderer.invoke('emoji:list-files', categoryDir),
+    // 微信视频号代理 API
+    weixinProxy: {
+        start: (port) => electron_1.ipcRenderer.invoke('weixin-proxy:start', port),
+        stop: () => electron_1.ipcRenderer.invoke('weixin-proxy:stop'),
+        getStatus: () => electron_1.ipcRenderer.invoke('weixin-proxy:status'),
+        getVideos: () => electron_1.ipcRenderer.invoke('weixin-proxy:get-videos'),
+        clearVideos: () => electron_1.ipcRenderer.invoke('weixin-proxy:clear-videos'),
+        removeVideo: (id) => electron_1.ipcRenderer.invoke('weixin-proxy:remove-video', id),
+        downloadVideo: (video) => electron_1.ipcRenderer.invoke('weixin-proxy:download-video', video),
+        getInstructions: () => electron_1.ipcRenderer.invoke('weixin-proxy:get-instructions'),
+        enableSystemProxy: () => electron_1.ipcRenderer.invoke('weixin-proxy:enable-system-proxy'),
+        disableSystemProxy: () => electron_1.ipcRenderer.invoke('weixin-proxy:disable-system-proxy'),
+        onVideoCaptured: (callback) => {
+            electron_1.ipcRenderer.on('weixin-proxy:video-captured', (_e, video) => callback(video));
+        },
+        onVideosUpdated: (callback) => {
+            electron_1.ipcRenderer.on('weixin-proxy:videos-updated', (_e, videos) => callback(videos));
+        },
+    },
+    // YouTube 下载 API
+    youtube: {
+        getVideoUrl: (videoId, format = 'video') => electron_1.ipcRenderer.invoke('youtube:get-video-url', videoId, format),
+        getVideoInfo: (videoId) => electron_1.ipcRenderer.invoke('youtube:get-video-info', videoId),
+        download: (videoId, format = 'video') => electron_1.ipcRenderer.invoke('youtube:download', videoId, format),
+        onProgress: (callback) => {
+            electron_1.ipcRenderer.on('youtube:download-progress', (_e, data) => callback(data));
+        },
+        removeProgressListener: () => {
+            electron_1.ipcRenderer.removeAllListeners('youtube:download-progress');
+        },
+    },
 });
 // 接收主进程数据
 electron_1.ipcRenderer.on('init-data', (_e, payload) => {

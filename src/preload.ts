@@ -124,6 +124,42 @@ contextBridge.exposeInMainWorld('llmHub', {
     
     // Emoji 文件 API
     listEmojiFiles: (categoryDir: string): Promise<string[]> => ipcRenderer.invoke('emoji:list-files', categoryDir),
+    
+    // 微信视频号代理 API
+    weixinProxy: {
+        start: (port?: number) => ipcRenderer.invoke('weixin-proxy:start', port),
+        stop: () => ipcRenderer.invoke('weixin-proxy:stop'),
+        getStatus: () => ipcRenderer.invoke('weixin-proxy:status'),
+        getVideos: () => ipcRenderer.invoke('weixin-proxy:get-videos'),
+        clearVideos: () => ipcRenderer.invoke('weixin-proxy:clear-videos'),
+        removeVideo: (id: string) => ipcRenderer.invoke('weixin-proxy:remove-video', id),
+        downloadVideo: (video: any) => ipcRenderer.invoke('weixin-proxy:download-video', video),
+        getInstructions: () => ipcRenderer.invoke('weixin-proxy:get-instructions'),
+        enableSystemProxy: () => ipcRenderer.invoke('weixin-proxy:enable-system-proxy'),
+        disableSystemProxy: () => ipcRenderer.invoke('weixin-proxy:disable-system-proxy'),
+        onVideoCaptured: (callback: (video: any) => void) => {
+            ipcRenderer.on('weixin-proxy:video-captured', (_e, video) => callback(video));
+        },
+        onVideosUpdated: (callback: (videos: any[]) => void) => {
+            ipcRenderer.on('weixin-proxy:videos-updated', (_e, videos) => callback(videos));
+        },
+    },
+    
+    // YouTube 下载 API
+    youtube: {
+        getVideoUrl: (videoId: string, format: 'video' | 'audio' = 'video') => 
+            ipcRenderer.invoke('youtube:get-video-url', videoId, format),
+        getVideoInfo: (videoId: string) => 
+            ipcRenderer.invoke('youtube:get-video-info', videoId),
+        download: (videoId: string, format: 'video' | 'audio' = 'video') => 
+            ipcRenderer.invoke('youtube:download', videoId, format),
+        onProgress: (callback: (data: { videoId: string; progress: number; line: string }) => void) => {
+            ipcRenderer.on('youtube:download-progress', (_e, data) => callback(data));
+        },
+        removeProgressListener: () => {
+            ipcRenderer.removeAllListeners('youtube:download-progress');
+        },
+    },
 });
 
 // 接收主进程数据

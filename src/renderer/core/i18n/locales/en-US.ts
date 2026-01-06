@@ -920,4 +920,13 @@ export const enUS: Translations = {
   'toolCategory.convert': 'Converters',
   'toolCategory.network': 'Network Tools',
   'toolCategory.terminal': 'Terminal Tools',
+  'toolCategory.video': 'Video Download',
+
+  // ============== YouTube Tool ==============
+  'youtube.title': 'YouTube Downloader',
+  'youtube.desc': 'Download YouTube videos and audio',
+
+  // ============== X Video Tool ==============
+  'xvideo.title': 'X/Twitter Downloader',
+  'xvideo.desc': 'Download X (Twitter) videos',
 };

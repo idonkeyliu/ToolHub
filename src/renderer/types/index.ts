@@ -9,6 +9,7 @@ export enum ToolCategory {
   CONVERTER = 'converter',
   NETWORK = 'network',
   TERMINAL = 'terminal',
+  VIDEO = 'video',
 }
 
 /** 工具配置 */

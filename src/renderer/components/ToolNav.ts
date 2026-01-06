@@ -17,6 +17,7 @@ const getCategoryLabel = (cat: ToolCategory): string => {
     [ToolCategory.CONVERTER]: i18n.t('toolCategory.convert'),
     [ToolCategory.NETWORK]: i18n.t('toolCategory.network'),
     [ToolCategory.TERMINAL]: i18n.t('toolCategory.terminal'),
+    [ToolCategory.VIDEO]: i18n.t('toolCategory.video'),
   };
   return labels[cat];
 };
@@ -28,6 +29,7 @@ const CATEGORY_ICONS: Record<ToolCategory, string> = {
   [ToolCategory.CONVERTER]: '🔄',
   [ToolCategory.NETWORK]: '🌐',
   [ToolCategory.TERMINAL]: '🖥️',
+  [ToolCategory.VIDEO]: '🎬',
 };
 
 class ToolNav {

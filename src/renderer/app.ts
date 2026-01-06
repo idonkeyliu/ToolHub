@@ -380,6 +380,13 @@ class App {
     webview.setAttribute('allowpopups', 'true');
     webview.className = 'llm-webview';
     webview.style.cssText = 'width: 100%; height: 100%; display: flex;';
+    
+    // 为特定站点设置 User-Agent（X/Twitter 需要标准浏览器 UA）
+    const chromeUA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+    const siteNeedsUA = ['twitter', 'discord', 'figma', 'gmail', 'outlook', 'youtube'];
+    if (siteNeedsUA.includes(key)) {
+      webview.setAttribute('useragent', chromeUA);
+    }
 
     webview.addEventListener('did-navigate', () => {
       if (this.currentKey === key) {

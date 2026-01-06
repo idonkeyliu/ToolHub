@@ -20,13 +20,14 @@ interface VideoInfo {
   views?: string;
   formats: VideoFormat[];
   timestamp: number;
+  directUrl?: string;  // 直接下载链接
 }
 
 export class YoutubeTool extends Tool {
   static readonly config: ToolConfig = {
     key: 'youtube-dl',
     title: i18n.t('youtube.title') || 'YouTube 下载',
-    category: ToolCategory.NETWORK,
+    category: ToolCategory.VIDEO,
     icon: '📺',
     description: i18n.t('youtube.desc') || '下载 YouTube 视频',
     keywords: ['youtube', 'video', 'download', '视频', '下载', 'yt'],
@@ -173,20 +174,53 @@ export class YoutubeTool extends Tool {
   }
 
   private async fetchVideoInfo(videoId: string, originalUrl: string): Promise<VideoInfo | null> {
-    const services = [
-      () => this.tryNoembed(videoId),
-      () => this.tryYtdl(videoId),
-    ];
-
-    for (const service of services) {
-      try {
-        const result = await service();
-        if (result) return result;
-      } catch (e) {
-        console.warn('Service failed:', e);
+    // 优先使用 yt-dlp 获取完整信息
+    try {
+      const result = await (window as any).llmHub?.youtube?.getVideoInfo(videoId);
+      if (result?.success && result.info) {
+        return {
+          videoId,
+          title: result.info.title || `YouTube Video (${videoId})`,
+          thumbnail: result.info.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          duration: result.info.duration || '',
+          author: result.info.author || '',
+          views: result.info.views || '',
+          formats: this.getDefaultFormats(),
+          timestamp: Date.now(),
+        };
       }
+    } catch (e) {
+      console.warn('yt-dlp info failed:', e);
     }
+    
+    // 备用：使用 noembed
+    let basicInfo: VideoInfo | null = null;
+    
+    try {
+      basicInfo = await this.tryNoembed(videoId);
+    } catch (e) {
+      console.warn('Noembed failed:', e);
+    }
+    
+    if (!basicInfo) {
+      basicInfo = await this.tryYtdl(videoId);
+    }
+    
+    return basicInfo;
+  }
 
+  private async fetchDirectUrl(videoId: string): Promise<string | null> {
+    // 使用 yt-dlp 获取直链
+    try {
+      const result = await (window as any).llmHub?.youtube?.getVideoUrl(videoId, 'video');
+      if (result?.success && result.url) {
+        return result.url;
+      }
+      console.warn('yt-dlp failed:', result?.error);
+    } catch (e) {
+      console.warn('yt-dlp API failed:', e);
+    }
+    
     return null;
   }
 
@@ -239,11 +273,14 @@ export class YoutubeTool extends Tool {
     ];
   }
 
-  private showStatus(message: string, type: 'loading' | 'error' | 'success'): void {
+  private showStatus(message: string, type: 'loading' | 'error' | 'success', progress?: number): void {
     const statusArea = this.querySelector('#statusArea') as HTMLElement;
     const statusText = this.querySelector('#statusText') as HTMLElement;
     const statusHint = statusArea.querySelector('.yt-status-hint') as HTMLElement;
     const spinner = statusArea.querySelector('.yt-status-spinner') as HTMLElement;
+    let progressBar = statusArea.querySelector('.yt-progress-bar') as HTMLElement;
+    let progressFill = statusArea.querySelector('.yt-progress-fill') as HTMLElement;
+    let progressText = statusArea.querySelector('.yt-progress-text') as HTMLElement;
     
     if (statusText) statusText.textContent = message;
     
@@ -253,7 +290,28 @@ export class YoutubeTool extends Tool {
     }
     
     if (spinner) {
-      spinner.style.display = type === 'loading' ? 'block' : 'none';
+      spinner.style.display = type === 'loading' && progress === undefined ? 'block' : 'none';
+    }
+    
+    // 进度条处理
+    if (progress !== undefined) {
+      if (!progressBar) {
+        // 创建进度条
+        progressBar = document.createElement('div');
+        progressBar.className = 'yt-progress-bar';
+        progressBar.innerHTML = `
+          <div class="yt-progress-fill"></div>
+          <span class="yt-progress-text">0%</span>
+        `;
+        statusArea.appendChild(progressBar);
+        progressFill = progressBar.querySelector('.yt-progress-fill') as HTMLElement;
+        progressText = progressBar.querySelector('.yt-progress-text') as HTMLElement;
+      }
+      progressBar.style.display = 'block';
+      if (progressFill) progressFill.style.width = `${progress}%`;
+      if (progressText) progressText.textContent = `${progress.toFixed(1)}%`;
+    } else if (progressBar) {
+      progressBar.style.display = 'none';
     }
     
     if (statusHint) {
@@ -327,21 +385,51 @@ export class YoutubeTool extends Tool {
       return;
     }
 
-    const videoId = this.currentVideoInfo.videoId;
-    const quality = this.selectedFormat?.quality || '720p';
-    const format = this.selectedFormat?.format || 'mp4';
+    const downloadBtn = this.querySelector('#downloadBtn') as HTMLButtonElement;
+    const originalContent = downloadBtn.innerHTML;
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+        <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/>
+      </svg>
+      <span>下载中...</span>
+    `;
 
-    // 根据格式选择下载服务
-    let downloadUrl: string;
-    if (format === 'mp3' || this.currentFormatType === 'audio') {
-      downloadUrl = `https://www.y2mate.com/youtube-mp3/${videoId}`;
-    } else {
-      downloadUrl = `https://www.y2mate.com/youtube/${videoId}`;
+    try {
+      const videoId = this.currentVideoInfo.videoId;
+      const isAudio = this.currentFormatType === 'audio';
+      
+      this.showStatus('正在下载视频...', 'loading', 0);
+      
+      // 监听进度
+      const youtube = (window as any).llmHub?.youtube;
+      if (youtube?.onProgress) {
+        youtube.onProgress((data: { videoId: string; progress: number; line: string }) => {
+          if (data.videoId === videoId) {
+            this.showStatus(`下载中: ${data.progress.toFixed(1)}%`, 'loading', data.progress);
+          }
+        });
+      }
+      
+      // 使用 yt-dlp 直接下载到本地
+      const result = await youtube?.download(videoId, isAudio ? 'audio' : 'video');
+      
+      // 移除进度监听
+      youtube?.removeProgressListener?.();
+      
+      if (result?.success) {
+        this.saveToHistory(this.currentVideoInfo);
+        this.showStatus(`下载完成！文件保存在: ${result.downloadDir}`, 'success');
+        this.showToast('下载完成');
+      } else {
+        this.showStatus(`下载失败: ${result?.error || '未知错误'}`, 'error');
+      }
+    } catch (error) {
+      this.showStatus(`下载失败: ${error}`, 'error');
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.innerHTML = originalContent;
     }
-
-    window.open(downloadUrl, '_blank');
-    this.saveToHistory(this.currentVideoInfo);
-    this.showToast('已打开下载页面');
   }
 
   private copyLink(): void {
