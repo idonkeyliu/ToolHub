@@ -141,6 +141,7 @@ export const zhCN: Translations = {
   'tool.terminal': '终端',
   'tool.sync': '数据同步',
   'tool.timestamp': '时间戳',
+  'tool.stock': '股票行情',
 
   // LLM 站点名称
   'llm.qianwen': '通义千问',
@@ -167,6 +168,7 @@ export const zhCN: Translations = {
   'tool.imageDesc': '图片裁剪、压缩、旋转、滤镜等处理',
   'tool.calcDesc': '支持四则运算、幂运算的科学计算器',
   'tool.curlDesc': 'HTTP 请求测试与 cURL 命令解析',
+  'tool.stockDesc': '港股美股实时行情查询',
   'tool.jsonDesc': 'JSON 格式化、压缩、树形预览',
 
   // ============== 时间戳工具 ==============

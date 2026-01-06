@@ -140,6 +140,8 @@ export const enUS: Translations = {
   'tool.regex': 'Regex Tester',
   'tool.terminal': 'Terminal',
   'tool.sync': 'Data Sync',
+  'tool.stock': 'Stock Quote',
+  'tool.stockDesc': 'HK & US Stock Real-time Quotes',
 
   // LLM site names
   'llm.qianwen': 'Qwen',

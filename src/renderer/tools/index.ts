@@ -26,7 +26,8 @@ import { JwtTool } from './jwt/JwtTool';
 import { UsageTracker } from './stats/StatsTool';
 import { XVideoTool } from './xvideo/XVideoTool';
 import { YoutubeTool } from './youtube/YoutubeTool';
-import { WeixinVideoTool } from './weixin-video/WeixinVideoTool';
+// import { WeixinVideoTool } from './weixin-video/WeixinVideoTool';
+import { StockTool } from './stock/StockTool';
 
 export const tools = [
   TimestampTool,
@@ -52,8 +53,10 @@ export const tools = [
   // SyncTool,
   // 视频下载工具
   YoutubeTool,
-  WeixinVideoTool,
+  // WeixinVideoTool,
   XVideoTool,
+  // 股票行情
+  StockTool,
 ];
 
 // 导出使用追踪器
