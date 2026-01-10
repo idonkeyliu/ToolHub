@@ -74,7 +74,10 @@
             "target": [
                 "dmg",
                 "zip"
-            ]
+            ],
+            "identity": null,
+            "gatekeeperAssess": false,
+            "hardenedRuntime": false
         },
         "win": {
             "icon": "assets/icons/icon.ico",

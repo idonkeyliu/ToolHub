@@ -199,7 +199,7 @@ export const enUS: Translations = {
   'json.format': 'Format',
   'json.minify': 'Minify',
   'json.sortKeys': 'Sort Keys',
-'json.unescape': 'Unescape',
+  'json.unescape': 'Unescape',
   'json.clear': 'Clear',
   'json.placeholder': 'Paste or type JSON, e.g. {"a":1,"b":[true,null]}',
   'json.treeView': 'Tree',

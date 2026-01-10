@@ -54,39 +54,39 @@ const sites: SiteDef[] = [
 
 function setupDBHandlers() {
     const dbManager = databaseManager;
-    
+
     ipcMain.handle('db:test-connection', async (_e, config) => {
         return dbManager.testConnection(config);
     });
-    
+
     ipcMain.handle('db:connect', async (_e, config) => {
         return dbManager.connect(config);
     });
-    
+
     ipcMain.handle('db:disconnect', async (_e, connectionId: string) => {
         return dbManager.disconnect(connectionId);
     });
-    
+
     ipcMain.handle('db:get-databases', async (_e, connectionId: string) => {
         return dbManager.getDatabases(connectionId);
     });
-    
+
     ipcMain.handle('db:get-tables', async (_e, connectionId: string, database: string) => {
         return dbManager.getTables(connectionId, database);
     });
-    
+
     ipcMain.handle('db:get-table-structure', async (_e, connectionId: string, database: string, table: string) => {
         return dbManager.getTableStructure(connectionId, database, table);
     });
-    
+
     ipcMain.handle('db:get-table-data', async (_e, connectionId: string, database: string, table: string, page: number, pageSize: number) => {
         return dbManager.getTableData(connectionId, database, table, page, pageSize);
     });
-    
+
     ipcMain.handle('db:execute-query', async (_e, connectionId: string, database: string, sql: string) => {
         return dbManager.executeQuery(connectionId, database, sql);
     });
-    
+
     ipcMain.handle('db:update-field', async (_e, connectionId: string, database: string, table: string, column: string, primaryKey: string, primaryKeyValue: any, newValue: any) => {
         // updateField 只需要 6 个参数 (去掉 newValue,合并到最后一个参数中)
         return databaseManager.updateField(connectionId, database, table, column, primaryKey, newValue);
@@ -97,113 +97,113 @@ function setupDBHandlers() {
 
 function setupRedisHandlers() {
     const redisManager = redisManagerInstance;
-    
+
     ipcMain.handle('redis:test-connection', async (_e, config) => {
         return redisManager.testConnection(config);
     });
-    
+
     ipcMain.handle('redis:connect', async (_e, config) => {
         return redisManager.connect(config);
     });
-    
+
     ipcMain.handle('redis:disconnect', async (_e, connectionId: string) => {
         return redisManager.disconnect(connectionId);
     });
-    
+
     ipcMain.handle('redis:select-db', async (_e, connectionId: string, db: number) => {
         return redisManager.selectDB(connectionId, db);
     });
-    
+
     ipcMain.handle('redis:scan', async (_e, connectionId: string, cursor: string, pattern: string, count: number) => {
         return redisManager.scan(connectionId, cursor, pattern, count);
     });
-    
+
     ipcMain.handle('redis:get-type', async (_e, connectionId: string, key: string) => {
         return redisManager.getType(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:get-ttl', async (_e, connectionId: string, key: string) => {
         return redisManager.getTTL(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:set-ttl', async (_e, connectionId: string, key: string, ttl: number) => {
         return redisManager.setTTL(connectionId, key, ttl);
     });
-    
+
     ipcMain.handle('redis:delete-key', async (_e, connectionId: string, key: string) => {
         return redisManager.deleteKey(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:rename-key', async (_e, connectionId: string, oldKey: string, newKey: string) => {
         return redisManager.renameKey(connectionId, oldKey, newKey);
     });
-    
+
     // String 操作
     ipcMain.handle('redis:get-string', async (_e, connectionId: string, key: string) => {
         return redisManager.getString(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:set-string', async (_e, connectionId: string, key: string, value: string, ttl?: number) => {
         return redisManager.setString(connectionId, key, value, ttl);
     });
-    
+
     // Hash 操作
     ipcMain.handle('redis:get-hash', async (_e, connectionId: string, key: string) => {
         return redisManager.getHash(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:set-hash-field', async (_e, connectionId: string, key: string, field: string, value: string) => {
         return redisManager.setHashField(connectionId, key, field, value);
     });
-    
+
     ipcMain.handle('redis:delete-hash-field', async (_e, connectionId: string, key: string, field: string) => {
         return redisManager.deleteHashField(connectionId, key, field);
     });
-    
+
     // List 操作
     ipcMain.handle('redis:get-list', async (_e, connectionId: string, key: string, start: number, stop: number) => {
         return redisManager.getList(connectionId, key, start, stop);
     });
-    
+
     ipcMain.handle('redis:push-list', async (_e, connectionId: string, key: string, value: string, position: 'left' | 'right') => {
         return redisManager.pushList(connectionId, key, value, position);
     });
-    
+
     ipcMain.handle('redis:delete-list-item', async (_e, connectionId: string, key: string, index: number, count: number) => {
         return redisManager.deleteListItem(connectionId, key, index, count);
     });
-    
+
     // Set 操作
     ipcMain.handle('redis:get-set', async (_e, connectionId: string, key: string) => {
         return redisManager.getSet(connectionId, key);
     });
-    
+
     ipcMain.handle('redis:add-set-member', async (_e, connectionId: string, key: string, member: string) => {
         return redisManager.addSetMember(connectionId, key, member);
     });
-    
+
     ipcMain.handle('redis:remove-set-member', async (_e, connectionId: string, key: string, member: string) => {
         return redisManager.removeSetMember(connectionId, key, member);
     });
-    
+
     // ZSet 操作
     ipcMain.handle('redis:get-zset', async (_e, connectionId: string, key: string, withScores: boolean) => {
         return redisManager.getZSet(connectionId, key, withScores);
     });
-    
+
     ipcMain.handle('redis:add-zset-member', async (_e, connectionId: string, key: string, member: string, score: number) => {
         return redisManager.addZSetMember(connectionId, key, member, score);
     });
-    
+
     ipcMain.handle('redis:remove-zset-member', async (_e, connectionId: string, key: string, member: string) => {
         return redisManager.removeZSetMember(connectionId, key, member);
     });
-    
+
     // 执行命令
     ipcMain.handle('redis:execute-command', async (_e, connectionId: string, command: string) => {
         return redisManager.executeCommand(connectionId, command);
     });
-    
+
     // DB Size
     ipcMain.handle('redis:db-size', async (_e, connectionId: string) => {
         return redisManager.dbSize(connectionId);
@@ -214,59 +214,59 @@ function setupRedisHandlers() {
 
 function setupMongoHandlers() {
     const mongoManager = mongoManagerInstance;
-    
+
     ipcMain.handle('mongo:test-connection', async (_e, config) => {
         return mongoManager.testConnection(config);
     });
-    
+
     ipcMain.handle('mongo:connect', async (_e, config) => {
         return mongoManager.connect(config);
     });
-    
+
     ipcMain.handle('mongo:disconnect', async (_e, connectionId: string) => {
         return mongoManager.disconnect(connectionId);
     });
-    
+
     ipcMain.handle('mongo:list-databases', async (_e, connectionId: string) => {
         return mongoManager.listDatabases(connectionId);
     });
-    
+
     ipcMain.handle('mongo:list-collections', async (_e, connectionId: string, database: string) => {
         return mongoManager.listCollections(connectionId, database);
     });
-    
+
     ipcMain.handle('mongo:get-collection-stats', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.getCollectionStats(connectionId, database, collection);
     });
-    
+
     ipcMain.handle('mongo:find-documents', async (_e, connectionId: string, database: string, collection: string, filterStr: string, sortStr: string, skip: number, limit: number) => {
         return mongoManager.findDocuments(connectionId, database, collection, filterStr, sortStr, skip, limit);
     });
-    
+
     ipcMain.handle('mongo:insert-document', async (_e, connectionId: string, database: string, collection: string, documentStr: string) => {
         return mongoManager.insertDocument(connectionId, database, collection, documentStr);
     });
-    
+
     ipcMain.handle('mongo:update-document', async (_e, connectionId: string, database: string, collection: string, id: string, documentStr: string) => {
         return mongoManager.updateDocument(connectionId, database, collection, id, documentStr);
     });
-    
+
     ipcMain.handle('mongo:delete-document', async (_e, connectionId: string, database: string, collection: string, id: string) => {
         return mongoManager.deleteDocument(connectionId, database, collection, id);
     });
-    
+
     ipcMain.handle('mongo:get-indexes', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.getIndexes(connectionId, database, collection);
     });
-    
+
     ipcMain.handle('mongo:run-command', async (_e, connectionId: string, database: string, commandStr: string) => {
         return mongoManager.runCommand(connectionId, database, commandStr);
     });
-    
+
     ipcMain.handle('mongo:drop-collection', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.dropCollection(connectionId, database, collection);
     });
-    
+
     ipcMain.handle('mongo:create-collection', async (_e, connectionId: string, database: string, collection: string) => {
         return mongoManager.createCollection(connectionId, database, collection);
     });
@@ -276,19 +276,19 @@ function setupMongoHandlers() {
 
 function setupTerminalHandlers() {
     const terminalManager = terminalManagerInstance;
-    
+
     ipcMain.handle('terminal:test-connection', async (_e, config) => {
         return terminalManager.testConnection(config);
     });
-    
+
     ipcMain.handle('terminal:connect', async (_e, config) => {
         return terminalManager.connect(config);
     });
-    
+
     ipcMain.handle('terminal:disconnect', async (_e, sessionId: string) => {
         return terminalManager.disconnect(sessionId);
     });
-    
+
     ipcMain.handle('terminal:execute', async (_e, sessionId: string, command: string) => {
         return terminalManager.execute(sessionId, command);
     });
@@ -298,15 +298,15 @@ function setupTerminalHandlers() {
 
 function setupSyncHandlers() {
     const syncManager = syncManagerInstance;
-    
+
     ipcMain.handle('sync:test-connection', async (_e, config) => {
         return syncManager.testConnection(config);
     });
-    
+
     ipcMain.handle('sync:check-sync', async (_e, project, servers) => {
         return syncManager.checkSync(project, servers);
     });
-    
+
     ipcMain.handle('sync:get-file-content', async (_e, server, filePath: string) => {
         return syncManager.getFileContent(server, filePath);
     });
@@ -316,36 +316,36 @@ function setupSyncHandlers() {
 
 function setupYoutubeHandlers() {
     const cookiesArg = '--cookies-from-browser chrome';
-    
+
     // 获取视频直链
     ipcMain.handle('youtube:get-video-url', async (_e, videoId: string, format: 'video' | 'audio' = 'video') => {
         try {
             const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
             const formatArg = format === 'audio' ? '-f bestaudio' : '';
-            
+
             const { stdout } = await execAsync(`yt-dlp ${cookiesArg} ${formatArg} -g "${youtubeUrl}"`, {
                 timeout: 120000,
             });
-            
+
             const url = stdout.trim().split('\n')[0];
             return { success: true, url };
         } catch (error: any) {
             return { success: false, error: error.message };
         }
     });
-    
+
     // 获取视频信息
     ipcMain.handle('youtube:get-video-info', async (_e, videoId: string) => {
         try {
             const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-            
+
             const { stdout } = await execAsync(`yt-dlp ${cookiesArg} -j "${youtubeUrl}"`, {
                 timeout: 120000,
             });
-            
+
             const info = JSON.parse(stdout);
-            return { 
-                success: true, 
+            return {
+                success: true,
                 info: {
                     title: info.title,
                     duration: info.duration_string || '',
@@ -358,28 +358,28 @@ function setupYoutubeHandlers() {
             return { success: false, error: error.message };
         }
     });
-    
+
     // 下载视频到指定目录（带进度回调）
     ipcMain.handle('youtube:download', async (event, videoId: string, format: 'video' | 'audio' = 'video') => {
         return new Promise((resolve) => {
             const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
             const downloadDir = app.getPath('downloads');
             const outputTemplate = path.join(downloadDir, '%(title)s.%(ext)s');
-            
+
             const args = [
                 '--cookies-from-browser', 'chrome',
                 '--newline', // 每行输出进度，便于解析
                 '-o', outputTemplate,
                 youtubeUrl,
             ];
-            
+
             if (format === 'audio') {
                 args.unshift('-x', '--audio-format', 'mp3');
             }
-            
+
             const ytdlp = spawn('yt-dlp', args);
             let lastProgress = 0;
-            
+
             ytdlp.stdout.on('data', (data: Buffer) => {
                 const line = data.toString();
                 // 解析进度: [download]  45.2% of 123.45MiB at 2.34MiB/s ETA 00:30
@@ -405,11 +405,11 @@ function setupYoutubeHandlers() {
                     });
                 }
             });
-            
+
             ytdlp.stderr.on('data', (data: Buffer) => {
                 console.log('yt-dlp stderr:', data.toString());
             });
-            
+
             ytdlp.on('close', (code) => {
                 if (code === 0) {
                     resolve({ success: true, downloadDir });
@@ -417,7 +417,7 @@ function setupYoutubeHandlers() {
                     resolve({ success: false, error: `yt-dlp exited with code ${code}` });
                 }
             });
-            
+
             ytdlp.on('error', (err) => {
                 resolve({ success: false, error: err.message });
             });
@@ -429,28 +429,28 @@ function setupYoutubeHandlers() {
 
 function createWindow(initialSite?: string) {
     mainWindow = windowManager.createWindow(initialSite, sites, __dirname);
-    
+
     // 窗口尺寸持久化
     mainWindow.on('resize', () => {
         if (!mainWindow) return;
         const bounds = mainWindow.getBounds();
         (store as any).set?.('windowBounds', { width: bounds.width, height: bounds.height });
     });
-    
+
     // 加载页面
     mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-    
+
     // 当页面加载完成时显示窗口并发送初始数据
     mainWindow.webContents.once('did-finish-load', () => {
         mainWindow?.show();
         mainWindow?.webContents.send('init-data', { sites, lastSite: initialSite });
     });
-    
+
     // IPC 监听器
     ipcMain.on('persist-last-site', (_e, key: string) => {
         (store as any).set?.('lastSite', key);
     });
-    
+
     ipcMain.on('clear-active-partition', async (_e, partition: string) => {
         try {
             const ses = session.fromPartition(partition);
@@ -548,81 +548,82 @@ function setupEmojiHandlers() {
 
 // ==================== 微信视频号代理处理器 ====================
 
-function setupWeixinProxyHandlers() {
-    // 启动代理
-    ipcMain.handle('weixin-proxy:start', async (_e, port?: number) => {
-        return weixinProxyManager.start(port);
-    });
-    
-    // 停止代理
-    ipcMain.handle('weixin-proxy:stop', async () => {
-        return weixinProxyManager.stop();
-    });
-    
-    // 获取状态
-    ipcMain.handle('weixin-proxy:status', async () => {
-        return weixinProxyManager.getStatus();
-    });
-    
-    // 获取捕获的视频列表
-    ipcMain.handle('weixin-proxy:get-videos', async () => {
-        return weixinProxyManager.getCapturedVideos();
-    });
-    
-    // 清空视频列表
-    ipcMain.handle('weixin-proxy:clear-videos', async () => {
-        weixinProxyManager.clearCapturedVideos();
-        return { success: true };
-    });
-    
-    // 删除单个视频
-    ipcMain.handle('weixin-proxy:remove-video', async (_e, id: string) => {
-        weixinProxyManager.removeVideo(id);
-        return { success: true };
-    });
-    
-    // 下载视频
-    ipcMain.handle('weixin-proxy:download-video', async (_e, video: any) => {
-        const result = await dialog.showSaveDialog({
-            defaultPath: `${video.title || 'video'}.mp4`,
-            filters: [{ name: 'MP4 Video', extensions: ['mp4'] }],
-        });
-        
-        if (result.canceled || !result.filePath) {
-            return { success: false, canceled: true };
-        }
-        
-        return weixinProxyManager.downloadVideo(video, result.filePath);
-    });
-    
-    // 获取代理设置说明
-    ipcMain.handle('weixin-proxy:get-instructions', async () => {
-        return weixinProxyManager.getProxyInstructions();
-    });
-    
-    // 启用系统代理
-    ipcMain.handle('weixin-proxy:enable-system-proxy', async () => {
-        return weixinProxyManager.enableSystemProxy();
-    });
-    
-    // 禁用系统代理
-    ipcMain.handle('weixin-proxy:disable-system-proxy', async () => {
-        return weixinProxyManager.disableSystemProxy();
-    });
-    
-    // 监听视频捕获事件，转发给渲染进程
-    weixinProxyManager.on('video-captured', (video) => {
-        if (mainWindow) {
-            mainWindow.webContents.send('weixin-proxy:video-captured', video);
-        }
-    });
-    
-    weixinProxyManager.on('videos-updated', (videos) => {
-        if (mainWindow) {
-            mainWindow.webContents.send('weixin-proxy:videos-updated', videos);
-        }
-    });
-}
+// 微信视频号下载工具已禁用
+// function setupWeixinProxyHandlers() {
+//     // 启动代理
+//     ipcMain.handle('weixin-proxy:start', async (_e, port?: number) => {
+//         return weixinProxyManager.start(port);
+//     });
+//     
+//     // 停止代理
+//     ipcMain.handle('weixin-proxy:stop', async () => {
+//         return weixinProxyManager.stop();
+//     });
+//     
+//     // 获取状态
+//     ipcMain.handle('weixin-proxy:status', async () => {
+//         return weixinProxyManager.getStatus();
+//     });
+//     
+//     // 获取捕获的视频列表
+//     ipcMain.handle('weixin-proxy:get-videos', async () => {
+//         return weixinProxyManager.getCapturedVideos();
+//     });
+//     
+//     // 清空视频列表
+//     ipcMain.handle('weixin-proxy:clear-videos', async () => {
+//         weixinProxyManager.clearCapturedVideos();
+//         return { success: true };
+//     });
+//     
+//     // 删除单个视频
+//     ipcMain.handle('weixin-proxy:remove-video', async (_e, id: string) => {
+//         weixinProxyManager.removeVideo(id);
+//         return { success: true };
+//     });
+//     
+//     // 下载视频
+//     ipcMain.handle('weixin-proxy:download-video', async (_e, video: any) => {
+//         const result = await dialog.showSaveDialog({
+//             defaultPath: `${video.title || 'video'}.mp4`,
+//             filters: [{ name: 'MP4 Video', extensions: ['mp4'] }],
+//         });
+//         
+//         if (result.canceled || !result.filePath) {
+//             return { success: false, canceled: true };
+//         }
+//         
+//         return weixinProxyManager.downloadVideo(video, result.filePath);
+//     });
+//     
+//     // 获取代理设置说明
+//     ipcMain.handle('weixin-proxy:get-instructions', async () => {
+//         return weixinProxyManager.getProxyInstructions();
+//     });
+//     
+//     // 启用系统代理
+//     ipcMain.handle('weixin-proxy:enable-system-proxy', async () => {
+//         return weixinProxyManager.enableSystemProxy();
+//     });
+//     
+//     // 禁用系统代理
+//     ipcMain.handle('weixin-proxy:disable-system-proxy', async () => {
+//         return weixinProxyManager.disableSystemProxy();
+//     });
+//     
+//     // 监听视频捕获事件，转发给渲染进程
+//     weixinProxyManager.on('video-captured', (video) => {
+//         if (mainWindow) {
+//             mainWindow.webContents.send('weixin-proxy:video-captured', video);
+//         }
+//     });
+//     
+//     weixinProxyManager.on('videos-updated', (videos) => {
+//         if (mainWindow) {
+//             mainWindow.webContents.send('weixin-proxy:videos-updated', videos);
+//         }
+//     });
+// }
 
 // ==================== 应用生命周期 ====================
 
@@ -631,7 +632,7 @@ app.setName('ToolHub');
 
 app.whenReady().then(async () => {
     // 所有管理器已经在模块级别初始化，直接注册处理器
-    
+
     // 设置 macOS Dock 图标
     if (process.platform === 'darwin' && app.dock) {
         const iconPath = path.join(__dirname, '../assets/icons/icon.icns');
@@ -646,7 +647,7 @@ app.whenReady().then(async () => {
             }
         }
     }
-    
+
     // 注册所有处理器
     setupDBHandlers();
     setupRedisHandlers();
@@ -654,17 +655,17 @@ app.whenReady().then(async () => {
     setupTerminalHandlers();
     setupSyncHandlers();
     setupEmojiHandlers();
-    setupWeixinProxyHandlers();
+    // setupWeixinProxyHandlers();
     setupYoutubeHandlers();
-    
+
     // 配置窗口环境
     windowManager.installFrameBypass();
     windowManager.installPermissions();
     installContextMenu();
-    
+
     // 创建主窗口
     createWindow((store as any).get?.('lastSite'));
-    
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow((store as any).get?.('lastSite'));
@@ -688,11 +689,11 @@ ipcMain.handle('save-file', async (_e, options: { defaultName: string; filters: 
         defaultPath: options.defaultName,
         filters: options.filters,
     });
-    
+
     if (result.canceled || !result.filePath) {
         return { success: false, canceled: true };
     }
-    
+
     try {
         const base64Data = options.data.replace(/^data:image\/\w+;base64,/, '');
         const buffer = Buffer.from(base64Data, 'base64');

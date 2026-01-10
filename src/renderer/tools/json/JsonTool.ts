@@ -154,7 +154,7 @@ export class JsonTool extends Tool {
     try {
       // 尝试将转义的 JSON 字符串反转义
       let unescaped = text;
-      
+
       // 处理各种转义格式
       // 1. 处理带空格的转义: \ " 变成 "
       unescaped = unescaped.replace(/\\\s+"/g, '"');
@@ -165,10 +165,10 @@ export class JsonTool extends Tool {
       unescaped = unescaped.replace(/\\\s+\]/g, ']');
       unescaped = unescaped.replace(/\\\s+:/g, ':');
       unescaped = unescaped.replace(/\\\s+,/g, ',');
-      
+
       // 2. 如果是被引号包裹的字符串，尝试 JSON.parse 解析
-      if ((unescaped.startsWith('"') && unescaped.endsWith('"')) || 
-          (unescaped.startsWith("'") && unescaped.endsWith("'"))) {
+      if ((unescaped.startsWith('"') && unescaped.endsWith('"')) ||
+        (unescaped.startsWith("'") && unescaped.endsWith("'"))) {
         try {
           unescaped = JSON.parse(unescaped);
         } catch {
@@ -176,7 +176,7 @@ export class JsonTool extends Tool {
           unescaped = unescaped.slice(1, -1);
         }
       }
-      
+
       // 3. 处理标准的转义字符
       unescaped = unescaped.replace(/\\"/g, '"');
       unescaped = unescaped.replace(/\\'/g, "'");
