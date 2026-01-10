@@ -4,6 +4,7 @@
  */
 
 import type { ITool, ToolConfig } from '../types/index';
+import { i18n } from './i18n';
 
 export abstract class Tool implements ITool {
   /** 工具配置 */
@@ -54,8 +55,28 @@ export abstract class Tool implements ITool {
     // 绑定事件
     this.bindEvents();
 
+    // 订阅语言变化
+    this.subscribeLanguageChange();
+
     // 触发挂载后的钩子
     this.onMounted();
+  }
+
+  /**
+   * 订阅语言变化事件
+   */
+  private subscribeLanguageChange(): void {
+    const unsubscribe = i18n.subscribe(() => {
+      this.onLanguageChange();
+    });
+    this.cleanupFns.push(unsubscribe);
+  }
+
+  /**
+   * 语言变化钩子 - 子类可以重写以更新 UI
+   */
+  protected onLanguageChange(): void {
+    // 默认不做任何处理，子类可以重写
   }
 
   /**
@@ -141,15 +162,15 @@ export abstract class Tool implements ITool {
 
   // ==================== 生命周期钩子 ====================
 
-  protected onMounted(): void {}
-  protected onBeforeUnmount(): void {}
-  protected onActivated(): void {}
-  protected onDeactivated(): void {}
-  protected onDestroy(): void {}
+  protected onMounted(): void { }
+  protected onBeforeUnmount(): void { }
+  protected onActivated(): void { }
+  protected onDeactivated(): void { }
+  protected onDestroy(): void { }
 
   // ==================== 事件管理 ====================
 
-  protected bindEvents(): void {}
+  protected bindEvents(): void { }
 
   protected cleanupEvents(): void {
     this.cleanupFns.forEach((cleanup) => cleanup());

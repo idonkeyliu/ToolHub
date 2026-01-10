@@ -48,6 +48,7 @@ export class JsonTool extends Tool {
     this.bindButton('#jsonFmt', () => this.handleFormat());
     this.bindButton('#jsonMin', () => this.handleMinify());
     this.bindButton('#jsonSort', () => this.handleSort());
+    this.bindButton('#jsonUnescape', () => this.handleUnescape());
     this.bindButton('#jsonCopy', () => this.handleCopy());
     this.bindButton('#jsonExpand', () => this.handleExpandAll());
     this.bindButton('#jsonCollapse', () => this.handleCollapseAll());
@@ -74,6 +75,32 @@ export class JsonTool extends Tool {
   protected onActivated(): void {
     this.refresh();
     setTimeout(() => this.inputEl?.focus(), 100);
+  }
+
+  protected onLanguageChange(): void {
+    // 保存当前输入值和模式
+    const savedInput = this.inputEl?.value || '';
+    const savedMode = this.mode;
+
+    // 重新获取父容器元素并清空
+    const viewEl = this.container?.querySelector(`.${this.config.key}-view`) as HTMLElement;
+    if (viewEl) {
+      // 清空旧的 DOM，并使用新的翻译内容重新渲染
+      viewEl.innerHTML = getTemplate();
+
+      // 重新绑定所有事件
+      this.cleanupEvents();
+      this.bindEvents();
+
+      // 恢复之前的输入值和模式
+      if (this.inputEl) {
+        this.inputEl.value = savedInput;
+      }
+      this.mode = savedMode;
+
+      // 刷新输出
+      this.refresh();
+    }
   }
 
   // ==================== 操作方法 ====================
@@ -116,6 +143,62 @@ export class JsonTool extends Tool {
       this.inputEl.value = JSON.stringify(sorted, null, 2);
     }
     this.refresh();
+  }
+
+  private handleUnescape(): void {
+    const text = this.inputEl?.value || '';
+    if (!text.trim()) {
+      return;
+    }
+
+    try {
+      // 尝试将转义的 JSON 字符串反转义
+      let unescaped = text;
+      
+      // 处理各种转义格式
+      // 1. 处理带空格的转义: \ " 变成 "
+      unescaped = unescaped.replace(/\\\s+"/g, '"');
+      unescaped = unescaped.replace(/\\\s+'/g, "'");
+      unescaped = unescaped.replace(/\\\s+\{/g, '{');
+      unescaped = unescaped.replace(/\\\s+\}/g, '}');
+      unescaped = unescaped.replace(/\\\s+\[/g, '[');
+      unescaped = unescaped.replace(/\\\s+\]/g, ']');
+      unescaped = unescaped.replace(/\\\s+:/g, ':');
+      unescaped = unescaped.replace(/\\\s+,/g, ',');
+      
+      // 2. 如果是被引号包裹的字符串，尝试 JSON.parse 解析
+      if ((unescaped.startsWith('"') && unescaped.endsWith('"')) || 
+          (unescaped.startsWith("'") && unescaped.endsWith("'"))) {
+        try {
+          unescaped = JSON.parse(unescaped);
+        } catch {
+          // 如果失败，手动去除引号和转义
+          unescaped = unescaped.slice(1, -1);
+        }
+      }
+      
+      // 3. 处理标准的转义字符
+      unescaped = unescaped.replace(/\\"/g, '"');
+      unescaped = unescaped.replace(/\\'/g, "'");
+      unescaped = unescaped.replace(/\\\\/g, '\\');
+      unescaped = unescaped.replace(/\\n/g, '\n');
+      unescaped = unescaped.replace(/\\r/g, '\r');
+      unescaped = unescaped.replace(/\\t/g, '\t');
+
+      // 验证反转义后是否是有效的 JSON
+      const parsed = this.safeParse(unescaped);
+      if (parsed.ok && this.inputEl) {
+        // 如果是有效的 JSON，格式化后显示
+        this.inputEl.value = JSON.stringify(parsed.data, null, 2);
+        this.refresh();
+      } else if (this.inputEl) {
+        // 如果不是有效的 JSON，直接显示反转义结果
+        this.inputEl.value = unescaped;
+        this.refresh();
+      }
+    } catch (e) {
+      this.showError(i18n.t('json.parseFailed'));
+    }
   }
 
   private handleCopy(): void {

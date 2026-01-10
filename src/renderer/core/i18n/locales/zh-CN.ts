@@ -223,6 +223,7 @@ export const zhCN: Translations = {
   'json.format': '格式化',
   'json.minify': '压缩',
   'json.sortKeys': '按键排序',
+  'json.unescape': '反转义',
   'json.copy': '复制',
   'json.expandAll': '展开全部',
   'json.collapseAll': '折叠全部',
