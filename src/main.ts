@@ -21,7 +21,6 @@ import { mongoManager as mongoManagerInstance } from './main/mongo/mongo-manager
 import { terminalManager as terminalManagerInstance } from './main/terminal/terminal-manager.js';
 import { syncManager as syncManagerInstance } from './main/sync/sync-manager.js';
 import { windowManager } from './main/window/window-manager.js';
-import { weixinProxyManager } from './main/proxy/weixin-proxy-manager.js';
 
 // Recreate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -545,85 +544,6 @@ function setupEmojiHandlers() {
         }
     });
 }
-
-// ==================== 微信视频号代理处理器 ====================
-
-// 微信视频号下载工具已禁用
-// function setupWeixinProxyHandlers() {
-//     // 启动代理
-//     ipcMain.handle('weixin-proxy:start', async (_e, port?: number) => {
-//         return weixinProxyManager.start(port);
-//     });
-//     
-//     // 停止代理
-//     ipcMain.handle('weixin-proxy:stop', async () => {
-//         return weixinProxyManager.stop();
-//     });
-//     
-//     // 获取状态
-//     ipcMain.handle('weixin-proxy:status', async () => {
-//         return weixinProxyManager.getStatus();
-//     });
-//     
-//     // 获取捕获的视频列表
-//     ipcMain.handle('weixin-proxy:get-videos', async () => {
-//         return weixinProxyManager.getCapturedVideos();
-//     });
-//     
-//     // 清空视频列表
-//     ipcMain.handle('weixin-proxy:clear-videos', async () => {
-//         weixinProxyManager.clearCapturedVideos();
-//         return { success: true };
-//     });
-//     
-//     // 删除单个视频
-//     ipcMain.handle('weixin-proxy:remove-video', async (_e, id: string) => {
-//         weixinProxyManager.removeVideo(id);
-//         return { success: true };
-//     });
-//     
-//     // 下载视频
-//     ipcMain.handle('weixin-proxy:download-video', async (_e, video: any) => {
-//         const result = await dialog.showSaveDialog({
-//             defaultPath: `${video.title || 'video'}.mp4`,
-//             filters: [{ name: 'MP4 Video', extensions: ['mp4'] }],
-//         });
-//         
-//         if (result.canceled || !result.filePath) {
-//             return { success: false, canceled: true };
-//         }
-//         
-//         return weixinProxyManager.downloadVideo(video, result.filePath);
-//     });
-//     
-//     // 获取代理设置说明
-//     ipcMain.handle('weixin-proxy:get-instructions', async () => {
-//         return weixinProxyManager.getProxyInstructions();
-//     });
-//     
-//     // 启用系统代理
-//     ipcMain.handle('weixin-proxy:enable-system-proxy', async () => {
-//         return weixinProxyManager.enableSystemProxy();
-//     });
-//     
-//     // 禁用系统代理
-//     ipcMain.handle('weixin-proxy:disable-system-proxy', async () => {
-//         return weixinProxyManager.disableSystemProxy();
-//     });
-//     
-//     // 监听视频捕获事件，转发给渲染进程
-//     weixinProxyManager.on('video-captured', (video) => {
-//         if (mainWindow) {
-//             mainWindow.webContents.send('weixin-proxy:video-captured', video);
-//         }
-//     });
-//     
-//     weixinProxyManager.on('videos-updated', (videos) => {
-//         if (mainWindow) {
-//             mainWindow.webContents.send('weixin-proxy:videos-updated', videos);
-//         }
-//     });
-// }
 
 // ==================== 应用生命周期 ====================
 

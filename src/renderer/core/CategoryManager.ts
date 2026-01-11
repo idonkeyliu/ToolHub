@@ -30,7 +30,7 @@ export interface CategoryData {
 }
 
 const STORAGE_KEY = 'toolhub_category_data';
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 // 默认 LLM 站点
 const DEFAULT_LLM_SITES: CategoryItem[] = [
